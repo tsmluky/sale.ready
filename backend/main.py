@@ -28,7 +28,7 @@ else:
     masked_url = db_url.replace("sqlite:///", "")
 
 print(f"==================================================")
-print(f" TRADERCOPILOT BACKEND v2.0.0 (Sale-Ready)")
+print(f" TRADERCOPILOT BACKEND v2.0.1 (Sale-Ready + Fix)")
 print(f"==================================================")
 print(f" [BOOT] DB_DIALECT: {db_dialect}")
 print(f" [BOOT] DB_URL_MASKED: {masked_url}")

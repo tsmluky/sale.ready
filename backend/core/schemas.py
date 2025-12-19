@@ -193,4 +193,6 @@ class UserResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
+        # Pydantic V2 compatibility alias (optional, but orm_mode works in both with warnings in V2)
+        # from_attributes = True
