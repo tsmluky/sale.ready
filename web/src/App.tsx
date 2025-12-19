@@ -74,11 +74,11 @@ const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
 
-        </Routes>
+        
 
       </Router>
     </ThemeProvider>
-    </AuthProvider >
+    </AuthProvider>
   );
 };
 
