@@ -97,7 +97,7 @@ async def limit_upload_size(request: Request, call_next):
 @app.get("/health")
 def health_check():
     """Liveness probe: App is running."""
-    return {"status": "ok", "version": "0.8.2"}
+    return {"status": "ok", "version": "2.0.1", "pydantic_fix": True}
 
 @app.get("/ready")
 def ready_check():
