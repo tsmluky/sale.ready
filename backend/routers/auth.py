@@ -12,6 +12,16 @@ from core.security import verify_password, create_access_token, get_password_has
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+@router.get("/probe_deployment")
+def probe_deployment():
+    """Probe to verify if deployment is updated"""
+    return {
+        "status": "active", 
+        "version_tag": "fix_register_json_v1",
+        "timestamp": datetime.utcnow()
+    }
+
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
