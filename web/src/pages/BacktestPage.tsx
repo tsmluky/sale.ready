@@ -127,7 +127,7 @@ export const BacktestPage: React.FC = () => {
 
             {/* Controls */}
             <div className="bg-[#0f172a] p-6 rounded-2xl border border-slate-800 shadow-xl backdrop-blur-sm">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                     {/* ... (Selects remain same, just styling tweaks if needed) ... */}
                     <div>
                         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Strategy</label>

@@ -251,7 +251,7 @@ export const LogsPage: React.FC = () => {
 
                   return (
                     <tr key={index} className="border-b border-slate-800/60 last:border-none">
-                      <td className="py-2 pr-3 align-top text-xs text-slate-300">
+                      <td className="py-2 pr-3 align-top text-xs text-slate-300 whitespace-nowrap">
                         <div className="flex flex-col">
                           <span className="font-medium text-slate-200">
                             {formatRelativeTime(ts)}
@@ -261,15 +261,15 @@ export const LogsPage: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs text-slate-400">{mode}</td>
-                      <td className="py-2 pr-3 align-top text-xs text-slate-500 font-mono">
+                      <td className="py-2 pr-3 align-top text-xs text-slate-400 whitespace-nowrap">{mode}</td>
+                      <td className="py-2 pr-3 align-top text-xs text-slate-500 font-mono whitespace-nowrap">
                         {getField(row, "source") === "lite_v2_router" ? (
                           <span className="text-indigo-400 font-bold">ME</span>
                         ) : (
                           getField(row, "source").replace("Marketplace:", "") || "System"
                         )}
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs">
+                      <td className="py-2 pr-3 align-top text-xs whitespace-nowrap">
                         {dir ? (
                           <span
                             className={`px-2 py-0.5 rounded-full border text-[11px] font-semibold ${dir.toLowerCase() === "long"
@@ -285,16 +285,16 @@ export const LogsPage: React.FC = () => {
                           "-"
                         )}
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs text-slate-300">
+                      <td className="py-2 pr-3 align-top text-xs text-slate-300 whitespace-nowrap">
                         {tf || "-"}
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs text-slate-100">
+                      <td className="py-2 pr-3 align-top text-xs text-slate-100 whitespace-nowrap">
                         {formatPrice(entry)}
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs text-emerald-300">
+                      <td className="py-2 pr-3 align-top text-xs text-emerald-300 whitespace-nowrap">
                         {formatPrice(tp)}
                       </td>
-                      <td className="py-2 pr-3 align-top text-xs text-rose-300">
+                      <td className="py-2 pr-3 align-top text-xs text-rose-300 whitespace-nowrap">
                         {formatPrice(sl)}
                       </td>
 

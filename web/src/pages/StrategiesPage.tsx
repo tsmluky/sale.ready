@@ -83,7 +83,7 @@ export const StrategiesPage: React.FC = () => {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
                 {personas.map((persona) => {
                     const theme = getColorClass(persona.color);
                     const activeClass = persona.is_active ? '' : 'opacity-60 grayscale-[0.5]';
@@ -91,16 +91,16 @@ export const StrategiesPage: React.FC = () => {
                     return (
                         <div
                             key={persona.id}
-                            className={`group relative bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 hover:border-slate-600 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 overflow-hidden cursor-pointer ${activeClass}`}
+                            className={`group relative bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-2xl p-5 hover:border-slate-600 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 overflow-hidden cursor-pointer ${activeClass}`}
                             onClick={() => navigate(`/strategies/${persona.id}`)}
                         >
                             {/* Background Glow */}
                             <div className={`absolute -inset-0.5 bg-gradient-to-br ${theme.split(' ')[0]} opacity-0 group-hover:opacity-20 transition-opacity blur-2xl`} />
 
                             {/* Header */}
-                            <div className="flex justify-between items-start mb-6 relative z-10">
+                            <div className="flex justify-between items-start mb-4 relative z-10">
                                 <div>
-                                    <h3 className={`text-2xl font-black text-white tracking-wide flex items-center gap-2`}>
+                                    <h3 className={`text-xl font-black text-white tracking-wide flex items-center gap-2`}>
                                         {persona.name}
                                         {!persona.is_active && (
                                             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500 border border-slate-700">PAUSED</span>

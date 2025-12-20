@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { RefreshCw, Zap, TrendingUp, TrendingDown, Radio, Radar } from 'lucide-react';
 import { API_BASE_URL } from '../constants';
+import { toast } from 'react-hot-toast';
 import { ScannerSignalCard } from '../components/scanner/ScannerSignalCard';
 import { TacticalAnalysisDrawer } from '../components/scanner/TacticalAnalysisDrawer';
 
@@ -30,7 +31,8 @@ export const ScannerPage: React.FC = () => {
 
     const fetchSignals = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/logs/recent?limit=100`);
+            // Increased limit to avoid missing signals in active markets
+            const res = await fetch(`${API_BASE_URL}/logs/recent?limit=200`);
             if (res.ok) {
                 let rawSignals = await res.json();
 
@@ -57,21 +59,20 @@ export const ScannerPage: React.FC = () => {
                     }
                     return { ...s, locked };
                 });
-                // Whale sees everything.
 
-                // Deduplicate: Keep only the latest signal per Token+Timeframe
-                // AND Filter State Signals (> 2x timeframe duration)
+                // Deduplicate & Filter
                 const uniqueMap = new Map();
                 const now = Date.now();
 
                 rawSignals.forEach((sig: any) => {
-                    // 1. Freshness Check
+                    // 1. Freshness Check (Relaxed to 12h or 4x duration to prevent timezone persistence issues)
                     const sigTime = new Date(sig.timestamp).getTime();
                     const age = now - sigTime;
                     const duration = getDurationMs(sig.timeframe || '1h');
 
-                    // If signal is older than 2 candles, it's stale (history)
-                    if (age > duration * 2) return;
+                    // Allow signals up to 24h old in the list, but mark them as stale visually if needed
+                    // (Scanner is "Live", but we don't want them to disappear instantly if clock drifts)
+                    if (age > Math.max(duration * 4, 24 * 60 * 60 * 1000)) return;
 
                     // 2. Uniqueness Check
                     const key = `${sig.token}-${sig.timeframe}`;
@@ -92,28 +93,38 @@ export const ScannerPage: React.FC = () => {
 
     useEffect(() => {
         fetchSignals();
-        const interval = setInterval(fetchSignals, 15000); // 15s refresh for scanner
+        const interval = setInterval(fetchSignals, 15000); // 15s refresh
         return () => clearInterval(interval);
     }, []);
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        // Force-scan top assets to ensure fresh data
+        const toastId = toast.loading("Scanning markets..."); // Import toast required
+
+        // Force-scan top assets
         const watchlist = ['BTC', 'ETH', 'SOL', 'DOT'];
+        let successCount = 0;
+
         try {
-            // Trigger scans sequentially to avoid NetworkErrors/Connection limits
+            // Trigger scans sequentially
             for (const token of watchlist) {
                 try {
                     // Fire both timeframes
                     await api.analyzeLite(token, '15m');
                     await api.analyzeLite(token, '1h');
+                    successCount++;
                 } catch (innerErr) {
                     console.warn(`Scan failed for ${token}`, innerErr);
-                    // Continue to next token even if one fails
                 }
+            }
+            if (successCount > 0) {
+                toast.success(`Scan complete. Updated ${successCount} assets.`, { id: toastId });
+            } else {
+                toast.error("Scan failed. Check connection or quota.", { id: toastId });
             }
         } catch (e) {
             console.error("Scan trigger failed", e);
+            toast.error("System Error during scan", { id: toastId });
         }
         await fetchSignals();
     };
