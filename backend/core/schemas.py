@@ -11,7 +11,7 @@ Objetivo: Permitir un único punto de entrada para logging, API y evaluación.
 from __future__ import annotations
 from datetime import datetime
 from typing import Optional, Dict, Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 class Signal(BaseModel):
@@ -176,7 +176,7 @@ class UserCreate(BaseModel):
     """
     Schema for user registration request.
     """
-    email: str = Field(..., description="User email (unique)")
+    email: EmailStr = Field(..., description="User email (unique)")
     password: str = Field(..., description="Password (min 8 chars)", min_length=8)
     name: str = Field("Trader", description="User display name")
 

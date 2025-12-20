@@ -566,9 +566,9 @@ app.include_router(advisor_router, prefix="/advisor", tags=["Advisor"])
 app.include_router(advisor_router, prefix="/analyze/advisor", include_in_schema=False)
 app.include_router(analysis_router, prefix="/analyze", tags=["Analysis"])
 app.include_router(strategies_router, prefix="/strategies", tags=["Strategies"])
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.include_router(auth_router, tags=["Auth"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
-app.include_router(auth_router, tags=["Auth"])  # auth_router already has prefix="/auth" internally
+# app.include_router(auth_router, prefix="/auth", tags=["Auth"]) # DOUBLE PREFIX AVOIDANCE
 
 
 
