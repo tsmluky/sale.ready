@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 # CRITICAL: This must happen BEFORE any other module import that uses env vars (like database.py)
 import sys
 import os
+# Trigger Deployment
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
