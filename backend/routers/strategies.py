@@ -398,11 +398,13 @@ class StrategyCreate(BaseModel):
     win_rate: str
     frequency: str
 
+from dependencies import require_plan
+
 @router.post("/marketplace/create")
-async def create_persona(config: StrategyCreate, current_user: User = Depends(require_pro)):
+async def create_persona(config: StrategyCreate, current_user: User = Depends(require_plan("TRADER"))):
     """
     Crea una nueva 'persona' o configuración de estrategia.
-    Requiere PRO.
+    Requiere TRADER o superior.
     """
     import json
     import re

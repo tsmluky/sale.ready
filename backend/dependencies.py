@@ -12,7 +12,7 @@ def require_plan(required_plan: str):
         user_plan = current_user.plan.upper() if current_user.plan else "FREE"
         
         # Hierarchy Definition
-        levels = {"FREE": 0, "PRO": 1, "OWNER": 2}
+        levels = {"FREE": 0, "TRADER": 1, "PRO": 2, "OWNER": 3}
         
         user_level = levels.get(user_plan, 0)
         req_level = levels.get(required_plan.upper(), 0)
