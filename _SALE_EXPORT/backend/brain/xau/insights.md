@@ -1,1 +1,0 @@
-- XAU · insight inicial
