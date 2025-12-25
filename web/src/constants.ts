@@ -1,8 +1,17 @@
 // SMART URL DETECTION - Strict Mode (Ignore Env Vars)
+const normalizeUrl = (url: string | undefined): string | undefined => {
+  if (!url) return undefined;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // If it looks like a domain (e.g. "api.railway.app"), assume https
+  if (url.includes(".") && !url.startsWith("/")) return `https://${url}`;
+  return url;
+};
+
 const getBaseUrl = () => {
   // Priority 1: Environment Variable (Build-time)
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+  const envUrl = normalizeUrl(import.meta.env.VITE_API_BASE_URL);
+  if (envUrl) {
+    return envUrl;
   }
 
   // Priority 2: Local Development Fallback
