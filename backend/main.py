@@ -1,5 +1,4 @@
-﻿from routers.analysis import router as analysis_router
-import sys
+﻿import sys
 import os
 import asyncio
 import csv
@@ -12,14 +11,15 @@ from dotenv import load_dotenv
 
 # ==== 1. ConfiguraciÃ³n de entorno (Deterministic Loading) ====
 # CRITICAL: This must happen BEFORE any other module import that uses env vars (like database.py)
-import sys
-import os
 # Trigger Deployment
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
+
 from core.config import load_env_if_needed
 load_env_if_needed()
+
+from routers.analysis import router as analysis_router
 from routers.auth_new import router as auth_router
 # Startup Banner (Single Source of Truth Check)
 db_url = os.getenv("DATABASE_URL", "sqlite:///./dev_local.db")
