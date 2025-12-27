@@ -90,7 +90,8 @@ async def login_for_access_token(
             "role": user.role,
             "plan": user.plan.capitalize() if user.plan else "Free",
             "plan_status": user.plan_status,
-            "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if is_premium else ["BTC", "ETH", "SOL"]
+            "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if is_premium else ["BTC", "ETH", "SOL"],
+            "created_at": user.created_at
         }
     }
 
