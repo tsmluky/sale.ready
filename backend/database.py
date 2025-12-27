@@ -8,6 +8,7 @@ def _normalize_sync_db_url(url: str) -> str:
 
     # Normalize common async drivers to sync URLs for runtime
     url = url.replace("postgresql+asyncpg://", "postgresql://")
+    url = url.replace("postgres://", "postgresql://") # Fix for Railway/Heroku legacy format
     url = url.replace("sqlite+aiosqlite://", "sqlite://")
 
     # If someone provided a sync sqlite URL, keep it
