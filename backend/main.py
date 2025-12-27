@@ -305,6 +305,15 @@ async def startup():
             # print(f"⚠️ [DB MIGRATION] Column check: {e}")
             pass
             
+        # Add 'timezone' column to users if missing (Critical for Auth)
+        try:
+            db.execute(text("ALTER TABLE users ADD COLUMN timezone VARCHAR DEFAULT 'UTC'"))
+            db.commit()
+            print("🔧 [DB MIGRATION] Added 'timezone' column to users.")
+        except Exception as e:
+            db.rollback()
+            pass
+            
         db.close()
     except Exception as e:
         print(f"⚠️ [DB MIGRATION] Setup failed: {e}")
