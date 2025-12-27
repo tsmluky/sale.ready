@@ -19,13 +19,13 @@ const STEPS: Step[] = [
     {
         targetId: 'nav-radar',
         title: 'Radar IA',
-        content: 'Escanea miles de tokens 24/7. Filtra por estrategia, temporalidad y win-rate para encontrar las mejores oportunidades automáticamente.',
+        content: 'Escaneo oportunidades 24/7. Filtra por estrategia, temporalidad y win-rate para encontrar las mejores oportunidades automáticamente.',
         position: 'right'
     },
     {
         targetId: 'nav-analyst',
         title: 'Analista de Mercado',
-        content: 'Consulta a nuestro Asesor IA (DeepSeek). Pregúntale sobre cualquier token o condición de mercado para obtener análisis profundos.',
+        content: 'Genera señales o análisis profundos sobre cualquier token. También puedes preguntarle a nuestro Copiloto IA para discutir sobre una posición o pedirle que profundice en algún análisis.',
         position: 'right'
     },
     {
