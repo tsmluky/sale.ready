@@ -308,7 +308,9 @@ async def startup():
         print(f"⚠️ [DB MIGRATION] Setup failed: {e}")
 
     # --- 2. Seed Personas (Fresh Session) ---
+    db = None
     try:
+        from database import SessionLocal
         db = SessionLocal()
         print("🌱 [SEED] Verify Personas in DB...")
         # Import moved inside to avoid circular deps if any
@@ -350,9 +352,11 @@ async def startup():
         print("✅ [DB] Schema & Seeds synced.")
     except Exception as e:
         print(f"❌ [DB] Seed Error: {e}")
-        db.rollback()
+        if db:
+            db.rollback()
     finally:
-        db.close()
+        if db:
+            db.close()
 
     # Background evaluator (best-effort)
     try:
