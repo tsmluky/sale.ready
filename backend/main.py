@@ -268,6 +268,9 @@ async def startup():
                 pass
             
             # --- 1. Schema Constraints Fix (Critical for Multiple Personas) ---
+    except Exception as e:
+        print(f"⚠️ [DB MIGRATION] Pre-startup checks failed: {e}")
+
     def _fix_schema_constraints(db: Session):
         """Drops the erroneous UNIQUE constraint on strategy_id if it exists."""
         try:
