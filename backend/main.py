@@ -58,7 +58,21 @@ from core.limiter import limiter
 from slowapi.middleware import SlowAPIMiddleware
 
 # === App Initialization ===
+print(f"[BOOT] CWD: {os.getcwd()}")
+print(f"[BOOT] sys.path: {sys.path}")
+try:
+    os.makedirs("logs", exist_ok=True)
+    print("[BOOT] 'logs' directory verified.")
+except Exception as e:
+    print(f"[BOOT] Warning: Could not create 'logs' dir: {e}")
+
 app = FastAPI(title="TraderCopilot Backend", version="2.0.0")
+
+@app.get("/")
+def root_check():
+    """Root endpoint for instant health check."""
+    return {"status": "online", "service": "TraderCopilot Backend"}
+
 
 # --- Telegram Bot Lifecycle ---
 from telegram_listener import start_telegram_bot, stop_telegram_bot
