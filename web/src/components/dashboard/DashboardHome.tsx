@@ -93,18 +93,20 @@ export const DashboardHome: React.FC = () => {
 
 
     return (
-        <div className="space-y-8 pb-12">
+        <div className="space-y-12 pb-16 animate-fade-in">
             {/* 1. Header & Global Metrics */}
-            <div className="flex flex-col xl:flex-row gap-6 xl:items-center justify-between">
+            <div className="flex flex-col xl:flex-row gap-8 xl:items-start justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-200/50 flex items-center gap-3 drop-shadow-sm">
-                        <Zap className="text-amber-400 fill-amber-400 animate-pulse" size={28} strokeWidth={2.5} />
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-200/50 flex items-center gap-3 drop-shadow-sm tracking-tight">
+                        <Zap className="text-amber-400 fill-amber-400 animate-pulse" size={32} strokeWidth={2.5} />
                         Command Center
                     </h1>
-                    <p className="text-slate-400 font-medium text-sm mt-1 ml-10">Real-time trading operations overview.</p>
+                    <p className="text-slate-400 font-medium text-base mt-2 ml-11 max-w-md leading-relaxed">
+                        Real-time overview of your algorithmic fleet and market performance.
+                    </p>
                 </div>
 
-                <div className="flex flex-wrap gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:w-auto">
                     {/* Metric: PnL */}
                     <MetricCard
                         label="7d Net PnL"
@@ -131,9 +133,9 @@ export const DashboardHome: React.FC = () => {
 
                     <button
                         onClick={handleRefresh}
-                        className={`p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors`}
+                        className={`p-3 rounded-2xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center`}
                     >
-                        <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
+                        <RefreshCw size={24} className={refreshing ? 'animate-spin' : ''} />
                     </button>
                 </div>
             </div>
