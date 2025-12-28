@@ -476,96 +476,95 @@ def _parse_iso_ts(value: Optional[str]):
     return None
 
 
-def compute_stats_summary() -> Dict[str, Any]:
+# Update import slightly up top if needed, but get_current_user is likely imported. 
+# Checking imports... "from routers.auth_new import get_current_user" is needed if not present.
+# It is imported in logs.py, but maybe not main.py? 
+# main.py has `from routers.auth_new import router as auth_router`.
+# `from routers.auth_new import get_current_user` might need to be added or check if available.
+
+def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
     """
-    Calcula mÃ©tricas agregadas desde la base de datos.
+    Calcula métricas agregadas desde la base de datos (Scoped by User).
     Fallback a CSV si la DB falla.
     """
     try:
         from typing import Dict, Any
-        from sqlalchemy import func
-        from models_db import Signal, SignalEvaluation
+        from sqlalchemy import func, or_
+        from models_db import Signal, SignalEvaluation, User
         from database import SessionLocal
         
         db = SessionLocal()
         try:
             day_ago = datetime.utcnow() - timedelta(hours=24)
+            week_ago = datetime.utcnow() - timedelta(days=7)
             
             # Filter out test sources
             test_sources = ['audit_script', 'verification']
             
-            # Signals evaluated in last 24h (Real signals only)
-            eval_24h_count = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
+            # START QUERY BUILDER
+            # Base filters for ALL stats
+            def apply_filters(q):
+                q = q.filter(Signal.source.notin_(test_sources))
+                
+                if user:
+                    # 1. Time Isolation: Only signals created AFTER user joined 
+                    # (This fixes the "Old Data for New User" bug)
+                    if user.created_at:
+                        # Ensure created_at is aware or handled
+                        # Assuming Signal.timestamp is the key
+                        q = q.filter(Signal.timestamp >= user.created_at)
+                    
+                    # 2. Ownership Isolation
+                    # Show User Signals OR System Signals (user_id=None)
+                    q = q.filter(or_(Signal.user_id == user.id, Signal.user_id == None))
+                return q
+
+            # --- 1. Evaluated in last 24h ---
+            q_eval_24 = db.query(func.count(SignalEvaluation.id)).join(Signal)
+            q_eval_24 = apply_filters(q_eval_24)
+            eval_24h_count = q_eval_24.filter(SignalEvaluation.evaluated_at >= day_ago).scalar() or 0
+            
+            # --- 2. Total Evaluations ---
+            q_total = db.query(func.count(SignalEvaluation.id)).join(Signal)
+            q_total = apply_filters(q_total)
+            total_eval = q_total.scalar() or 0
+            
+            # --- 3. Wins (Last 24h) ---
+            q_wins = db.query(func.count(SignalEvaluation.id)).join(Signal)
+            q_wins = apply_filters(q_wins)
+            wins_all = q_wins.filter(
                 SignalEvaluation.evaluated_at >= day_ago,
-                Signal.source.notin_(test_sources)
+                SignalEvaluation.result == 'WIN'
             ).scalar() or 0
             
-            # Total evaluations (Real only)
-            total_eval = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
-            
-            # Win/Loss counts in last 24h (Real only)
-            tp_24h = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
-                SignalEvaluation.evaluated_at >= day_ago,
-                SignalEvaluation.result == 'WIN',
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
-            
-            sl_24h = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
-                SignalEvaluation.evaluated_at >= day_ago,
-                SignalEvaluation.result == 'LOSS',
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
-            
-            # LITE signals in last 24h (Real only)
-            lite_24h = db.query(func.count(Signal.id)).filter(
-                Signal.timestamp >= day_ago,
-                Signal.mode == 'LITE',
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
-            
-            # Calculate win rate (Real)
-            # decided = tp_24h + sl_24h
-            # win_rate_24h = tp_24h / decided if decided > 0 else None
-            
-            # Robust logic (mirrors strategies.py)
-            # Count ALL WINs in last 24h
-            wins_all = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
-                SignalEvaluation.evaluated_at >= day_ago,
-                SignalEvaluation.result == 'WIN',
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
-            
-            # Count ALL Evaluated in last 24h
-            evals_all = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
-                SignalEvaluation.evaluated_at >= day_ago,
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0
+            # --- 4. Evals (Last 24h) for Win Rate ---
+            q_evals_24_all = db.query(func.count(SignalEvaluation.id)).join(Signal)
+            q_evals_24_all = apply_filters(q_evals_24_all)
+            evals_all = q_evals_24_all.filter(SignalEvaluation.evaluated_at >= day_ago).scalar() or 0
             
             if evals_all > 0:
                 win_rate_24h = (wins_all / evals_all) * 100
             else:
                 win_rate_24h = 0
-
+                
+            # --- 5. LITE Signals (24h) ---
+            q_lite = db.query(func.count(Signal.id))
+            q_lite = apply_filters(q_lite)
+            lite_24h = q_lite.filter(
+                Signal.timestamp >= day_ago,
+                Signal.mode == 'LITE'
+            ).scalar() or 0
             
-            # Open signals (LITE signals not yet evaluated)
+            # --- 6. PnL (7d) ---
+            q_pnl = db.query(func.sum(SignalEvaluation.pnl_r)).join(Signal)
+            q_pnl = apply_filters(q_pnl)
+            pnl_7d_total = q_pnl.filter(SignalEvaluation.evaluated_at >= week_ago).scalar() or 0.0
+
+            # Open signals (Estimate)
             open_signals_est = max(lite_24h - eval_24h_count, 0)
             
-            # [NEW] Calculate PnL (7d) (Real only)
-            week_ago = datetime.utcnow() - timedelta(days=7)
-            pnl_7d_total = db.query(func.sum(SignalEvaluation.pnl_r)).join(Signal).filter(
-                SignalEvaluation.evaluated_at >= week_ago,
-                Signal.source.notin_(test_sources)
-            ).scalar() or 0.0
-
-            # [NEW] Active Agents Count (Requires StrategyConfig check)
-            # Assuming marketplace_config.py loads into StrategyConfig or we just count enabled strategies via API
-            # For now, we return 0 here and let frontend fetch /strategies to count enabled ones.
-            # actually better to let frontend count active agents from /strategies endpoint.
-            
             return {
-                "win_rate_24h": win_rate_24h,
+                "win_rate_24h": round(win_rate_24h, 1),
                 "signals_evaluated_24h": eval_24h_count,
                 "signals_total_evaluated": total_eval,
                 "signals_lite_24h": lite_24h,
@@ -577,105 +576,22 @@ def compute_stats_summary() -> Dict[str, Any]:
             
     except Exception as e:
         print(f"Database query failed, falling back to CSV: {e}")
-        # Fallback to CSV-based computation
+        # Fallback to CSV-based computation (Legacy, no user scoping for now)
         return compute_stats_summary_from_csv()
 
-
-def compute_stats_summary_from_csv() -> Dict[str, Any]:
-    """
-    Fallback: Calcula mÃ©tricas desde archivos CSV (legacy).
-    """
-    now = datetime.now(timezone.utc)
-    day_ago = now - timedelta(hours=24)
-
-    # --- Evaluated: backend/logs/EVALUATED/{token}.evaluated.csv ---
-    evaluated_dir = os.path.join(LOGS_DIR, "EVALUATED")
-    total_eval = 0
-    eval_24h = 0
-    tp_24h = 0
-    sl_24h = 0
-    
-    # Needs LOGS_DIR which is not imported but assumed.
-    # In main.py usually LOGS_DIR is defined or imported, checking imports.
-    # Actually it's not imported in the original file I viewed? 
-    # It must be defined somewhere or this will crash. 
-    # I saw references in compute_stats_summary_from_csv but didn't see LOGS_DIR definition.
-    # It might be in core.config or similar.
-    # Wait, I copied the function content from previous view.
-    # Let's assume it's there or I add it if missing.
-    # Looking at imports: `from core.config import load_env_if_needed`
-    # Let's define it to be safe.
-    LOGS_DIR = os.path.join(current_dir, "logs")
-
-    if os.path.isdir(evaluated_dir):
-        for name in os.listdir(evaluated_dir):
-            lower = name.lower()
-            if not (lower.endswith(".csv") or lower.endswith(".evaluated.csv")):
-                continue
-
-            path = os.path.join(evaluated_dir, name)
-            try:
-                with open(path, newline="", encoding="utf-8") as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        total_eval += 1
-                        ts = _parse_iso_ts(
-                            row.get("evaluated_at") or row.get("signal_ts")
-                        )
-                        if ts and ts >= day_ago:
-                            eval_24h += 1
-                            result = (row.get("result") or "").strip()
-                            if result == "hit-tp":
-                                tp_24h += 1
-                            elif result == "hit-sl":
-                                sl_24h += 1
-            except Exception:
-                # No queremos que un CSV roto tumbe todo el endpoint
-                continue
-
-    # --- LITE: backend/logs/LITE/{token}.csv ---
-    lite_dir = os.path.join(LOGS_DIR, "LITE")
-    lite_24h = 0
-
-    if os.path.isdir(lite_dir):
-        for name in os.listdir(lite_dir):
-            if not name.lower().endswith(".csv"):
-                continue
-
-            path = os.path.join(lite_dir, name)
-            try:
-                with open(path, newline="", encoding="utf-8") as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        ts = _parse_iso_ts(row.get("timestamp"))
-                        if ts and ts >= day_ago:
-                            lite_24h += 1
-            except Exception:
-                continue
-
-    decided = tp_24h + sl_24h
-    win_rate_24h = tp_24h / decided if decided > 0 else None
-
-    # SeÃ±ales LITE en las Ãºltimas 24h que aÃºn no tienen evaluaciÃ³n
-    open_signals_est = max(lite_24h - eval_24h, 0)
-
-    return {
-        "win_rate_24h": win_rate_24h,  # 0.0â€“1.0 o null
-        "signals_evaluated_24h": eval_24h,
-        "signals_total_evaluated": total_eval,
-        "signals_lite_24h": lite_24h,
-        "open_signals": open_signals_est,
-    }
-
+from fastapi import Depends
+from routers.auth_new import get_current_user
+from models_db import User
 
 @app.get("/stats/summary")
-def stats_summary():
+def stats_summary(current_user: User = Depends(get_current_user)):
     """
-    MÃ©tricas agregadas simples para el dashboard de TraderCopilot.
+    Métricas agregadas para el Dashboard (User Scoped).
     """
     try:
-        return compute_stats_summary()
+        return compute_stats_summary(user=current_user)
     except Exception as e:
+        print(f"[STATS] Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ==== 11. Fallback global ====

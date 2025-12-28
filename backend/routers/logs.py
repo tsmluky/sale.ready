@@ -87,12 +87,16 @@ def get_recent_logs(
                 # Only show system signals if they are NOT flagged as hidden/private in some way?
                 # Actually, the leakage is likely legacy signals with Null user_id.
                 # Use strict filtering for now?
-                # No, that kills "Trend King" feed. 
-                # We need to filter out signals that are "Marketplace:..." where the ID belongs to another user.
                 # Only way is via user_id.
                 Signal.user_id == None 
             )
-        ).order_by(desc(Signal.timestamp))
+        )
+        
+        # [NEW] Time Isolation: Hide legacy system signals that predate the user
+        if current_user.created_at:
+             query = query.filter(Signal.timestamp >= current_user.created_at)
+
+        query = query.order_by(desc(Signal.timestamp))
             
         # Fetch more signals to account for deduplication
         signals = query.limit(limit * 3).all()
