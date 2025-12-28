@@ -507,7 +507,8 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
                 q = q.filter(Signal.source.notin_(test_sources))
                 
                 # Exclude trivial/system scalps from Main Stats to align with Dashboard Feed
-                q = q.filter(Signal.source != 'lite-rule')
+                # Use LIKE to catch variants like 'lite-rule@v2', 'lite-rule-test', etc.
+                q = q.filter(Signal.source.notlike('lite-rule%'))
                 
                 if user:
                     # 1. Time Isolation: Only signals created AFTER user joined 

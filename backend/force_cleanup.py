@@ -9,26 +9,12 @@ def run():
         with engine.connect() as conn:
             print("--- Connecting to Railway DB ---")
             
-            # Check 1: Count bad records
-            check_sql = "SELECT count(*) FROM signals WHERE token = 'DOGE' AND entry > 50"
-            count = conn.execute(text(check_sql)).scalar()
-            
-            print(f"Found {count} corrupted DOGE records (Price > $50).")
-            
-            if count > 0:
-                print("Deleting dependent rows in signal_evaluations...")
-                # 1. Delete children
-                child_sql = "DELETE FROM signal_evaluations WHERE signal_id IN (SELECT id FROM signals WHERE token = 'DOGE' AND entry > 50)"
-                conn.execute(text(child_sql))
-                
-                print("Deleting signals...")
-                # 2. Delete parent
-                del_sql = "DELETE FROM signals WHERE token = 'DOGE' AND entry > 50"
-                res = conn.execute(text(del_sql))
-                conn.commit()
-                print(f"✅ SUCCESS: Deleted {res.rowcount} records.")
-            else:
-                print("✅ CLEAN: No garbage data found.")
+            # Explicit Delete of Rogue ID 9 (PnL +0.29)
+            print("Deleting Rogue Signal ID 9...")
+            conn.execute(text("DELETE FROM signal_evaluations WHERE signal_id = 9"))
+            res = conn.execute(text("DELETE FROM signals WHERE id = 9"))
+            conn.commit()
+            print(f"✅ SUCCESS: Deleted {res.rowcount} rogue signals.")
                 
     except Exception as e:
         print(f"❌ ERROR: {e}")
