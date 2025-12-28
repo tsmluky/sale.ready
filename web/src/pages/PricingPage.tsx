@@ -121,7 +121,7 @@ export const PricingPage: React.FC = () => {
                 {plans.map((plan) => (
                     <div
                         key={plan.id}
-                        className={`relative flex flex-col p-6 md:p-8 rounded-2xl border transition-all duration-300 hover:-translate-y-2
+                        className={`relative flex flex-col p-6 md:p-8 rounded-2xl border transition-all duration-300 hover:-translate-y-2 h-full
               ${plan.active
                                 ? 'bg-slate-900/80 border-slate-700 ring-2 ring-emerald-500/50 shadow-emerald-900/20'
                                 : plan.highlight

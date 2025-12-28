@@ -506,6 +506,9 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
             def apply_filters(q):
                 q = q.filter(Signal.source.notin_(test_sources))
                 
+                # Exclude trivial/system scalps from Main Stats to align with Dashboard Feed
+                q = q.filter(Signal.source != 'lite-rule')
+                
                 if user:
                     # 1. Time Isolation: Only signals created AFTER user joined 
                     # (This fixes the "Old Data for New User" bug)
