@@ -7,19 +7,18 @@ import { ScannerPage } from './pages/ScannerPage';
 import { StrategiesPage } from './pages/StrategiesPage';
 import { StrategyDetailsPage } from './pages/StrategyDetailsPage';
 import { BacktestPage } from './pages/BacktestPage';
-import { LogsPage } from './pages/LogsPage';
 import { AdvisorPage } from './pages/AdvisorPage';
 import { PricingPage } from './pages/PricingPage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import LandingPage from './pages/LandingPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
 import { CopilotProvider } from './context/CopilotContext';
 import { Loader2 } from 'lucide-react';
-import { AdvisorChat } from './components/AdvisorChat';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { CopilotFAB } from './components/copilot/CopilotFAB';
 
@@ -50,12 +49,14 @@ const App: React.FC = () => {
           <Router>
             <ToastContainer />
             <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
               {/* Protected Routes */}
               <Route
-                path="/"
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <DashboardHome />
@@ -65,7 +66,7 @@ const App: React.FC = () => {
               <Route path="/scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
               <Route path="/strategies" element={<ProtectedRoute><StrategiesPage /></ProtectedRoute>} />
               <Route path="/strategies/:id" element={<ProtectedRoute><StrategyDetailsPage /></ProtectedRoute>} />
-              {/* Mapping old signals path effectively to scanner in case of bookmarks, or just replacing it entirely */}
+              {/* Mapping old signals path effectively to scanner in case of bookmarks */}
               <Route path="/signals" element={<Navigate to="/scanner" replace />} />
               <Route path="/analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
               <Route path="/advisor" element={<ProtectedRoute><AdvisorPage /></ProtectedRoute>} />
@@ -74,16 +75,13 @@ const App: React.FC = () => {
               <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} /> {/* Added AdminPage route */}
+              <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <CopilotModal />
             <CopilotFAB />
-
-
-
           </Router>
         </CopilotProvider>
       </ThemeProvider>
