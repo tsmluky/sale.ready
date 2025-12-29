@@ -101,99 +101,99 @@ export const DashboardHome: React.FC = () => {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-gold-500/5 blur-[120px] rounded-full mix-blend-screen opacity-30"></div>
             </div>
 
-            <div className="relative z-10 space-y-12">
-                {/* 1. Header & Global Metrics */}
-                <div className="flex flex-col xl:flex-row gap-8 xl:items-start justify-between relative z-10">
-                    <div className="relative">
-                        <div className="absolute -left-4 top-0 w-1 h-12 bg-gradient-to-b from-gold-400 to-brand-500 rounded-full"></div>
-                        <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-xl">
-                            Command <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-600">Center</span>
-                        </h1>
-                        <p className="text-slate-400 font-medium text-lg max-w-lg leading-relaxed border-l border-white/10 pl-4">
-                            Real-time overview of your algorithmic fleet and market performance.
-                        </p>
-                    </div>
+            {/* 1. Header & Global Metrics */}
+            <div className="flex flex-col xl:flex-row gap-8 xl:items-center justify-between relative z-10 px-2">
+                <div className="relative pl-6">
+                    {/* Vertical Accent Line */}
+                    <div className="absolute left-0 top-1 bottom-1 w-1.5 bg-gradient-to-b from-brand-400 to-indigo-600 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:w-auto">
-                        {/* Metric: PnL */}
-                        <MetricCard
-                            label="7d Net PnL"
-                            value={`${globalStats?.pnl_7d > 0 ? '+' : ''}${globalStats?.pnl_7d || 0} R`}
-                            trend={globalStats?.pnl_7d_change || 0}
-                            icon={DollarSign}
-                        />
-
-                        {/* Metric: Active Agents */}
-                        <MetricCard
-                            label="Active Agents"
-                            value={activeStrategies.length.toString()}
-                            trend={0}
-                            icon={Activity}
-                        />
-
-                        {/* Metric: Win Rate */}
-                        <MetricCard
-                            label="Win Rate (24h)"
-                            value={`${globalStats?.win_rate || 0}%`}
-                            trend={globalStats?.win_rate_change || 0}
-                            icon={Target}
-                        />
-
-                        <button
-                            onClick={handleRefresh}
-                            className={`p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-brand-500/30 transition-all active:scale-95 flex items-center justify-center group shadow-lg`}
-                        >
-                            <RefreshCw size={24} className={refreshing ? 'animate-spin' : ''} />
-                        </button>
-                    </div>
+                    <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2 drop-shadow-md flex items-center gap-2">
+                        Command <span className="text-brand-400">Center</span>
+                    </h1>
+                    <p className="text-slate-400 font-medium text-base max-w-lg leading-relaxed">
+                        Real-time overview of your algorithmic fleet and market performance.
+                    </p>
                 </div>
 
-                {/* Active Strategies Grid */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Activity className="text-gold-400" size={24} />
-                        Active Agents
-                    </h2>
-                    {activeStrategies.length === 0 ? (
-                        <div className="p-8 border border-dashed border-slate-800 rounded-xl bg-slate-900/50 text-center">
-                            <p className="text-slate-500 mb-4">No agents are currently running.</p>
-                            <a href="/strategies" className="text-indigo-400 hover:text-indigo-300 font-bold text-sm">Deploy an Agent from Marketplace &rarr;</a>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {activeStrategies.map((strat, idx) => (
-                                <Link to={`/strategies/${strat.id}`} key={strat.id || idx} className="block group">
-                                    <StrategyCard
-                                        name={strat.name}
-                                        timeframe={strat.timeframe}
-                                        type={strat.symbol}
-                                        winRate={parseInt(strat.win_rate) || 0}
-                                        pnl={0} // TODO: Add per-strategy PnL in future
-                                        status={'active'}
-                                        description={strat.description}
-                                        isCustom={strat.is_custom}
-                                    />
-                                </Link>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* 3. Global History (Fleet Activity) */}
-                {/* 3. Global History (Fleet Activity) */}
-                <DashboardHistory
-                    signals={filteredSignals}
-                    onSignalClick={(sig) => setSelectedSignal(sig as SignalHistory)}
-                />
-
-                {/* Signal Details Modal */}
-                {selectedSignal && (
-                    <SignalDetailsModal
-                        signal={selectedSignal}
-                        onClose={() => setSelectedSignal(null)}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full xl:w-auto">
+                    {/* Metric: PnL */}
+                    <MetricCard
+                        label="7d Net PnL"
+                        value={`${globalStats?.pnl_7d > 0 ? '+' : ''}${globalStats?.pnl_7d || 0} R`}
+                        trend={globalStats?.pnl_7d_change || 0}
+                        icon={DollarSign}
                     />
+
+                    {/* Metric: Active Agents */}
+                    <MetricCard
+                        label="Active Agents"
+                        value={activeStrategies.length.toString()}
+                        trend={0}
+                        icon={Activity}
+                    />
+
+                    {/* Metric: Win Rate */}
+                    <MetricCard
+                        label="Win Rate (24h)"
+                        value={`${globalStats?.win_rate || 0}%`}
+                        trend={globalStats?.win_rate_change || 0}
+                        icon={Target}
+                    />
+
+                    <button
+                        onClick={handleRefresh}
+                        className={`p-4 rounded-2xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-brand-500/30 transition-all active:scale-95 flex items-center justify-center group shadow-lg`}
+                    >
+                        <RefreshCw size={24} className={refreshing ? 'animate-spin' : ''} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Active Strategies Grid */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <Activity className="text-gold-400" size={24} />
+                    Active Agents
+                </h2>
+                {activeStrategies.length === 0 ? (
+                    <div className="p-8 border border-dashed border-slate-800 rounded-xl bg-slate-900/50 text-center">
+                        <p className="text-slate-500 mb-4">No agents are currently running.</p>
+                        <a href="/strategies" className="text-indigo-400 hover:text-indigo-300 font-bold text-sm">Deploy an Agent from Marketplace &rarr;</a>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {activeStrategies.map((strat, idx) => (
+                            <Link to={`/strategies/${strat.id}`} key={strat.id || idx} className="block group">
+                                <StrategyCard
+                                    name={strat.name}
+                                    timeframe={strat.timeframe}
+                                    type={strat.symbol}
+                                    winRate={parseInt(strat.win_rate) || 0}
+                                    pnl={0} // TODO: Add per-strategy PnL in future
+                                    status={'active'}
+                                    description={strat.description}
+                                    isCustom={strat.is_custom}
+                                />
+                            </Link>
+                        ))}
+                    </div>
                 )}
             </div>
+
+            {/* 3. Global History (Fleet Activity) */}
+            {/* 3. Global History (Fleet Activity) */}
+            <DashboardHistory
+                signals={filteredSignals}
+                onSignalClick={(sig) => setSelectedSignal(sig as SignalHistory)}
+            />
+
+            {/* Signal Details Modal */}
+            {selectedSignal && (
+                <SignalDetailsModal
+                    signal={selectedSignal}
+                    onClose={() => setSelectedSignal(null)}
+                />
+            )}
         </div>
     );
 };
