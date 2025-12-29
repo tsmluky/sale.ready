@@ -1,0 +1,11 @@
+{
+    "name": "tradercopilot-root",
+    "private": true,
+    "scripts": {
+        "build": "cd web && npm install && npm run build",
+        "dev": "cd web && npm run dev"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
