@@ -30,7 +30,7 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError('Invalid credentials.');
     } finally {
