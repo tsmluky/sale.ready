@@ -77,6 +77,10 @@ function KPICard({
     )
 }
 
+import { TacticalAnalysisDrawer } from '../scanner/TacticalAnalysisDrawer';
+
+// ... (KPICard definition remains same)
+
 export const DashboardHome: React.FC = () => {
     const { userProfile } = useAuth();
 
@@ -90,8 +94,11 @@ export const DashboardHome: React.FC = () => {
     });
     const [recentSignals, setRecentSignals] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [evaluatedCount, setEvaluatedCount] = useState(0); // This might come from stats if available
+    const [evaluatedCount, setEvaluatedCount] = useState(0);
     const [chartData, setChartData] = useState<any[]>([]);
+
+    // Selection state for Drawer
+    const [selectedSignal, setSelectedSignal] = useState<any>(null);
 
     // Fetch Data
     const fetchData = async () => {
@@ -107,9 +114,9 @@ export const DashboardHome: React.FC = () => {
                 active_fleet: strategiesData.filter((s: any) => s.is_active).length
             });
             setRecentSignals(logsData);
-            setEvaluatedCount(logsData.length); // Proxy for now
+            setEvaluatedCount(logsData.length);
 
-            // Mock chart data for now as per redesign
+            // Mock chart data
             const mockChartData = [
                 { date: "20/12", wins: 5, losses: 2 },
                 { date: "21/12", wins: 7, losses: 1 },
@@ -218,17 +225,6 @@ export const DashboardHome: React.FC = () => {
 
                 {/* KPI Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8 animate-in slide-in-from-bottom-5 duration-700">
-                    <KPICard
-                        title="Win Rate"
-                        value={loading ? "—" : `${stats.win_rate}%`}
-                        sub="Last 24h"
-                        trend={stats.win_rate >= 70 ? "up" : "down"}
-                        icon={<Target size={32} />}
-                        color="from-emerald-500/20 to-emerald-600/10"
-                        iconColor="text-emerald-400"
-                        loading={loading}
-                    />
-
                     <KPICard
                         title="Win Rate"
                         value={loading ? "—" : `${stats.win_rate ?? 0}%`}
@@ -371,14 +367,6 @@ export const DashboardHome: React.FC = () => {
                                     </h3>
                                     <p className="text-xs text-slate-500 mt-1 font-mono uppercase tracking-wider">Recent Signals</p>
                                 </div>
-                                {/* 
-                        <Link // To be implemented Logs page or just link to Scanner
-                            to="/scanner"
-                            className="text-xs text-gold-400 hover:text-gold-300 font-bold uppercase tracking-wider active:scale-95 transition-all flex items-center gap-1"
-                        >
-                            View All <ArrowUpRight size={12} />
-                        </Link>
-                        */}
                             </div>
 
                             <div className="flex-1 overflow-y-auto pr-2 space-y-3 max-h-[400px] custom-scrollbar">
@@ -412,6 +400,7 @@ export const DashboardHome: React.FC = () => {
                                         return (
                                             <div
                                                 key={idx}
+                                                onClick={() => setSelectedSignal(log)}
                                                 className="border border-white/5 rounded-xl p-4 cursor-pointer hover:bg-white/[0.02] hover:border-gold-500/30 transition-all duration-300 bg-[#020617]/30 backdrop-blur-sm group/signal"
                                             >
                                                 <div className="flex justify-between items-start mb-2">
@@ -469,6 +458,12 @@ export const DashboardHome: React.FC = () => {
                     <span className="text-emerald-500 font-mono">Live</span>
                 </div>
             </div>
+
+            <TacticalAnalysisDrawer
+                open={!!selectedSignal}
+                onOpenChange={(open) => !open && setSelectedSignal(null)}
+                signal={selectedSignal}
+            />
         </div>
     );
 };
