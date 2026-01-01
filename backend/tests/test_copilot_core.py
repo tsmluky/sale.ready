@@ -88,7 +88,7 @@ def test_repair_response():
 # === Profile API Tests ===
 
 
-@pytest.mark.skip(reason="Fix import path mismatch in CI causing 401: Temporarily skipped")
+
 def test_get_create_profile():
     # Initial GET should create default
     response = client.get("/advisor/profile")
