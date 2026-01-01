@@ -8,7 +8,7 @@ from core.market_data_api import get_ohlcv_data
 
 # Auth & Entitlements
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from database import get_db
 from routers.auth_new import get_current_user
 from models_db import User, CopilotProfile
 from core.entitlements import (
@@ -21,12 +21,7 @@ from core.limiter import limiter
 router = APIRouter(tags=["advisor"])
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 
 class ChatMessage(BaseModel):
