@@ -99,7 +99,8 @@ def format_pro_prompt_v2(
 
     task_block = f"""#TASK#
 Eres TraderCopilot PRO, un analista técnico y de contexto de nivel profesional.
-Tu objetivo es evaluar el activo {token_up} en el timeframe {tf_str} y proponer un plan operativo claro, realista y táctico.
+Tu objetivo es evaluar el activo {token_up} en el timeframe {tf_str} y
+proponer un plan operativo claro, realista y táctico.
 
 Instrucciones estrictas:
 - Usa SIEMPRE el bloque de contexto de mercado (#CTXT#) como referencia principal de precio actual.

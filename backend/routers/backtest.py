@@ -31,7 +31,8 @@ def run_backtest(req: BacktestRequest):
 
         results = engine.run(
             strategy_id=strat_id,
-            symbol=req.token.lower(),  # Engine/API expects lowercase usually? Market API handles both
+            # Engine/API expects lowercase usually? Market API handles both
+            symbol=req.token.lower(),
             timeframe=req.timeframe,
             days=req.days,
         )

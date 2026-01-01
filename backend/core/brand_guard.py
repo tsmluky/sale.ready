@@ -107,7 +107,7 @@ def repair_response(
 
     repair_prompt = f"""
     REWRITE the following response to fix these specific issues:
-    {', '.join(violations)}
+    {", ".join(violations)}
     
     original_response:
     "{original_text}"

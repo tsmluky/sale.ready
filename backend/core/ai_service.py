@@ -145,10 +145,12 @@ class GeminiProvider(AIProvider):
                 or "exhausted" in error_msg
             )
 
-            # [AGGRESSIVE FALLBACK] Try fallback for ANY generation error if key is present
+            # [AGGRESSIVE FALLBACK] Try fallback for ANY generation error if key
+            # is present
             if is_quota_error:
                 print(
-                    f"[AI] ⚠️ Gemini Rate Limit/Quota Hit. Falling back to DeepSeek... (Error: {error_msg[:100]})"
+                    "[AI] ⚠️ Gemini Rate Limit/Quota Hit. "
+                    f"Falling back to DeepSeek... (Error: {error_msg[:100]})"
                 )
                 try:
                     fallback = DeepSeekProvider()

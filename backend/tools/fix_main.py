@@ -33,7 +33,7 @@ if end_idx == -1:
     print("Could not find end of function")
     exit(1)
 
-print(f"Replacing lines {start_idx+1} to {end_idx+1}")
+print(f"Replacing lines {start_idx + 1} to {end_idx + 1}")
 
 # Construct new function body
 new_code = """def _build_pro_markdown(

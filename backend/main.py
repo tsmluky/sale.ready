@@ -1,4 +1,4 @@
-﻿import sys
+import sys
 import traceback
 import os
 import asyncio

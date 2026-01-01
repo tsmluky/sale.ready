@@ -21,24 +21,28 @@ def check_imports(file_path):
                 # Check for known legacy/problematic modules
                 if module == "market_data_api":
                     errors.append(
-                        f"Line {node.lineno}: Import validation failed: 'market_data_api' should be 'core.market_data_api'"
+                        f"Line {node.lineno}: Import validation failed: "
+                        f"'market_data_api' should be 'core.market_data_api'"
                     )
                 elif module == "strategies.donchian":
                     errors.append(
                         f"Line {node.lineno}: Import validation failed: "
-                        f"'strategies.donchian' is deprecated. Use 'strategies.DonchianBreakoutV2'"
+                        f"'strategies.donchian' is deprecated. "
+                        f"Use 'strategies.DonchianBreakoutV2'"
                     )
 
                 # Check existence of local modules
                 # This is a basic check and might have false positives if not careful
-                # We assume imports are relative to BACKEND_ROOT if they don't start with builtin
+                # We assume imports are relative to BACKEND_ROOT if they don't
+                # start with builtin
 
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 name = alias.name
                 if name == "market_data_api":
                     errors.append(
-                        f"Line {node.lineno}: Import validation failed: 'market_data_api' should be 'core.market_data_api'"
+                        f"Line {node.lineno}: Import validation failed: "
+                        f"'market_data_api' should be 'core.market_data_api'"
                     )
 
     return errors

@@ -113,7 +113,9 @@ def assert_token_allowed(user: User, raw_token: str):
             status_code=403,
             detail={
                 "code": "STABLECOIN_NOT_SUPPORTED",
-                "message": f"Stablecoins like {token} are not supported for analysis targets.",
+                "message": (
+                    f"Stablecoins like {token} are not supported for analysis targets."
+                ),
                 "tier": user.plan,
             },
         )
@@ -128,7 +130,9 @@ def assert_token_allowed(user: User, raw_token: str):
             status_code=403,
             detail={
                 "code": "TOKEN_NOT_ALLOWED",
-                "message": f"Your {plan} plan does not include access to {token}.",
+                "message": (
+                    f"Your {plan} plan does not include access to {token}."
+                ),
                 "tier": plan,
                 "token_requested": token,
                 "allowed_sample": allowed[:5],
@@ -229,7 +233,8 @@ def check_and_increment_quota(db: Session, user: User, feature: str):
                 db.commit()
                 db.refresh(usage)
                 # Ahora tenemos el record, continuamos al check
-                # (Podríamos necesitar re-lockear si fuera muy de alto tráfico, pero el Insert fue exitoso)
+                # (Podríamos necesitar re-lockear si fuera muy de alto tráfico, pero
+                # el Insert fue exitoso)
 
             # 3. Check Limit
             if usage.count >= limit:
@@ -238,7 +243,9 @@ def check_and_increment_quota(db: Session, user: User, feature: str):
                     status_code=429,
                     detail={
                         "code": "DAILY_QUOTA_EXCEEDED",
-                        "message": f"You have reached your daily limit of {limit} for {feature}.",
+                        "message": (
+                            f"You have reached your daily limit of {limit} for {feature}."
+                        ),
                         "tier": plan,
                         "limit": limit,
                         "used": usage.count,
@@ -258,8 +265,10 @@ def check_and_increment_quota(db: Session, user: User, feature: str):
             }
 
         except IntegrityError:
-            # Race Condition detected: Alguien insertó el registro mientras nosotros intentábamos.
-            # Rollback y reintentar (en el siguiente loop encontraremos el registro y haremos update)
+            # Race Condition detected: Alguien insertó el registro mientras
+            # nosotros intentábamos.
+            # Rollback y reintentar (en el siguiente loop encontraremos el
+            # registro y haremos update)
             db.rollback()
             continue
 

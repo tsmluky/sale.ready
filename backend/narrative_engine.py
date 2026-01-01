@@ -166,15 +166,24 @@ def generate_narrative(token: str, market_data: Dict[str, Any]) -> Dict[str, str
     # --- 3. Generar INSIGHT (Dato curioso / Onchain simulado realista) ---
     # Variamos según el riesgo o la volatilidad
     if abs(change_24h) > 8.0:
-        insight_text = f"La volatilidad de 24h ({change_24h:.1f}%) supera la media de 30 días, indicando un evento de liquidez mayor."
+        insight_text = (
+            f"La volatilidad de 24h ({change_24h:.1f}%) supera la media de 30 días, "
+            "indicando un evento de liquidez mayor."
+        )
     else:
         # Insight estructural
         if sector == "L1_PLATFORM":
             insight_text = "Métricas de TVL estables sugieren retención de liquidez a pesar de la acción de precio."
         elif sector == "STORE_OF_VALUE":
-            insight_text = "El ratio MVRV se mantiene en zona neutral, indicando espacio para recorrido en ambas direcciones."
+            insight_text = (
+                "El ratio MVRV se mantiene en zona neutral, indicando espacio para "
+                "recorrido en ambas direcciones."
+            )
         elif sector == "MEME":
-            insight_text = "La correlación con BTC ha disminuido, sugiriendo un movimiento idiosincrásico impulsado por la comunidad."
+            insight_text = (
+                "La correlación con BTC ha disminuido, sugiriendo un movimiento "
+                "idiosincrásico impulsado por la comunidad."
+            )
         else:
             insight_text = "El volumen On-Chain muestra divergencia positiva con respecto al precio."
 

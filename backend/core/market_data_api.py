@@ -3,6 +3,7 @@
 Módulo para obtener datos de mercado en tiempo real.
 Refactorizado para usar CCXT (Binance) para consistencia con Trading Lab.
 """
+
 import ccxt
 import time
 from typing import List, Dict, Any, Optional, Tuple, Union

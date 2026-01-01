@@ -257,8 +257,10 @@ async def _build_pro_markdown(
         "#ANALYSIS_START y #ANALYSIS_END, manteniendo las secciones requeridas: "
         "#CTXT# (Contexto de mercado), #TA# (Análisis Técnico Institucional), #PLAN# (Estrategia precisa), "
         "#INSIGHT# (Dato clave OnChain/Fundamental), #PARAMS# (Niveles exactos).\n"
-        "IMPORTANTE: NO uses negritas ni markdown en los tags. Usa exactamente #TAG# (ej: #CTXT#, no **#CTXT#**).\n"
-        "El idioma de respuesta debe ser SIEMPRE ESPAÑOL (Castellano) de España, tono profesional, serio y directo al grano.\n"
+        "IMPORTANTE: NO uses negritas ni markdown en los tags. "
+        "Usa exactamente #TAG# (ej: #CTXT#, no **#CTXT#**).\n"
+        "El idioma de respuesta debe ser SIEMPRE ESPAÑOL (Castellano) de España, "
+        "tono profesional, serio y directo al grano.\n"
         "Usa terminología técnica correcta (Order Blocks, FVG, Liquidez, Estructura de Mercado)."
     )
 

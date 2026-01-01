@@ -107,19 +107,19 @@ def advisor_chat(
 [CURRENT MARKET CONTEXT for {token.upper()}]
 - Price: {price}
 - Timeframe: {tf}
-- Sentiment: {rag.get('sentiment', 'Neutral')}
-- News/Narrative: {rag.get('news', 'No major news')}
+- Sentiment: {rag.get("sentiment", "Neutral")}
+- News/Narrative: {rag.get("news", "No major news")}
 """
         # D. Add Signal Context if coming from a specific signal
         if req.context.signal_data:
             sig = req.context.signal_data
             system_context_block += f"""
 [ACTIVE SIGNAL CONTEXT]
-- Direction: {sig.get('direction', 'Unknown')}
-- Entry: {sig.get('entry')}
-- TP: {sig.get('tp')} | SL: {sig.get('sl')}
-- Confidence: {sig.get('confidence')}
-- Rationale: {sig.get('rationale')}
+- Direction: {sig.get("direction", "Unknown")}
+- Entry: {sig.get("entry")}
+- TP: {sig.get("tp")} | SL: {sig.get("sl")}
+- Confidence: {sig.get("confidence")}
+- Rationale: {sig.get("rationale")}
 """
 
     # 5. Define System Persona (Contract of Identity)
@@ -189,7 +189,8 @@ def advisor_chat(
             repair_response,
         )
 
-        # Detect intent using original message content if possible, else the full context one
+        # Detect intent using original message content if possible, else the
+        # full context one
         msg_for_intent = (
             last_user_msg_content
             if last_user_msg_content
@@ -211,7 +212,8 @@ def advisor_chat(
                 response_text, violations, system_instruction
             )
 
-        # 4. Final Safety Safety Check (Manual Override if repair failed on Banned Words)
+        # 4. Final Safety Safety Check (Manual Override if repair failed on
+        # Banned Words)
         # If still contains banned words, we mask them or fail gracefully?
         # For 'Sale Ready', let's just log it. The repair usually works.
 

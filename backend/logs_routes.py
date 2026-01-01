@@ -143,7 +143,11 @@ async def analyze_token(req: AnalysisRequest):
             raise ValueError("Token y mensaje son obligatorios.")
 
         if message in generic_inputs or message.strip() == "":
-            message = f"Realiza un análisis técnico y narrativo profesional del token {token.upper()}. Evalúa la situación actual, identifica niveles clave y proporciona una estrategia clara con entradas, salidas y riesgo."
+            message = (
+                f"Realiza un análisis técnico y narrativo profesional del token {token.upper()}. "
+                "Evalúa la situación actual, identifica niveles clave y proporciona una estrategia "
+                "clara con entradas, salidas y riesgo."
+            )
 
         market_data = get_market_data(token.lower())
         price = market_data.get("price")

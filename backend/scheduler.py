@@ -142,9 +142,7 @@ class StrategyScheduler:
         # State tracking for intervals
         self.last_run = {}  # {persona_id: timestamp}
         self.processed_signals = {}  # {signal_key: timestamp}
-        self.last_signal_direction = (
-            {}
-        )  # {persona_id_token: direction} (For alternation enforcement)
+        self.last_signal_direction = {}  # {persona_id_token: direction} (For alternation enforcement)
 
         # Lock Config
         self.lock_id = str(uuid.uuid4())
@@ -240,7 +238,8 @@ class StrategyScheduler:
                     # Si quisiéramos per-strategy intervals, checkeamos self.last_run[p_id]
 
                     print(
-                        f"  🔄 Running Persona: {persona['name']} (Tokens: {len(persona['tokens'])} | TF: {persona['timeframe']})"
+                        f"  🔄 Running Persona: {persona['name']} "
+                        f"(Tokens: {len(persona['tokens'])} | TF: {persona['timeframe']})"
                     )
 
                     # Instanciar estrategia técnica
@@ -265,7 +264,8 @@ class StrategyScheduler:
                             last_ts = self.processed_signals.get(ts_key)
 
                             # Freshness Check: Ignore signals older than 6 hour
-                            # This prevents 'backfilling' history into the Live Feed when detailed backtest strategies are run.
+                            # This prevents 'backfilling' history into the Live Feed when detailed
+                            # backtest strategies are run.
                             time_diff = now - sig.timestamp
                             if time_diff > timedelta(hours=6):
                                 # print(f"    ⏳ Skipping old signal: {sig.timestamp} (> 6h)")
@@ -294,7 +294,8 @@ class StrategyScheduler:
                                 if last_dir != sig.direction:
                                     # If conflict happens within 30 minutes, it's likely noise/chop. Suppress.
                                     if (now - last_ts) < timedelta(minutes=30):
-                                        # print(f"    🛡️ Coherence Guard: Suppressing {sig.direction} on {sig.token} (Trend is {last_dir})")
+                                        # print(f"    🛡️ Suppressing {sig.direction} on {sig.token}")
+                                        # print(f"       (Trend is {last_dir})")
                                         continue
                                     else:
                                         # Valid Reversal (enough time passed)
@@ -313,7 +314,8 @@ class StrategyScheduler:
                             self.last_signal_direction[ts_key] = sig.direction
 
                             # Enriquecer source con el ID de la persona
-                            # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID} is safer for filtering.
+                            # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID}
+                            # is safer for filtering.
                             sig.source = f"Marketplace:{p_id}"
 
                             # CRITICAL FIX: Overwrite strategy_id with persona_id so signals are attributed

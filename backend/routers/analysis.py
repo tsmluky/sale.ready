@@ -137,9 +137,11 @@ def _analyze_lite_unsafe(req: LiteReq, user: User):
     )
 
     # Log and get the ID back if possible, or just log
-    # log_signal returns the DB object or similar? It returns void in many impls or the object.
+    # log_signal returns the DB object or similar? It returns void in many impls
+    # or the object.
     # The frontend needs the ID to track it. Data flow gap?
-    # log_signal typically commits. We need the ID to return to UI so they can click "Track".
+    # log_signal typically commits. We need the ID to return to UI so they can
+    # click "Track".
     # core/signal_logger.py `log_signal` returns the DB model usually.
     # Let's verify log_signal return type later, but for now assuming it persists.
 

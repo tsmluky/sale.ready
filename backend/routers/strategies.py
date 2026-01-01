@@ -201,7 +201,7 @@ async def create_persona(
     if exists:
         import random
 
-        new_id = f"{new_id}_{random.randint(1000,9999)}"
+        new_id = f"{new_id}_{random.randint(1000, 9999)}"
 
     # 2. Create DB Entry
     new_strat = StrategyConfig(
@@ -237,9 +237,7 @@ async def toggle_strategy(
 ):
     """Activa/Desactiva una estrategia."""
     strat = (
-        db.query(StrategyConfig)
-        .filter(StrategyConfig.persona_id == persona_id)
-        .first()
+        db.query(StrategyConfig).filter(StrategyConfig.persona_id == persona_id).first()
     )
     if not strat:
         raise HTTPException(status_code=404, detail="Strategy not found")

@@ -2,6 +2,7 @@
 """
 Hyper Scalp Strategy - Optimized for High Frequency / Demo Engagement
 """
+
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import pandas as pd

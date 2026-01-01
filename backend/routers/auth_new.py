@@ -227,7 +227,8 @@ async def read_users_me(current_user: User = fastapi.Depends(get_current_user)):
         "allowed_tokens": allowed_tokens,
         "telegram_chat_id": current_user.telegram_chat_id,
         "timezone": current_user.timezone,
-        "created_at": current_user.created_at,  # PnL Fix: Critical for Dashboard filtering
+        "created_at": current_user.created_at,  # PnL Fix: Critical for Dashboard
+        # filtering
     }
     return user_dict
 

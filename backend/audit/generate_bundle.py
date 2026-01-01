@@ -95,14 +95,26 @@ def main():
     
     # Matrix
     try:
-        res = subprocess.run([sys.executable, str(BACKEND_DIR / "audit" / "test_security_matrix.py")], capture_output=True, text=True, timeout=15, cwd=BACKEND_DIR)
+        res = subprocess.run(
+            [sys.executable, str(BACKEND_DIR / "audit" / "test_security_matrix.py")],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            cwd=BACKEND_DIR
+        )
         security_out.append(f"=== SECURITY MATRIX ===\n{res.stdout}\n{res.stderr}")
     except Exception as e:
         security_out.append(f"Matrix Test Failed: {e}")
 
     # Collision
     try:
-        res = subprocess.run([sys.executable, str(BACKEND_DIR / "audit" / "detect_route_collisions.py")], capture_output=True, text=True, timeout=15, cwd=BACKEND_DIR)
+        res = subprocess.run(
+            [sys.executable, str(BACKEND_DIR / "audit" / "detect_route_collisions.py")],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            cwd=BACKEND_DIR
+        )
         security_out.append(f"=== ROUTE COLLISIONS ===\n{res.stdout}\n{res.stderr}")
     except Exception as e:
         security_out.append(f"Collision Test Failed: {e}")

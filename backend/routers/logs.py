@@ -291,8 +291,10 @@ def toggle_save_signal(
     """
     Toggle the 'is_saved' status of a signal.
     Only allows modifying own signals or system signals (by cloning? No, just tracking).
-    Refined logic: If signal is System (user_id=None), we can't edit it directly if we want to share it.
-    But for now, assuming simple ownership or shared mutability for System signals is NOT safe.
+    Refined logic: If signal is System (user_id=None), we can't edit it
+    directly if we want to share it.
+    But for now, assuming simple ownership or shared mutability for System
+    signals is NOT safe.
 
     Actually, system signals are shared. If User A tracks it, does it track for User B?
     If 'is_saved' is on the Signal row, yes. This is a schema flaw for shared system signals.
@@ -303,7 +305,8 @@ def toggle_save_signal(
 
     Strategy:
     If user owns signal -> Toggle is_saved.
-    If signal is System (user_id=None) -> CLONE it to user_id=current_user.id and set is_saved=1.
+    If signal is System (user_id=None) -> CLONE it to user_id=current_user.id
+    and set is_saved=1.
     """
     try:
         sig = db.query(Signal).filter(Signal.id == signal_id).first()
@@ -325,7 +328,8 @@ def toggle_save_signal(
 
         elif sig.user_id is None:
             # System Signal -> Clone to User to Track it personally
-            # Check if already cloned? Query signal with same idempotency or strategy+time+token and user_id?
+            # Check if already cloned? Query signal with same idempotency or
+            # strategy+time+token and user_id?
             # Too complex. For this iteration, if they click Track on a system
             # signal, we clone it.
 

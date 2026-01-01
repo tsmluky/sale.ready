@@ -258,7 +258,10 @@ class RSIDivergenceStrategy(Strategy):
                 0.85, 0.7 + (abs(bullish_div["rsi_diff"]) / 100)
             )  # Mayor diferencia RSI = mayor confidence
 
-            rationale = f"Bullish Divergence: Price -{bullish_div['price_diff']:.1f}%, RSI +{bullish_div['rsi_diff']:.1f} (Exhaustion)"
+            rationale = (
+                f"Bullish Divergence: Price -{bullish_div['price_diff']:.1f}%, "
+                f"RSI +{bullish_div['rsi_diff']:.1f} (Exhaustion)"
+            )
 
             # Timestamp: Strict candle timestamp
             ts_idx = d.index[-1]
@@ -311,7 +314,10 @@ class RSIDivergenceStrategy(Strategy):
 
             confidence = min(0.85, 0.7 + (abs(bearish_div["rsi_diff"]) / 100))
 
-            rationale = f"Bearish Divergence: Price +{bearish_div['price_diff']:.1f}%, RSI -{bearish_div['rsi_diff']:.1f} (Exhaustion)"
+            rationale = (
+                f"Bearish Divergence: Price +{bearish_div['price_diff']:.1f}%, "
+                f"RSI -{bearish_div['rsi_diff']:.1f} (Exhaustion)"
+            )
 
             # Timestamp: Strict candle timestamp
             ts_idx = d.index[-1]

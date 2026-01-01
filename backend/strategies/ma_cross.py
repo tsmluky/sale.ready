@@ -151,7 +151,6 @@ class MACrossStrategy(Strategy):
         timeframe: str,
         context: Optional[Dict[str, Any]] = None,
     ) -> List[Signal]:
-
         valid_tokens = self.validate_tokens(tokens)
         all_signals = []
 

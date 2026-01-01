@@ -32,7 +32,8 @@ def fix_data():
         try:
             conn.execute(
                 text(
-                    "UPDATE strategy_configs SET strategy_id='rsi_macd_divergence_v1' WHERE strategy_id='rsi_divergence_v1'"
+                    "UPDATE strategy_configs SET strategy_id='rsi_macd_divergence_v1' "
+                    "WHERE strategy_id='rsi_divergence_v1'"
                 )
             )
             conn.commit()

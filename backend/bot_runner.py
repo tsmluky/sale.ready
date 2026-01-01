@@ -50,7 +50,8 @@ async def analyze_lite(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
         except requests.exceptions.ConnectionError:
             await update.message.reply_text(
-                "❌ Error: El Backend no está corriendo. Ejecuta 'python backend/main.py'."
+                "❌ Error: El Backend no está corriendo. "
+                "Ejecuta 'python backend/main.py'."
             )
             return
 
@@ -72,17 +73,17 @@ async def analyze_lite(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Formato seguro
         msg = f"""
 {emoji} **SIGNAL: {signal}**
-**{data['token'].upper()}** | {data['timeframe']}
+**{data["token"].upper()}** | {data["timeframe"]}
 
-💰 **Precio:** ${data['entry']}
-🎯 **TP:** {data['tp']}
-🛑 **SL:** {data['sl']}
-📊 **Confianza:** {data['confidence']}
+💰 **Precio:** ${data["entry"]}
+🎯 **TP:** {data["tp"]}
+🛑 **SL:** {data["sl"]}
+📊 **Confianza:** {data["confidence"]}
 
 🧠 **Razón:**
-_{data['rationale']}_
+_{data["rationale"]}_
 
-⚙️ *RSI: {data['indicators']['rsi']} | Trend: {data['indicators']['trend']}*
+⚙️ *RSI: {data["indicators"]["rsi"]} | Trend: {data["indicators"]["trend"]}*
         """
 
         await update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)

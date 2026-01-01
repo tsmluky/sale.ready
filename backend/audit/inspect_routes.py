@@ -17,7 +17,9 @@ routes = []
 for route in app.routes:
     if isinstance(route, APIRoute):
         methods = ",".join(route.methods)
-        auth = "Yes" if "get_current_user" in str(route.dependencies) or "require_pro" in str(route.dependencies) else "No (Public?)"
+        is_auth = "get_current_user" in str(route.dependencies)
+        is_pro = "require_pro" in str(route.dependencies)
+        auth = "Yes" if is_auth or is_pro else "No (Public?)"
         # Check explicit dependencies inspecting the route object is hard, 
         # but we can look for 'Depends' in the signature repr or manually labeled.
         # Simple heuristic:
