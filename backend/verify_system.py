@@ -1,5 +1,4 @@
 import requests
-import sys
 
 BASE_URL = "http://localhost:8000"
 
@@ -38,7 +37,8 @@ check_json("Marketplace Strategies", f"{BASE_URL}/strategies/marketplace")
 check_json("System Config", f"{BASE_URL}/system/config")
 
 # Check if public endpoints are up
-check("Logs Endpoint (Auth Required - Expect 401)", f"{BASE_URL}/logs/recent") # Should be 401 actually, or 200 if open
+check("Logs Endpoint (Auth Required - Expect 401)", f"{BASE_URL}/logs/recent") 
+
 # Wait, logs might be protected.
 try:
     res = requests.get(f"{BASE_URL}/logs/recent", timeout=5)
@@ -46,7 +46,7 @@ try:
         print(f"[PASS] Logs Endpoint: Reachable ({res.status_code})")
     else:
         print(f"[FAIL] Logs Endpoint: {res.status_code}")
-except:
+except Exception:
     print("[FAIL] Logs Endpoint: Connection Error")
 
 print("=== Verification Complete ===")

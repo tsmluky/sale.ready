@@ -7,7 +7,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from main import _build_lite_from_market, _inject_rag_into_lite_rationale, _build_pro_markdown, _load_brain_context
-from models import LiteSignal, ProReq
+from models import ProReq
 
 # Mock Data
 mock_market = {

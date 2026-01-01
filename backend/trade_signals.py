@@ -1,9 +1,9 @@
 from __future__ import annotations
 from fastapi import APIRouter
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from datetime import datetime, timezone
-import json
+import json  # Used in build_prompt
 
 from app.signal_logger import log_trade_signal
 from app.llm_client import LLMClient
@@ -18,6 +18,7 @@ class AnalyzeRequest(BaseModel):
     price: Optional[float] = None
     indicators: Optional[Dict[str, Any]] = None
     mode: str = "LITE"
+
 class AnalyzeResponse(BaseModel):
     ok: bool
     path: Optional[str] = None
@@ -25,7 +26,12 @@ class AnalyzeResponse(BaseModel):
     payload: Optional[Dict[str, Any]] = None
 
 # ======== Prompt helper ========
-def build_prompt(token: str, timeframe: str, price: float | None = None, indicators: Optional[Dict[str, Any]] = None) -> str:
+def build_prompt(
+    token: str, 
+    timeframe: str, 
+    price: float | None = None, 
+    indicators: Optional[Dict[str, Any]] = None
+) -> str:
     try:
         with open("app/prompts/force_trade_signal.md", "r", encoding="utf-8") as f:
             tpl = f.read()
@@ -42,7 +48,12 @@ def build_prompt(token: str, timeframe: str, price: float | None = None, indicat
     return tpl
 
 # ======== LLM (DeepSeek/OpenAI-compatible) ========
-def call_llm_force_trade_signal(prompt: str, token: str, timeframe: str, price: float | None = None) -> Dict[str, Any]:
+def call_llm_force_trade_signal(
+    prompt: str, 
+    token: str, 
+    timeframe: str, 
+    price: float | None = None
+) -> Dict[str, Any]:
     client = LLMClient()
     return client.generate_trade_signal(prompt)
 
@@ -63,7 +74,9 @@ def analyze(req: AnalyzeRequest) -> AnalyzeResponse:
             _inds = auto_inds
     prompt = build_prompt(req.token, req.timeframe, float(_price), _inds)
     try:
-        llm_json = call_llm_force_trade_signal(prompt, req.token, req.timeframe, req.price)
+        llm_json = call_llm_force_trade_signal(
+            prompt, req.token, req.timeframe, req.price
+        )
         # Forzar timestamp del backend (UTC actual), aunque el LLM proponga otro
         llm_json["timestamp"] = datetime.now(timezone.utc).isoformat()
     except Exception as e:

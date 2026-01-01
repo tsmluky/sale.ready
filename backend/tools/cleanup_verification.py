@@ -1,7 +1,6 @@
 
 import sys
 import os
-import asyncio
 
 # Setup Paths
 current_dir = os.path.dirname(os.path.abspath(__file__))

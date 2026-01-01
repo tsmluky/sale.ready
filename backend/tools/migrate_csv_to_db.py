@@ -4,7 +4,6 @@ Script para migrar datos históricos de CSV a SQLite.
 Uso: cd backend && python tools/migrate_csv_to_db.py
 """
 
-import os
 import sys
 import csv
 from datetime import datetime

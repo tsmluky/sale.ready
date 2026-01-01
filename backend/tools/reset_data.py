@@ -1,15 +1,13 @@
 
 import sys
 import os
-import shutil
 from pathlib import Path
 from sqlalchemy import text
 
 # Add backend to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from database import engine_sync, SessionLocal
-from models_db import Base
+from database import SessionLocal
 
 def reset_system():
     print("🧹 Starting System Reset / Clean Slate...")

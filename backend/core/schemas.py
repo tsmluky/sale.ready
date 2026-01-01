@@ -10,7 +10,7 @@ Objetivo: Permitir un único punto de entrada para logging, API y evaluación.
 
 from __future__ import annotations
 from datetime import datetime
-from typing import Optional, Dict, Any, Literal, List
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, EmailStr
 
 

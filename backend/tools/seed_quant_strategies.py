@@ -3,12 +3,11 @@ import sys
 import os
 import json
 from datetime import datetime
-from sqlalchemy.orm import Session
 
 # Add backend to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from database import engine_sync, SessionLocal, Base
+from database import SessionLocal
 from models_db import StrategyConfig
 
 def seed_quant_configs():

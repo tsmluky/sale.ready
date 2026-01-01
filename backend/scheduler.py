@@ -8,7 +8,6 @@ NO requiere Docker ni cron, solo:
 """
 
 import sys
-import os
 import time
 import json
 import logging
@@ -24,7 +23,6 @@ sys.path.insert(0, str(current_dir))
 
 from database import SessionLocal
 from strategies.registry import get_registry
-from core.signal_logger import log_signal
 from core.signal_evaluator import evaluate_pending_signals
 from models_db import StrategyConfig, User
 from notify import send_telegram

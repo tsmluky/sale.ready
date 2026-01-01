@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Tuple, Optional
+from typing import List
 from core.ai_service import get_ai_service
 
 # === BRAND CONTRACT ===

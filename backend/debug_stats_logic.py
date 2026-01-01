@@ -1,10 +1,9 @@
 from sqlalchemy import create_engine, func, or_
-from sqlalchemy.orm import sessionmaker, declarative_base
-from models_db import Signal, SignalEvaluation, User
+from sqlalchemy.orm import sessionmaker
+from models_db import Signal
 from datetime import datetime, timedelta
 
 # Mock Database
-import os
 DB_PATH = "dev_local.db"
 DATABASE_URL = f"sqlite:///./{DB_PATH}"
 

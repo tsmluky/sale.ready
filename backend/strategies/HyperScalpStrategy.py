@@ -5,8 +5,6 @@ Hyper Scalp Strategy - Optimized for High Frequency / Demo Engagement
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import pandas as pd
-import pandas_ta as ta
-import numpy as np
 
 from .base import Strategy, StrategyMetadata
 from core.schemas import Signal

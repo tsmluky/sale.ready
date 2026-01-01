@@ -1,6 +1,5 @@
 import sys
 import os
-import asyncio
 
 # Ensure backend dir is in path
 current_dir = os.path.dirname(os.path.abspath(__file__))

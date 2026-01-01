@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 import traceback
-from typing import Dict, Any, Optional, Literal
 from datetime import datetime
-from pydantic import BaseModel, Field
 
 # Imports internos
 from indicators.market import get_market_data
@@ -38,7 +36,6 @@ from routers.auth_new import get_current_user
 from models_db import User
 from core.limiter import limiter
 from fastapi import Request
-from dependencies import require_pro
 
 @router.post("/lite")
 @limiter.limit("20/minute") # Higher limit for Lite

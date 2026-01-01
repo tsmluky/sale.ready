@@ -1,6 +1,5 @@
 from database import SessionLocal
 from models_db import User
-from sqlalchemy import select
 
 db = SessionLocal()
 u = db.query(User).filter(User.email == 'tsmluky@gmail.com').first()

@@ -1,8 +1,6 @@
 
 import sys
 import os
-import asyncio
-from datetime import datetime
 
 # Setup Paths
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +11,6 @@ from database import SessionLocal
 from models_db import User, Signal
 from routers.analysis import _analyze_lite_unsafe
 from models import LiteReq
-from sqlalchemy import select
 
 def verify_system():
     print("🚀 Verifying System Integrity...")
@@ -59,7 +56,7 @@ def verify_system():
         if os.path.exists(csv_path):
              print(f"✅ CSV Log found: {csv_path}")
         else:
-             print(f"⚠️ CSV Log not found (might differ based on mode).")
+             print("⚠️ CSV Log not found (might differ based on mode).")
 
     except Exception as e:
         print(f"❌ Verification Error: {e}")

@@ -24,7 +24,7 @@ if not db_url:
     print("DATABASE_URL=postgresql://postgres:SzApckZdqOnbbbyeLeWLRVfBZWZtAaVu@shinkansen.proxy.rlwy.net:37966/railway")
     sys.exit(1)
 
-print(f"\n✅ DATABASE_URL encontrada")
+print("\n✅ DATABASE_URL encontrada")
 print(f"   Host: {db_url.split('@')[1].split(':')[0] if '@' in db_url else 'N/A'}")
 
 # 2. Probar conexión
@@ -103,11 +103,11 @@ try:
             })
         )
         db.add(donchian)
-        print(f"  ✅ Creada: donchian_v2")
+        print("  ✅ Creada: donchian_v2")
     else:
         donchian.enabled = 1
         donchian.interval_seconds = 3600
-        print(f"  ✅ Actualizada: donchian_v2")
+        print("  ✅ Actualizada: donchian_v2")
     
     db.commit()
     db.close()

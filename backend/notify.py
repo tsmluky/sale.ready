@@ -1,5 +1,7 @@
 from __future__ import annotations
-import os, json, requests
+import os
+import json
+import requests
 from pywebpush import webpush, WebPushException
 from database import SessionLocal
 from models_db import PushSubscription

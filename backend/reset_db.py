@@ -1,12 +1,10 @@
 import sys
 import os
-from sqlalchemy import text
 
 # Add backend directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal, engine_sync, Base
-from models_db import Signal, SignalEvaluation, User, StrategyConfig
+from database import engine_sync, Base
 
 def reset_db():
     print("--- [RESET DB] Dropping all tables to enforce new Schema/Constraints ---")

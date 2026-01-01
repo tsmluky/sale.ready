@@ -46,7 +46,7 @@ def test_registration():
         print(f"CRASH: {e}")
         
     # 3. Invalid Email Format
-    print(f"\n[TEST 3] Testing Invalid Email Format")
+    print("\n[TEST 3] Testing Invalid Email Format")
     bad_payload = {
         "email": "not-an-email",
         "password": "password123",

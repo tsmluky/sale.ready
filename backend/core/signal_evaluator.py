@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from sqlalchemy import select, and_
 from typing import List, Dict
 
 from models_db import Signal, SignalEvaluation, StrategyConfig

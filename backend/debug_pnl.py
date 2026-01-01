@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine, text
-import os
 from datetime import datetime
 
 # Use the PUBLIC URL provided by the user previously

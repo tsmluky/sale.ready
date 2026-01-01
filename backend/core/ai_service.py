@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import requests
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
+from typing import List, Dict
 
 
 
@@ -156,7 +156,7 @@ class GeminiProvider(AIProvider):
             is_quota_error = "429" in error_msg or "403" in error_msg or "quota" in error_msg.lower() or "resource" in error_msg.lower()
             
             if is_quota_error:
-                print(f"[AI] ⚠️ Gemini Rate Limit Hit during Analysis. Falling back to DeepSeek...")
+                print("[AI] ⚠️ Gemini Rate Limit Hit during Analysis. Falling back to DeepSeek...")
                 try:
                     fallback = DeepSeekProvider()
                     return fallback.generate_analysis(prompt, system_instruction)

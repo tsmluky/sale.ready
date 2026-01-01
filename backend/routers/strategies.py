@@ -6,18 +6,15 @@ Single Source of Truth: 'strategy_configs' table.
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+from typing import List, Dict, Any
 import json
 import re
 
 from database import SessionLocal
 from models_db import StrategyConfig, User, Signal, SignalEvaluation
-from strategies.registry import get_registry
-from core.signal_logger import log_signal
 from pydantic import BaseModel
 from routers.auth_new import get_current_user
-from dependencies import require_plan, require_pro
+from dependencies import require_plan
 
 # === Dependency ===
 def get_db():

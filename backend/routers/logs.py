@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -7,7 +7,7 @@ from models_db import Signal, SignalEvaluation
 from pydantic import BaseModel
 from datetime import datetime
 from routers.auth_new import get_current_user
-from models_db import User, Signal, SignalEvaluation
+from models_db import User
 
 router = APIRouter(tags=["logs"])
 
@@ -53,7 +53,7 @@ def get_recent_logs(
     - include_system=False: SOLO muestra señales Propias o Guardadas (Dashboard limpio).
     """
     try:
-        from sqlalchemy import or_, and_
+        from sqlalchemy import or_
         
         # Initialize query FIRST
         query = db.query(Signal)

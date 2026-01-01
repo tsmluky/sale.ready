@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc, or_
+from sqlalchemy import func
 from datetime import datetime, timedelta
-import models_db
 from database import get_db
 from routers.auth_new import get_current_user
 from models_db import User, Signal, SignalEvaluation

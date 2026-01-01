@@ -6,7 +6,6 @@ import string
 sys.path.append(os.path.join(os.getcwd(), 'backend'))
 os.environ["DATABASE_URL"] = "sqlite:///./dev_local.db"
 os.environ["AI_PROVIDER"] = "deepseek" # Force DeepSeek or dummy to avoid Gemini failing in test if key missing
-import pytest
 from fastapi.testclient import TestClient
 from main import app
 

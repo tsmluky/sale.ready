@@ -1,12 +1,11 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
 import re
-from pathlib import Path
 from datetime import datetime
 import pytz
 
@@ -128,7 +127,7 @@ async def analyze_token(req: AnalysisRequest):
         print("📤 PROMPT COMPLETO:\n", prompt)
 
         response = await get_response_from_llm(prompt)
-        logger.info(f"[📨 Respuesta LLM recibida]")
+        logger.info("[📨 Respuesta LLM recibida]")
         print("[📨 RAW LLM RESPONSE]:", response)
 
         if not is_valid_response(mode, response):

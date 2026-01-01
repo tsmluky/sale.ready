@@ -1,13 +1,12 @@
 import sys
 import os
-import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Add backend directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import SessionLocal, engine_sync, Base
-from models_db import Signal, SignalEvaluation, User, StrategyConfig
+from database import SessionLocal
+from models_db import Signal, SignalEvaluation
 from backend.core.backtest_engine import BacktestEngine
 
 # --- CONFIG ---

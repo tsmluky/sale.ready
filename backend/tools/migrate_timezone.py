@@ -1,6 +1,5 @@
 import sqlite3
 import os
-from database import DATABASE_URL
 
 # Helper to normalize DB URL for sqlite
 # Assuming sqlite:///./trader.db format. 

@@ -10,7 +10,6 @@ en el formato adecuado para logs CSV y base de datos.
 """
 
 from __future__ import annotations
-import os
 import csv
 from datetime import datetime
 from pathlib import Path

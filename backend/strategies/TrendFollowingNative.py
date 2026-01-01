@@ -7,8 +7,6 @@ Ported from Jesse Framework to Native TraderCopilot format.
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import pandas as pd
-import pandas_ta as ta  # Using pandas_ta directly
-import numpy as np
 
 from .base import Strategy, StrategyMetadata
 from core.schemas import Signal

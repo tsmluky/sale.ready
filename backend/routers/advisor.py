@@ -239,7 +239,7 @@ def update_advisor_profile(
     return profile
 
 # ==== Endpoint Analysis Advisor (Legacy V1 Local) ====
-from models import AdvisorReq, CopilotProfileResp, CopilotProfileUpdate
+from models import CopilotProfileResp, CopilotProfileUpdate
 from core.schemas import Signal
 from core.signal_logger import log_signal
 from datetime import datetime

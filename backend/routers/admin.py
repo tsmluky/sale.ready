@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, func
 from typing import List, Optional, Any
-from datetime import datetime
 
 from database import SessionLocal
-from models_db import User, Signal, AdminAuditLog, StrategyConfig
+from models_db import User, Signal, AdminAuditLog
 from dependencies import require_owner
 from pydantic import BaseModel
 

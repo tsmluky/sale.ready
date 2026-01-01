@@ -3,7 +3,7 @@
 
 from database import SessionLocal
 from models_db import Signal, SignalEvaluation
-from sqlalchemy import select, func
+from sqlalchemy import func
 
 def main():
     db = SessionLocal()

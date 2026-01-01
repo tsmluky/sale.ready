@@ -21,7 +21,7 @@ def clean_signals():
         cursor.execute("DELETE FROM signals")
         
         conn.commit()
-        print(f"Deleted ALL signals and evaluations.")
+        print("Deleted ALL signals and evaluations.")
         
         # Verify
         cursor.execute("SELECT COUNT(*) FROM signals")

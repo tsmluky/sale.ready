@@ -43,7 +43,7 @@ async def start_telegram_bot():
         print("[TELEGRAM BOT] No Token found. Bot waiting...")
         return
 
-    print(f"[TELEGRAM BOT] Initializing Bot...")
+    print("[TELEGRAM BOT] Initializing Bot...")
     
     # Build Application
     telegram_app = Application.builder().token(BOT_TOKEN).build()

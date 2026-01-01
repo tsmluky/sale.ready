@@ -5,8 +5,7 @@ import inspect
 import sys
 import os
 import traceback
-from typing import List, Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, Any
 
 # Add root to path to find 'strategies'
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -227,7 +226,7 @@ class BacktestEngine:
                                 "timestamp": current_ts_val
                             }
                             
-                    except Exception as e:
+                    except Exception:
                         pass
     
                 # --- C. UPDATE EQUITY CURVE (Each Candle) ---

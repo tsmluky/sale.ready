@@ -9,7 +9,7 @@ API_KEY = os.getenv("DEEPSEEK_API_KEY")
 API_URL = os.getenv("DEEPSEEK_API_URL", "https://api.deepseek.com/chat/completions")
 MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
-print(f"--- DeepSeek Verification ---")
+print("--- DeepSeek Verification ---")
 print(f"API URL: {API_URL}")
 print(f"Model: {MODEL}")
 if API_KEY:
@@ -33,7 +33,7 @@ headers = {
 }
 
 try:
-    print(f"Sending request...")
+    print("Sending request...")
     resp = requests.post(API_URL, json=payload, headers=headers, timeout=10)
     print(f"Status Code: {resp.status_code}")
     

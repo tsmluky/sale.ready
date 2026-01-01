@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 def ema(series: pd.Series, span: int) -> pd.Series:
     """Exponential Moving Average"""

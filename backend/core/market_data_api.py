@@ -7,7 +7,7 @@ Refactorizado para usar CCXT (Binance) para consistencia con Trading Lab.
 import ccxt
 import time
 from typing import List, Dict, Any, Optional, Tuple, Union
-from datetime import datetime, timedelta
+from datetime import datetime
 from core.cache import cache  # Importar Cache
 
 print("[DEBUG] LOADING MARKET_DATA_API (Scale-Ready Fix)")
@@ -83,7 +83,7 @@ def get_ohlcv_data(
             continue # Try next exchange
 
     # 2. Last Resort: Fail gracefully (No Mocks allowed per User Request)
-    print(f"[MARKET DATA] 🚨 All exchanges failed. Returning EMPTY to avoid fake data.")
+    print("[MARKET DATA] 🚨 All exchanges failed. Returning EMPTY to avoid fake data.")
     if return_source:
         return [], "none"
     return []

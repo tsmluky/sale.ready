@@ -1,9 +1,7 @@
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
 from core.backtest_engine import BacktestEngine
-import traceback
 
 router = APIRouter(prefix="/backtest", tags=["backtest"])
 

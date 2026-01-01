@@ -1,6 +1,5 @@
 import os
 import ast
-import sys
 
 # Define the root of the backend
 BACKEND_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

@@ -14,9 +14,6 @@ from strategies.bb_mean_reversion import BBMeanReversionStrategy
 from backend.core.schemas import Signal
 from backend.core.signal_logger import log_signal
 from evaluated_logger import evaluate_all_tokens
-from models_db import StrategyConfig
-from sqlalchemy.orm import Session
-from database import SessionLocal
 
 async def init_db():
     print("🔹 Initializing Database...")

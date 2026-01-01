@@ -1,12 +1,9 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import HTTPException
 from pydantic import BaseModel
 from typing import Optional
-import os
 import pathlib
-import json
 
-from dotenv import load_dotenv
 
 # === Cargar .env directamente desde backend/.env ===
 BASE_DIR = pathlib.Path(__file__).resolve().parents[1]

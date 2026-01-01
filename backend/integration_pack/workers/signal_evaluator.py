@@ -1,5 +1,4 @@
-import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 # Asumimos imports de tu backend
 # from db.session import get_db
 # from models_db import SignalModel

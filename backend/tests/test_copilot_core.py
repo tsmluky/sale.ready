@@ -13,8 +13,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import app, get_db
 from database import Base
-from models_db import User, CopilotProfile
-from core.brand_guard import check_brand_safety, detect_intent, check_minimum_viability, repair_response
+from models_db import User
+from core.brand_guard import check_brand_safety, repair_response
 # Import dependency from the MODULE THAT USES IT to ensure key match
 from routers.advisor import get_current_user
 

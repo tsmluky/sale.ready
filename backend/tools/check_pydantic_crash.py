@@ -4,7 +4,7 @@ from main import app
 from core.security import create_access_token
 from datetime import timedelta
 try:
-    from pydantic import BaseModel, Field
+    from pydantic import BaseModel
     
     print("Pydantic imported.")
     import pydantic

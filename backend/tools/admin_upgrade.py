@@ -1,7 +1,6 @@
 import sys
 import os
 import argparse
-from sqlalchemy.orm import Session
 from database import SessionLocal
 from models_db import User
 

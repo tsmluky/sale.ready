@@ -1,13 +1,11 @@
 ﻿import sys
 import os
 import asyncio
-import csv
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any, Tuple
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File, BackgroundTasks, WebSocket, WebSocketDisconnect, Response
+from fastapi import FastAPI, HTTPException, Request
 import fastapi
-from dotenv import load_dotenv
 
 # ==== 1. ConfiguraciÃ³n de entorno (Deterministic Loading) ====
 # CRITICAL: This must happen BEFORE any other module import that uses env vars (like database.py)
@@ -29,25 +27,19 @@ if "postgres" in db_url:
 else:
     masked_url = db_url.replace("sqlite:///", "")
 
-print(f"==================================================")
-print(f" TRADERCOPILOT BACKEND v2.0.1 (Sale-Ready + Fix)")
-print(f"==================================================")
+print("==================================================")
+print(" TRADERCOPILOT BACKEND v2.0.1 (Sale-Ready + Fix)")
+print("==================================================")
 print(f" [BOOT] DB_DIALECT: {db_dialect}")
 print(f" [BOOT] DB_URL_MASKED: {masked_url}")
-print(f"==================================================")
+print("==================================================")
 
 # ==== 2. Imports locales (safe to import now) ====
-from sqlalchemy import text
-from indicators.market import get_market_data  # Capa Quant
-from models import LiteReq, LiteSignal, ProReq, AdvisorReq  # Modelos oficiales LITE/PRO
 from pydantic import BaseModel
 
 # === 2b. Imports del Signal Hub unificado ===
-from core.schemas import Signal
-from core.signal_logger import log_signal, signal_from_dict
 
 # === 2c. RAG Context ===
-from rag_context import build_token_context
 
 # ==== 3. FastAPI App ====
 
@@ -55,7 +47,6 @@ from rag_context import build_token_context
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 from core.limiter import limiter
-from slowapi.middleware import SlowAPIMiddleware
 
 # === App Initialization ===
 print(f"[BOOT] CWD: {os.getcwd()}")
@@ -246,7 +237,7 @@ app.add_middleware(
 # ==== DB Init ====
 from database import engine, Base, get_db
 from sqlalchemy.orm import Session
-from models_db import Signal as SignalDB, SignalEvaluation, User, StrategyConfig, PushSubscription  # Import models to register them
+from models_db import User  # Import models to register them
 
 @app.on_event("startup")
 async def startup():
@@ -334,7 +325,7 @@ async def startup():
             db.execute(text("ALTER TABLE strategy_configs ADD COLUMN persona_id VARCHAR"))
             db.commit()
             print("🔧 [DB MIGRATION] Added 'persona_id' column.")
-        except Exception as e:
+        except Exception:
             db.rollback()
             # Ignore if already exists
             # print(f"⚠️ [DB MIGRATION] Column check: {e}")
@@ -345,7 +336,7 @@ async def startup():
             db.execute(text("ALTER TABLE users ADD COLUMN timezone VARCHAR DEFAULT 'UTC'"))
             db.commit()
             print("🔧 [DB MIGRATION] Added 'timezone' column to users.")
-        except Exception as e:
+        except Exception:
             db.rollback()
             pass
             
@@ -484,9 +475,8 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
     Fallback a CSV si la DB falla.
     """
     try:
-        from typing import Dict, Any
         from sqlalchemy import func, or_
-        from models_db import Signal, SignalEvaluation, User
+        from models_db import Signal, SignalEvaluation
         from database import SessionLocal
         
         db = SessionLocal()
@@ -739,7 +729,6 @@ if __name__ == "__main__":
 # ==== 11.1 Endpoint ADVISOR CHAT (Unified Router Mount) ====
 # Double-mount technique: Official + Legacy (Hidden)
 from routers.advisor import router as advisor_router
-from routers.analysis import router as analysis_router
 from routers.strategies import router as strategies_router
 from routers.admin import router as admin_router
 

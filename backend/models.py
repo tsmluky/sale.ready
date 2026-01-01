@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 # == Request models ==
 
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import field_validator, ConfigDict
 
 class LiteReq(BaseModel):
     token: str = Field(..., description="Token base: eth|btc|sol|xau")

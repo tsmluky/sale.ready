@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query
 from typing import List, Optional
 from core.market_data_api import get_market_summary, get_ohlcv_data
 

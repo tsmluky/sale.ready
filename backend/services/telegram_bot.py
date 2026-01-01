@@ -1,6 +1,5 @@
 import os
 import httpx
-from typing import Optional
 
 class TelegramBot:
     """
