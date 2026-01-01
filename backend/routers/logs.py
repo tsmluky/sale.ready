@@ -14,17 +14,17 @@ router = APIRouter(tags=["logs"])
 
 class LogEntry(BaseModel):
     id: int
-    timestamp: datetime
-    token: str
-    timeframe: str
-    direction: str
-    entry: float
-    tp: float
-    sl: float
-    confidence: float
-    source: str
-    mode: str
-    status: str = "OPEN"
+    timestamp: Optional[datetime] = None
+    token: Optional[str] = "UNKNOWN"
+    timeframe: Optional[str] = "1h"
+    direction: Optional[str] = "neutral"
+    entry: Optional[float] = 0.0
+    tp: Optional[float] = 0.0
+    sl: Optional[float] = 0.0
+    confidence: Optional[float] = 0.0
+    source: Optional[str] = "System"
+    mode: Optional[str] = "LITE"
+    status: Optional[str] = "OPEN"
     pnl: Optional[float] = None
     closed_at: Optional[datetime] = None
     exit_price: Optional[float] = None
