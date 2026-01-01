@@ -91,6 +91,21 @@ SYSTEM_PERSONAS = [
         "color": "indigo",
         "is_active": True,
         "is_custom": False
+    },
+    {
+        "id": "system_scanner",
+        "name": "Global Market Scanner",
+        "symbol": "SCANNER",
+        "timeframe": "4h",
+        "strategy_id": "trend_following_native_v1",
+        "description": "System-wide scanner evaluating 150+ assets for breakout opportunities.",
+        "risk_level": "Medium",
+        "expected_roi": "Variable",
+        "win_rate": "N/A",
+        "frequency": "High",
+        "color": "cyan",
+        "is_active": True,
+        "is_custom": False
     }
 ]
 

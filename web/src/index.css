@@ -49,6 +49,9 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+    --bg-void: #020617;
+    --bg-glass: rgba(15, 23, 42, 0.7);
+    --text-secondary: #94a3b8;
   }
 
   .dark {
@@ -85,6 +88,9 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.269 0 0);
     --sidebar-ring: oklch(0.439 0 0);
+    --bg-void: #020617;
+    --bg-glass: rgba(2, 6, 23, 0.7);
+    --text-secondary: #94a3b8;
   }
 
   * {
@@ -450,4 +456,5 @@
     }
   }
 }
+
 /* Force redeploy fix */

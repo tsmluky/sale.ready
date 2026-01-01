@@ -110,44 +110,60 @@ async def shutdown_event():
 
 
 
-from fastapi.exceptions import ResponseValidationError
-async def _unhandled_exception_handler(request: Request, exc: Exception):
-    import traceback
-    from datetime import datetime
-    traceback.print_exc()
-    try:
-        with open("crash.log", "a") as f:
-            f.write(f"\n[{datetime.utcnow()}] CRASH: {str(exc)}\n")
-            f.write(traceback.format_exc())
-    except:
-        pass
-    from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=500, content={"code": "INTERNAL_ERROR", "detail": str(exc), "trace": traceback.format_exc()})
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.exceptions import RequestValidationError
 
-app.add_exception_handler(Exception, _unhandled_exception_handler)
-app.add_exception_handler(ResponseValidationError, _unhandled_exception_handler)# Rate Limiter
-app.state.limiter = limiter
-from fastapi.responses import JSONResponse
-from starlette.requests import Request
-from slowapi.errors import RateLimitExceeded
+# === Security: Trusted Host ===
+allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
-def _rate_limit_exceeded_handler_fixed(request, exc):
+# === Security: Exception Handlers (No Stack Traces) ===
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # Log the full error internally, but show generic message externally
+    print(f"[CRITICAL ERROR] {request.method} {request.url}: {exc}")
+    traceback.print_exc() # Still print to logs for debugging
+    
     return JSONResponse(
-        status_code=429,
-        content={"code": "RATE_LIMITED", "detail": "Too many requests. Please retry later."}
+        status_code=500,
+        content={
+            "code": "INTERNAL_SERVER_ERROR", 
+            "detail": "An unexpected error occurred. Please contact support."
+        }
     )
 
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler_fixed)
-# app.add_middleware(SlowAPIMiddleware) # DISABLED FOR DEBUGGING
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"code": "VALIDATION_ERROR", "detail": str(exc)}
+    )
 
-# Payload Size Limit Middleware (64KB)
-# # @app.middleware("http")
+# Rate Limiter Handler
+app.state.limiter = limiter
+from slowapi.errors import RateLimitExceeded
+
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"code": "RATE_LIMIT_EXCEEDED", "detail": "Too many requests. Please try again later."}
+    )
+
+# === Security: Payload Size Limit (256KB) ===
+@app.middleware("http")
 async def limit_upload_size(request: Request, call_next):
+    # Allow higher limit for explicit upload endpoints if needed (e.g. /upload)
+    MAX_BODY_SIZE = 256 * 1024 # 256KB
+    
     if request.method == "POST":
         content_length = request.headers.get("content-length")
         if content_length:
-             if int(content_length) > 64 * 1024:
-                 return Response("Payload too large", status_code=413)
+             if int(content_length) > MAX_BODY_SIZE:
+                 return JSONResponse(
+                     status_code=413,
+                     content={"code": "PAYLOAD_TOO_LARGE", "detail": "Request body exceeds 256KB limit."}
+                 )
     return await call_next(request)
 
 # === CORS (Refactored: Single Source of Truth) ===
@@ -269,6 +285,13 @@ async def startup():
             # 2. Add telegram_chat_id
             try:
                 conn.execute(text("ALTER TABLE users ADD COLUMN telegram_chat_id VARCHAR;"))
+            except:
+                pass
+            
+            # 3. Add is_saved (Analyst Tracking)
+            try:
+                conn.execute(text("ALTER TABLE signals ADD COLUMN is_saved INTEGER DEFAULT 0;"))
+                print("🔧 [DB MIGRATION] Added 'is_saved' column to signals.")
             except:
                 pass
             
@@ -440,40 +463,13 @@ async def notify_telegram(
         return {"status": "skipped", "detail": "No Chat ID provided or configured in .env"}
 
 # ==== 9. Stats & Metrics para Dashboard ====
+# Moved to routers/stats.py
+from routers.stats import router as stats_router
+app.include_router(stats_router, prefix="/stats", tags=["Stats"])
 
 
-def _parse_iso_ts(value: Optional[str]):
-    """
-    Intenta parsear timestamps en varios formatos.
-    Devuelve datetime con tz UTC o None si no se puede.
-    """
-    if not value:
-        return None
 
-    v = value.strip()
-    if not v:
-        return None
 
-    # ISO con Z
-    try:
-        if v.endswith("Z"):
-            v = v.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(v)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt
-    except Exception:
-        pass
-
-    # Formatos alternativos
-    for fmt in ("%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S"):
-        try:
-            dt = datetime.strptime(v, fmt)
-            return dt.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-
-    return None
 
 
 # Update import slightly up top if needed, but get_current_user is likely imported. 
@@ -518,9 +514,13 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
                         # Assuming Signal.timestamp is the key
                         q = q.filter(Signal.timestamp >= user.created_at)
                     
-                    # 2. Ownership Isolation
+                # 2. Ownership Isolation
                     # Show User Signals OR System Signals (user_id=None)
                     q = q.filter(or_(Signal.user_id == user.id, Signal.user_id == None))
+                
+                # REQ: Only show TRACKED (Saved) signals in Stats/Dashboard
+                q = q.filter(Signal.is_saved == 1)
+                
                 return q
 
             # --- 1. Evaluated in last 24h ---
@@ -551,9 +551,10 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
             else:
                 win_rate_24h = 0
                 
-            # --- 5. LITE Signals (24h) ---
+            # --- 5. LITE Signals (24h) (TRACKED ONLY) ---
             q_lite = db.query(func.count(Signal.id))
-            q_lite = apply_filters(q_lite)
+            q_lite = apply_filters(q_lite) 
+            # Note: apply_filters enforces is_saved=1
             lite_24h = q_lite.filter(
                 Signal.timestamp >= day_ago,
                 Signal.mode == 'LITE'
@@ -564,7 +565,8 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
             q_pnl = apply_filters(q_pnl)
             pnl_7d_total = q_pnl.filter(SignalEvaluation.evaluated_at >= week_ago).scalar() or 0.0
 
-            # Open signals (Estimate)
+            # Open signals (Estimate) - Using strictly tracked signals
+            # Since lite_24h applies is_saved=1, this will only count tracked signals.
             open_signals_est = max(lite_24h - eval_24h_count, 0)
             
             return {
@@ -579,9 +581,19 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
             db.close()
             
     except Exception as e:
-        print(f"Database query failed, falling back to CSV: {e}")
-        # Fallback to CSV-based computation (Legacy, no user scoping for now)
-        return compute_stats_summary_from_csv()
+        print(f"DATABASE ERROR IN STATS: {e}")
+        # import traceback
+        # traceback.print_exc()
+        
+        # Fallback to empty stats to avoid showing confusing CSV data
+        return {
+            "win_rate_24h": 0,
+            "signals_evaluated_24h": 0,
+            "signals_total_evaluated": 0,
+            "signals_lite_24h": 0,
+            "open_signals": 0,
+            "pnl_7d": 0.0
+        }
 
 from fastapi import Depends
 from routers.auth_new import get_current_user

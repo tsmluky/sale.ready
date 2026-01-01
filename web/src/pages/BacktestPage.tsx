@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, TrendingUp, TrendingDown, Clock, Info, Save, RotateCcw } from 'lucide-react';
+import { Play, TrendingUp, TrendingDown, Clock, Info, Save, RotateCcw, Search, Check, ChevronDown } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Area, AreaChart } from 'recharts';
 import { API_BASE_URL } from '../constants';
 import { api } from '../services/api';
@@ -13,6 +13,93 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ThinkingOverlay } from '../components/ThinkingOverlay';
+
+// Full Token Whitelist for Backtesting
+const TOKENS = [
+    "BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "AVAX", "DOT", "MATIC",
+    "TRX", "LTC", "SHIB", "UNI", "ATOM", "LINK", "XLM", "BCH", "ALGO", "NEAR",
+    "FIL", "VET", "ICP", "HBAR", "EGLD", "SAND", "MANA", "AXS", "THETA", "EOS",
+    "AAVE", "XTZ", "FLOW", "FTM", "GRT", "KCS", "MKR", "SNX", "ZEC", "RUNE",
+    "NEO", "CRV", "CHZ", "BAT", "ENJ", "DASH", "CAKE", "STX", "SUSHI", "COMP",
+    "PEPE", "FLOKI", "BONK", "WIF", "JUP", "PYTH", "TIA", "SEI", "SUI", "APT",
+    "ARB", "OP", "BLUR", "LDO", "RNDR", "INJ", "IMX", "KAS", "FET", "AGIX"
+];
+
+const TokenSelector = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState("");
+
+    // Filter tokens based on search
+    const filteredTokens = TOKENS.filter(t => t.includes(search.toUpperCase()));
+
+    return (
+        <div className="relative">
+            {/* Backdrop to close */}
+            {isOpen && (
+                <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+            )}
+
+            {/* Trigger */}
+            <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between w-full h-10 px-3 py-2 text-sm bg-black/20 border border-white/10 rounded-md cursor-pointer hover:bg-white/5 transition-colors text-white font-medium focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+                <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-slate-300">
+                        {value[0]}
+                    </span>
+                    {value} <span className="text-slate-500 text-xs">/ USDT</span>
+                </span>
+                <ChevronDown size={14} className={`text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            {/* Dropdown */}
+            {isOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 z-50 bg-[#0f172a] border border-white/10 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-100 ring-1 ring-white/5">
+                    {/* Search Input */}
+                    <div className="p-2 border-b border-white/5 bg-white/[0.02]">
+                        <div className="relative">
+                            <Search size={14} className="absolute left-3 top-2.5 text-slate-500" />
+                            <input
+                                autoFocus
+                                type="text"
+                                placeholder="Search token..."
+                                className="w-full bg-[#020617] border border-white/10 rounded-lg py-2 pl-9 pr-3 text-xs text-white focus:outline-none focus:border-gold-500/50 transition-colors placeholder:text-slate-600"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-[240px] overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                        {filteredTokens.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-slate-500 italic">No tokens found.</div>
+                        ) : (
+                            filteredTokens.map(t => (
+                                <div
+                                    key={t}
+                                    onClick={() => {
+                                        onChange(t);
+                                        setIsOpen(false);
+                                        setSearch("");
+                                    }}
+                                    className={`px-3 py-2 rounded-lg text-sm cursor-pointer flex items-center justify-between group transition-all duration-200 ${value === t ? 'bg-gold-500/10 text-gold-400 font-bold' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <span className={`w-1.5 h-1.5 rounded-full ${value === t ? 'bg-gold-500 shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'bg-slate-700 group-hover:bg-slate-500'}`}></span>
+                                        {t}
+                                    </span>
+                                    {value === t && <Check size={14} className="text-gold-500" />}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
 
 export const BacktestPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -124,19 +211,25 @@ export const BacktestPage: React.FC = () => {
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] mix-blend-screen opacity-20"></div>
             </div>
 
-            <div className="relative z-10 px-6 pt-6 max-w-7xl mx-auto space-y-8">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12 space-y-8">
                 {/* Header */}
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <Badge variant="outline" className="border-brand-500/20 text-brand-300 bg-brand-500/10">BETA LABS</Badge>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                    <div className="pl-6 relative">
+                        <div className="absolute left-0 top-2 bottom-2 w-1 bg-gradient-to-b from-gold-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.5)]"></div>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold-500/20 text-xs font-bold text-gold-400 mb-4 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+                            <Clock size={12} />
+                            Beta Labs
+                        </div>
+                        <h1 className="text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-3">
+                            Strategy{" "}
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-orange-400 to-gold-500 drop-shadow-sm">
+                                Simulator
+                            </span>
+                        </h1>
+                        <p className="text-slate-400 text-base font-light max-w-2xl">
+                            Validate algorithmic theses against historical market data before deploying capital.
+                        </p>
                     </div>
-                    <h1 className="text-4xl font-black text-white flex items-center gap-3 tracking-tight">
-                        Strategy
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-400">Simulator</span>
-                    </h1>
-                    <p className="text-slate-400 text-lg mt-2 max-w-2xl">
-                        Validate algorithmic theses against historical market data before deploying capital.
-                    </p>
                 </div>
 
                 {/* Controls */}
@@ -161,16 +254,10 @@ export const BacktestPage: React.FC = () => {
 
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Asset</label>
-                                <Select value={params.token} onValueChange={(val) => setParams({ ...params, token: val })}>
-                                    <SelectTrigger className="bg-black/20 border-white/10 text-white font-medium">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {['BTC', 'ETH', 'SOL', 'XRP', 'BNB', 'DOGE', 'ADA'].map(t => (
-                                            <SelectItem key={t} value={t}>{t} / USDT</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <TokenSelector
+                                    value={params.token}
+                                    onChange={(val) => setParams({ ...params, token: val })}
+                                />
                             </div>
 
                             <div className="space-y-2">
@@ -198,6 +285,7 @@ export const BacktestPage: React.FC = () => {
                                         <SelectItem value="7">7 Days (Fast)</SelectItem>
                                         <SelectItem value="30">30 Days (Standard)</SelectItem>
                                         <SelectItem value="90">90 Days (Deep)</SelectItem>
+                                        <SelectItem value="365">1 Year (12 Months)</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -206,7 +294,7 @@ export const BacktestPage: React.FC = () => {
                                 size="lg"
                                 onClick={runBacktest}
                                 disabled={loading}
-                                className="w-full font-bold text-md bg-white text-black hover:bg-slate-200 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all flex gap-2"
+                                className="w-full font-bold text-md bg-gradient-to-r from-gold-500 to-orange-600 hover:from-gold-400 hover:to-orange-500 text-white shadow-[0_0_20px_rgba(251,191,36,0.2)] transition-all flex gap-2 border border-white/10"
                             >
                                 {loading ? <RotateCcw className="animate-spin" size={18} /> : <Play size={18} />}
                                 Run Simulation

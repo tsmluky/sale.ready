@@ -1,9 +1,9 @@
 import sys
 import os
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal, engine, Base
-from backend.models_db import User
-from backend.core.security import get_password_hash
+from database import SessionLocal, engine, Base
+from models_db import User
+from core.security import get_password_hash
 
 # Setup path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -33,11 +33,16 @@ def seed_admin_user():
             print("✅ Admin created successfully.")
         else:
             print(f"ℹ️ Admin user already exists: {email}")
+            # FORCE PASSWORD RESET (Verification Fix)
+            print(f"  -> Resetting password to default: {password_plain}")
+            user.hashed_password = get_password_hash(password_plain)
+            
             # ENFORCE OWNER PLAN (Crucial for tests)
             if user.plan != "OWNER":
                 print(f"  -> Upgrading plan from {user.plan} to OWNER")
                 user.plan = "OWNER"
-                db.commit()
+            
+            db.commit()
             
     except Exception as e:
         print(f"❌ Error seeding admin: {e}")

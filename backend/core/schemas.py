@@ -128,6 +128,11 @@ class Signal(BaseModel):
         description="Metadatos adicionales específicos de cada estrategia (dict libre)",
     )
 
+    is_saved: Optional[int] = Field(
+        0,
+        description="Estado de guardado por usuario: 0=No, 1=Si",
+    )
+
     class Config:
         json_schema_extra = {
             "example": {

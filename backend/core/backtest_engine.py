@@ -262,12 +262,30 @@ class BacktestEngine:
             
             final_buy_hold = equity_curve[-1]['buy_hold_equity'] if equity_curve else self.initial_capital
             
+            # --- D. METRICS CALCULATION ---
+            # Max Drawdown
+            max_equity = self.initial_capital
+            max_drawdown = 0.0
+            
+            for point in equity_curve:
+                eq = point['strategy_equity']
+                if eq > max_equity:
+                    max_equity = eq
+                
+                dd = (eq - max_equity) / max_equity
+                if dd < max_drawdown:
+                    max_drawdown = dd
+            
+            roi_pct = ((current_capital - self.initial_capital) / self.initial_capital) * 100
+
             return {
                 "metrics": {
                     "initial_capital": round(self._safe_float(self.initial_capital), 2),
                     "final_capital": round(self._safe_float(current_capital), 2),
                     "total_pnl": round(self._safe_float(current_capital - self.initial_capital), 2),
+                    "roi_pct": round(self._safe_float(roi_pct), 2),
                     "buy_hold_pnl": round(self._safe_float(final_buy_hold - self.initial_capital), 2),
+                    "max_drawdown": round(self._safe_float(max_drawdown * 100), 2),
                     "total_trades": int(len(trades)),
                     "win_rate": round(self._safe_float(win_rate), 1),
                     "best_trade": round(self._safe_float(max([t['pnl'] for t in trades]) if trades else 0), 2),

@@ -1,0 +1,3 @@
+Sending payload: {'token': 'BTC', 'timeframe': '1h', 'mode': 'LITE'}
+Status: 200
+Response: {"timestamp":"2025-12-31T15:41:00.263555","token":"BTC","timeframe":"1h","direction":"short","entry":88004.85,"tp":86244.753,"sl":89324.92275,"confidence":0.45,"rationale":"Sin setup claro, pero tendencia global bajista (trend=BEARISH, RSI 42.6). Señal exploratoria de menor confianza. Ctx: Sentimiento macro global favorece activos de reserva de valor ante la incertidumbre de políticas monetarias.","source":"lite-rule@v2","source_exchange":null,"indicators":{"rsi":42.62,"trend":"BEARISH","macd":110.4,"ema21":88490.91,"atr":404.60759628006844,"source_exchange":"binance"}}

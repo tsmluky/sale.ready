@@ -121,6 +121,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                     key={item.id}
                                     id={`nav-${item.label.toLowerCase().replace(' ', '-')}`} // Added ID for Tutorial Highlight
                                     onClick={() => {
+                                        // Scroll to top if already on page
+                                        if (isActive) {
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            // Handle main content area scroll if separated
+                                            const main = document.querySelector('main');
+                                            if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }
                                         console.log(`[NAV] Clicked: ${item.label} (${item.id})`);
                                         navigate(item.id);
                                         setIsSidebarOpen(false);
@@ -128,13 +135,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                     className={`
                     w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-300 group
                     ${isActive
-                                            ? 'bg-gradient-to-r from-brand-500/20 to-brand-500/5 text-white border border-brand-500/20 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]'
+                                            ? 'bg-gradient-to-r from-gold-500/20 to-orange-500/5 text-white border border-gold-500/20 shadow-[0_0_15px_-3px_rgba(251,191,36,0.2)]'
                                             : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}
                   `}
                                 >
-                                    <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-brand-400' : 'text-slate-500 group-hover:text-brand-300'}`} />
+                                    <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-gold-400' : 'text-slate-500 group-hover:text-gold-300'}`} />
                                     {item.label}
-                                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-400 shadow-[0_0_8px_rgba(99,102,241,0.6)] animate-pulse" />}
+                                    {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-gold-400 shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse" />}
                                 </button>
                             );
                         })}
@@ -144,9 +151,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <div className="p-4 border-t border-white/5 relative z-10">
                         <div className="flex items-center justify-between px-3 py-3 rounded-xl bg-white/5 border border-white/5 mb-3 hover:bg-white/10 transition-colors group">
                             <div
-                                className="flex items-center gap-3 text-left cursor-default"
+                                onClick={() => {
+                                    navigate('/settings');
+                                    setIsSidebarOpen(false);
+                                }}
+                                className="flex items-center gap-3 text-left cursor-pointer flex-1"
                             >
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs border border-white/10 shadow-lg">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-500 to-orange-600 flex items-center justify-center text-white font-black text-xs border border-white/10 shadow-lg">
                                     {user?.name?.substring(0, 2).toUpperCase() || 'ME'}
                                 </div>
                                 <div className="flex flex-col">
@@ -225,10 +236,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 </header>
 
                 {/* Scrollable Content */}
-                <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 relative z-10 custom-scrollbar">
-                    <div className="max-w-7xl mx-auto">
-                        {children}
-                    </div>
+                <main className="flex-1 overflow-y-auto relative z-10 custom-scrollbar">
+                    {children}
                 </main>
             </div>
 

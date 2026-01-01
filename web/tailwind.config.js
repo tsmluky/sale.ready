@@ -67,10 +67,10 @@ export default {
                 },
                 // Preserving brand/gold colors for existing components
                 brand: {
-                    400: '#38bdf8',
-                    500: '#0ea5e9',
-                    600: '#0284c7',
-                    glow: 'rgba(56, 189, 248, 0.5)',
+                    400: '#818cf8',
+                    500: '#6366f1',
+                    600: '#4f46e5',
+                    glow: 'rgba(99, 102, 241, 0.5)',
                 },
                 gold: {
                     400: '#fbbf24',

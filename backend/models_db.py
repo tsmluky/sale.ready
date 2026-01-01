@@ -33,6 +33,8 @@ class Signal(Base):
 
     # Soft Delete / Admin Visibility
     is_hidden = Column(Integer, default=0) # 0=Visible, 1=Hidden (Boolean as Integer for SQLite/Postgres compatibility)
+    is_saved = Column(Integer, default=0) # 0=Transient, 1=Saved/Tracked by user
+    extra = Column(Text, nullable=True) # JSON Metadata encoded as string
 
 
 class SignalEvaluation(Base):

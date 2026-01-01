@@ -19,31 +19,17 @@ STABLECOINS = {
     "USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDD", "BUSD", "USDE", "PYUSD"
 }
 
-# Allow-lists (Canonical Symbols)
-TOKENS_FREE = {
-    "BTC", "ETH", "SOL"
-}
+# Allow-lists (Canonical Symbols) imported from CENTRAL SOURCE
+from data.supported_tokens import VALID_TOKENS_FREE, VALID_TOKENS_FULL
 
-TOKENS_TRADER = {
-    "BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "TON", "AVAX", "DOT", 
-    "LINK", "POL", "LTC", "BCH", "TRX", "ATOM", "NEAR", "SUI", "APT", "OP", 
-    "ARB", "UNI", "AAVE", "PENDLE", "RENDER"
-}
+TOKENS_FREE = set(VALID_TOKENS_FREE)
+
+# Trader gets access to everything PRO gets for now, or a subset if desired.
+# For simplicity in this codebase, we equate TRADER/PRO access to the FULL list.
+TOKENS_TRADER = set(VALID_TOKENS_FULL)
 
 # Full Pro List (Set for O(1) lookup)
-TOKENS_PRO = {
-    "BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "TON", "AVAX", "DOT", 
-    "TRX", "LINK", "POL", "LTC", "BCH", "ATOM", "NEAR", "SUI", "APT", "OP", 
-    "ARB", "FIL", "ICP", "XLM", "HBAR", "ALGO", "VET", "EGLD", "KAS", "XMR", 
-    "ETC", "XTZ", "THETA", "EOS", "NEO", "IOTA", "DASH", "ZEC", "KSM", "FLOW", 
-    "FTM", "KLAY", "ZIL", "HNT", "CHZ", "BAT", "APE", "SAND", "MANA", "AXS", 
-    "GALA", "GMT", "ILV", "IMX", "ENJ", "LRC", "RENDER", "LPT", "UNI", "AAVE", 
-    "MKR", "LDO", "COMP", "CRV", "CVX", "SNX", "DYDX", "GMX", "PENDLE", "1INCH", 
-    "BAL", "SUSHI", "YFI", "FXS", "RPL", "KAVA", "FET", "TAO", "ONDO", "INJ", 
-    "TIA", "SEI", "STX", "RUNE", "AXL", "JUP", "JTO", "RAY", "ORCA", "BONK", 
-    "WIF", "PEPE", "SHIB", "FLOKI", "PYTH", "BAND", "ROSE", "MINA", "AR", "CFX", 
-    "KDA", "JASMY", "WOO", "WLD"
-}
+TOKENS_PRO = set(VALID_TOKENS_FULL)
 
 # Feature Quotas (Daily)
 QUOTAS = {

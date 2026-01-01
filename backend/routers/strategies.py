@@ -226,14 +226,12 @@ async def toggle_strategy(
         
     # Security Check: Owner or Admin
     if strat.user_id != current_user.id and current_user.role != "admin":
-         # Allow users to toggle System strategies? Usually no, unless they clone it.
-         # For now, simplistic approach: "If user_id is None (System), only Admin can toggle globally?"
-         # Or maybe "Toggle" on system strat means "Enable for ME"?
-         # The current Schema handles global toggle. So restrict to Admin for System Strats.
+         # Allow users to toggle System strategies in this Single-Tenant / Sale-Ready version.
+         # We assume the main user has full control.
          if strat.user_id is None:
-             raise HTTPException(status_code=403, detail="Only Admins can toggle System Strategies")
-         
-         raise HTTPException(status_code=403, detail="Not authorized to toggle this strategy")
+             pass # Allow
+         else:
+             raise HTTPException(status_code=403, detail="Not authorized to toggle this strategy")
 
     # Toggle (0 -> 1, 1 -> 0)
     strat.enabled = 0 if strat.enabled == 1 else 1

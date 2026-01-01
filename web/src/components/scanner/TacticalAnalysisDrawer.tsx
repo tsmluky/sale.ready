@@ -86,9 +86,15 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
     if (!signal) return null;
 
     const isLong = signal.direction?.toLowerCase() === 'long';
-    const signalDate = new Date(signal.timestamp || signal.evaluated_at || Date.now());
-    const dateStr = signalDate.toLocaleDateString();
-    const timeStr = signalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // Time Normalization Helper
+    const rawTs = signal.timestamp || signal.evaluated_at || new Date().toISOString();
+    // Ensure we treat it as UTC if it lacks offset info, to prevent "local interpretation" of server time
+    const safeTs = rawTs.endsWith('Z') ? rawTs : rawTs + 'Z';
+    const signalDate = new Date(safeTs);
+
+    // Force UTC for consistency if that's the "normalized" standard, or just ensure clear formatting
+    const dateStr = signalDate.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const timeStr = signalDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 
     // Use Real Metrics if available, else Mock
     const indicators = realMetrics || {
@@ -99,66 +105,66 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
 
     return (
         <Sheet open={isOpen} onOpenChange={onClose}>
-            <SheetContent className="w-[400px] sm:w-[600px] border-l border-white/10 bg-[#020617]/95 backdrop-blur-xl overflow-y-auto custom-scrollbar p-0 gap-0">
-                <SheetHeader className="p-6 border-b border-white/5 bg-[#0f172a]/40">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center border border-brand-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-                            <Bot className="text-brand-400" size={24} />
+            <SheetContent className="w-[400px] sm:w-[500px] border-l border-white/10 bg-[#020617]/95 backdrop-blur-xl overflow-y-auto custom-scrollbar p-0 gap-0">
+                <SheetHeader className="p-5 border-b border-white/5 bg-[#0f172a]/40">
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center border border-brand-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)] shrink-0 mt-1">
+                            <Bot className="text-brand-400" size={20} />
                         </div>
-                        <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                                <SheetTitle className="text-white text-xl font-bold tracking-tight">Tactical Analysis</SheetTitle>
-                                <div className="flex items-center gap-2 text-xs font-mono text-slate-500 bg-black/20 px-2 py-1 rounded-lg border border-white/5">
-                                    <Clock size={12} />
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                                <SheetTitle className="text-white text-lg font-bold tracking-tight truncate">Analysis</SheetTitle>
+                                <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500 bg-black/40 px-2 py-1 rounded-md border border-white/5 whitespace-nowrap mr-8">
+                                    <Clock size={10} />
                                     <span>{dateStr}</span>
                                     <span className="text-white/20">|</span>
                                     <span className="text-slate-300">{timeStr}</span>
                                 </div>
                             </div>
-                            <SheetDescription className="text-slate-400 mt-1 flex items-center gap-2">
-                                AI Deep Dive
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-slate-400 text-xs font-medium">AI Deep Dive</span>
                                 <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-                                <span className="text-brand-400 font-medium">#{signal.token}</span>
-                                <Badge variant={isLong ? "default" : "destructive"} className="ml-2 h-5 text-[10px] px-1.5 uppercase tracking-wider">
+                                <span className="text-brand-400 font-bold text-xs">#{signal.token}</span>
+                                <Badge variant="outline" className={`h-5 text-[10px] px-2 uppercase tracking-wider font-bold border ${isLong ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border-rose-500/20"}`}>
                                     {signal.direction}
                                 </Badge>
-                            </SheetDescription>
+                            </div>
                         </div>
                     </div>
                 </SheetHeader>
 
-                <div className="p-6 h-[calc(100vh-180px)] overflow-y-auto custom-scrollbar">
-                    <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full space-y-6">
-                        <TabsList className="bg-black/20 border border-white/5 w-full p-1 h-11 rounded-xl grid grid-cols-4">
-                            <TabsTrigger value="overview" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Overview</TabsTrigger>
-                            <TabsTrigger value="metrics" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Metrics</TabsTrigger>
-                            <TabsTrigger value="execution" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Execution</TabsTrigger>
-                            <TabsTrigger value="chat" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1">
-                                <MessageSquare size={12} /> Chat
+                <div className="p-5 h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar">
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full space-y-5">
+                        <TabsList className="bg-black/20 border border-white/5 w-full p-1 h-10 rounded-lg grid grid-cols-4">
+                            <TabsTrigger value="overview" className="h-8 rounded-md data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-[10px] uppercase tracking-wider transition-all">Overview</TabsTrigger>
+                            <TabsTrigger value="metrics" className="h-8 rounded-md data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-[10px] uppercase tracking-wider transition-all">Metrics</TabsTrigger>
+                            <TabsTrigger value="execution" className="h-8 rounded-md data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-[10px] uppercase tracking-wider transition-all">Execute</TabsTrigger>
+                            <TabsTrigger value="chat" className="h-8 rounded-md data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center gap-1">
+                                <MessageSquare size={10} /> Chat
                             </TabsTrigger>
                         </TabsList>
 
-                        <TabsContent value="overview" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            {/* Key Stats Grid */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 relative overflow-hidden group hover:border-brand-500/20 transition-colors">
-                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                        <Activity size={40} />
+                        <TabsContent value="overview" className="mt-0 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            {/* Key Stats Grid - Compact */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-brand-500/10 to-transparent border border-brand-500/20 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                        <Activity size={32} className="text-brand-500" />
                                     </div>
-                                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1 font-bold">Signal System</div>
-                                    <div className="text-lg font-black text-white flex items-center gap-2 truncate">
-                                        {signal.source || "Trend Master"}
-                                        <Zap size={14} className="text-gold-400 fill-gold-400" />
+                                    <div className="text-[9px] text-brand-300 uppercase tracking-wider mb-1 font-bold">Signal System</div>
+                                    <div className="text-base font-black text-white flex items-center gap-2 truncate relative z-10">
+                                        {signal.source?.split('-')[0] || "Trend"} {/* Truncate name if long */}
+                                        <Zap size={12} className="text-yellow-400 fill-yellow-400" />
                                     </div>
                                 </div>
-                                <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 relative overflow-hidden group hover:border-brand-500/20 transition-colors">
-                                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                                        <Shield size={40} />
+                                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                        <Shield size={32} className="text-emerald-500" />
                                     </div>
-                                    <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1 font-bold">Risk Model</div>
-                                    <div className="text-lg font-black text-emerald-400 flex items-center gap-2">
+                                    <div className="text-[9px] text-emerald-300 uppercase tracking-wider mb-1 font-bold">Risk Model</div>
+                                    <div className="text-base font-black text-emerald-400 flex items-center gap-2 relative z-10">
                                         Low
-                                        <Shield size={14} />
+                                        <Shield size={12} className="fill-emerald-400/20" />
                                     </div>
                                 </div>
                             </div>
@@ -269,20 +275,14 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                     </Tabs>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 bg-[#020617]/95 backdrop-blur-xl flex gap-3">
+                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10 bg-[#020617]/95 backdrop-blur-xl">
                     <Button
-                        variant="secondary"
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-12 border border-white/5"
-                        onClick={() => setActiveTab('chat')}
-                    >
-                        <MessageSquare size={18} className="mr-2 text-brand-400" />
-                        Ask Copilot
-                    </Button>
-                    <Button
-                        className="flex-1 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold h-12 shadow-lg shadow-brand-500/25"
+                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold h-12 shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-white/10 text-sm tracking-wide transition-all hover:scale-[1.02]"
                         onClick={() => window.open(`https://www.tradingview.com/chart?symbol=BINANCE:${signal.token}USDT`, '_blank')}
                     >
-                        Chart <ArrowRight size={18} className="ml-2 opacity-80" />
+                        <Activity className="mr-2" size={18} />
+                        Analyze on TradingView
+                        <ArrowRight size={16} className="ml-2 opacity-70" />
                     </Button>
                 </div>
 

@@ -162,7 +162,13 @@ export const TutorialOverlay: React.FC = () => {
                     <div className="flex gap-2">
                         {currentStep > 0 && (
                             <button
-                                onClick={() => setCurrentStep(c => c - 1)}
+                                onClick={() => {
+                                    const prevStep = currentStep - 1;
+                                    setCurrentStep(prevStep);
+                                    if (STEPS[prevStep].path) {
+                                        navigate(STEPS[prevStep].path);
+                                    }
+                                }}
                                 className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
                             >
                                 Atrás

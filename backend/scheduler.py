@@ -28,6 +28,7 @@ from core.signal_logger import log_signal
 from core.signal_evaluator import evaluate_pending_signals
 from models_db import StrategyConfig, User
 from notify import send_telegram
+from data.supported_tokens import VALID_TOKENS_FULL
 
 # Configuración de Logging
 logging.basicConfig(
@@ -63,26 +64,32 @@ def get_active_strategies_from_db():
             except:
                 tf_list = []
                 
-            # Flatten to single token/tf for now (Scheduler logic might need loop if multiple)
-            # Assuming 1 strategy config = 1 persona with 1 main symbol/tf usually, 
-            # but DB supports lists. 
+            # --- TOKEN LIST LOGIC ---
+            # If the strategy is configured with "ALL" or "SCANNER" as the symbol, 
+            # or if the tokens list is empty, we treat it as a SCANNER strategy 
+            # that runs on the full list.
             
-            # For this MVP Scheduler, we treat each token in the list as a target?
-            # Or just take the first one?
-            # StrategyConfig usually mirrors the Persona JSON which had single symbol/tf.
-            # But the new schema supports lists.
-            # Let's support the first one for now or iterate.
+            primary_symbol = tokens_list[0] if tokens_list else "BTC"
             
-            target_symbol = tokens_list[0] if tokens_list else "BTC"
+            # Special 'Marker' logic for System Scanners
+            if primary_symbol in ["ALL", "SCANNER", "*"]:
+                logger.info(f"  ✨ Detected Scanner Strategy: {c.name} -> Expanding to {len(VALID_TOKENS_FULL)} tokens")
+                target_tokens = VALID_TOKENS_FULL
+            else:
+                # Default: Use the specific tokens configured (or just the first one for now)
+                # Ideally, we should iterate all tokens in tokens_list
+                # For now, let's just make target_tokens a list
+                target_tokens = tokens_list if tokens_list else ["BTC"]
+            
             target_tf = tf_list[0] if tf_list else "1h"
             
             strategies.append({
                 "id": c.persona_id, # "trend_king_sol"
                 "strategy_id": c.strategy_id, # "donchian_v2"
-                "symbol": target_symbol,
+                "tokens": target_tokens, # Pass LIST of tokens
                 "timeframe": target_tf,
                 "name": c.name,
-                "telegram_chat_id": chat_id # Populated if user strategy, else None
+                "telegram_chat_id": chat_id 
             })
             
         return strategies
@@ -142,6 +149,7 @@ class StrategyScheduler:
         
         # Coherence Guard (Global Trend State)
         # Key: "Token" -> Value: { 'direction': 'long', 'ts': datetime, 'conf': 0.8 }
+
         # Used to reject conflicting signals (Long -> Short) if they happen too fast (Chop protection)
         self.token_coherence = {}
 
@@ -219,7 +227,7 @@ class StrategyScheduler:
                     # Por ahora, usamos interval global de loop (60s)
                     # Si quisiéramos per-strategy intervals, checkeamos self.last_run[p_id]
                     
-                    print(f"  🔄 Running Persona: {persona['name']} ({persona['symbol']}/{persona['timeframe']})")
+                    print(f"  🔄 Running Persona: {persona['name']} (Tokens: {len(persona['tokens'])} | TF: {persona['timeframe']})")
                     
                     # Instanciar estrategia técnica
                     strategy_id = persona["strategy_id"]
@@ -230,9 +238,9 @@ class StrategyScheduler:
                         continue
                         
                     try:
-                        # Ejecutar
+                        # Ejecutar con lista de tokens (Multitoken Support)
                         signals = strategy.generate_signals(
-                            tokens=[persona["symbol"]],
+                            tokens=persona["tokens"],
                             timeframe=persona["timeframe"]
                         )
                         

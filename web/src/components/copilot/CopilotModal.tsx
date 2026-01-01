@@ -26,6 +26,12 @@ export const CopilotModal: React.FC = () => {
     const [isDragging, setIsDragging] = useState(false);
     const dragStartPos = useRef({ x: 0, y: 0 });
 
+    // --- Resizing Logic ---
+    const [size, setSize] = useState({ width: 384, height: 500 });
+    const [isResizing, setIsResizing] = useState(false);
+    const resizeStartPos = useRef({ x: 0, y: 0 });
+    const startSize = useRef({ width: 0, height: 0 });
+
     const handleMouseDown = (e: React.MouseEvent) => {
         setIsDragging(true);
         dragStartPos.current = {
@@ -36,15 +42,24 @@ export const CopilotModal: React.FC = () => {
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
-            if (!isDragging) return;
-            setPosition({
-                x: e.clientX - dragStartPos.current.x,
-                y: e.clientY - dragStartPos.current.y
-            });
+            if (isDragging) {
+                setPosition({
+                    x: e.clientX - dragStartPos.current.x,
+                    y: e.clientY - dragStartPos.current.y
+                });
+            }
+            if (isResizing) {
+                const newWidth = Math.max(300, startSize.current.width + (e.clientX - resizeStartPos.current.x));
+                const newHeight = Math.max(400, startSize.current.height + (e.clientY - resizeStartPos.current.y));
+                setSize({ width: newWidth, height: newHeight });
+            }
         };
-        const handleMouseUp = () => setIsDragging(false);
+        const handleMouseUp = () => {
+            setIsDragging(false);
+            setIsResizing(false);
+        };
 
-        if (isDragging) {
+        if (isDragging || isResizing) {
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
@@ -52,7 +67,15 @@ export const CopilotModal: React.FC = () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging]);
+    }, [isDragging, isResizing]);
+
+    const handleResizeMouseDown = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsResizing(true);
+        resizeStartPos.current = { x: e.clientX, y: e.clientY };
+        startSize.current = { width: size.width, height: size.height };
+    };
 
     // --- Click Outside to Close ---
     useEffect(() => {
@@ -179,6 +202,8 @@ export const CopilotModal: React.FC = () => {
     // We start at (0,0) relative to that fixed position, adding user drag delta.
     const style: React.CSSProperties = {
         transform: `translate(${position.x}px, ${position.y}px)`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
         cursor: isDragging ? 'grabbing' : 'auto'
     };
 
@@ -186,7 +211,7 @@ export const CopilotModal: React.FC = () => {
         <div
             ref={modalRef}
             style={style}
-            className="fixed bottom-24 right-6 z-[60] w-80 md:w-96 h-[500px] flex flex-col items-end pointer-events-auto transition-transform duration-75 will-change-transform"
+            className="fixed bottom-24 right-6 z-[60] flex flex-col items-end pointer-events-auto transition-transform duration-75 will-change-transform"
         >
             {/* Container */}
             <div className="w-full h-full bg-[#0B1121] border border-gray-700/50 rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-200 backdrop-blur-xl ring-1 ring-white/10">
@@ -314,8 +339,21 @@ export const CopilotModal: React.FC = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="px-3 py-1 bg-slate-950 text-center border-t border-white/5">
+                <div className="px-3 py-1 bg-slate-950 text-center border-t border-white/5 relative">
                     <span className="text-[10px] text-slate-600">AI output. Not financial advice.</span>
+
+                    {/* Resize Handle */}
+                    <div
+                        onMouseDown={handleResizeMouseDown}
+                        className="absolute bottom-1 right-1 cursor-se-resize w-4 h-4 text-slate-500 hover:text-white transition-colors opacity-50 hover:opacity-100 p-0.5"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v6" />
+                            <path d="M15 21h6" />
+                            <path d="M21 9v2" />
+                            <path d="M9 21h2" />
+                        </svg>
+                    </div>
                 </div>
 
             </div>

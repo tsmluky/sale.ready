@@ -22,7 +22,7 @@ export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'full', si
 
     return (
         <div className={`flex items-center gap-3 group cursor-pointer select-none ${className}`}>
-            <div className={`${currentSize.container} bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all duration-300 relative overflow-hidden`}>
+            <div className={`${currentSize.container} bg-gradient-to-br from-gold-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/40 transition-all duration-300 relative overflow-hidden`}>
                 {/* Inner Shine Effect */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -35,10 +35,10 @@ export const Logo: React.FC<LogoProps> = ({ className = '', variant = 'full', si
 
             {variant === 'full' && (
                 <div className="flex flex-col">
-                    <span className={`font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-brand-200 transition-all duration-300 ${currentSize.text}`}>
+                    <span className={`font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gold-200 transition-all duration-300 ${currentSize.text}`}>
                         {theme.appName}
                     </span>
-                    <span className="text-[10px] text-brand-400 font-bold tracking-widest uppercase opacity-80 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] text-gold-400 font-bold tracking-widest uppercase opacity-80 group-hover:opacity-100 transition-opacity">
                         Copilot Console
                     </span>
                 </div>

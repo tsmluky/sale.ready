@@ -1,6 +1,0 @@
-[2025-12-23 23:00:01] INFO  [health] GET /health - 200 OK - 2ms
-[2025-12-23 23:00:05] INFO  [auth] POST /auth/login - 200 OK - 150ms
-[2025-12-23 23:00:08] INFO  [analysis] POST /analyze/lite (ETH, 1h) - 200 OK - 1200ms
-[2025-12-23 23:00:10] INFO  [scheduler] Job "fetch_market_data" executed successfully (Count: 45 tokens).
-[2025-12-23 23:00:10] INFO  [scheduler] Job "run_strategies" generated 2 signals.
-[2025-12-23 23:00:11] INFO  [dedupe] Suppressed duplicate signal for SOL/USDT (Strategy: TrendKing).

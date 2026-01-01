@@ -15,7 +15,7 @@ import {
 // Helpers HTTP básicos
 // =========================
 
-const DEFAULT_TIMEOUT_MS = 30000; // Increased to 30s for robustness
+const DEFAULT_TIMEOUT_MS = 60000; // Increased to 60s for robustness
 
 
 async function fetchWithTimeout(
@@ -134,7 +134,9 @@ export async function analyzePro(
         ? data
         : data.analysis ?? data.raw ?? JSON.stringify(data, null, 2);
 
-    return { raw } as ProResponse;
+    // Return the full data object merged with the normalized 'raw' field
+    // This preserves confidence, entry, tp, sl, etc.
+    return { ...data, raw } as ProResponse;
   } catch (err) {
     console.error("analyzePro failed", err);
     throw err; // Propagate error, do not mock
@@ -319,6 +321,16 @@ export async function getSignalEvaluation(
 // =========================
 // Telegram / Leaderboard / AdvisorChat
 // =========================
+
+export async function trackSignal(signalData: any): Promise<any> {
+  const res = await fetchWithTimeout(`${API_BASE_URL}/logs/track`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(signalData)
+  });
+  if (!res.ok) throw new Error("Failed to track signal");
+  return res.json();
+}
 
 export async function notifyTelegram(message: string, chatId?: string): Promise<boolean> {
   try {
@@ -602,6 +614,76 @@ export async function toggleSignalVisibility(signalId: number, isHidden: boolean
   return res.json();
 }
 
+// =========================
+// M6: Dashboard Stats (Real Data)
+// =========================
+
+export async function getDashboardStats(): Promise<{ summary: any, chart: any[] }> {
+  try {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/stats/dashboard`, { method: "GET" });
+    if (!res.ok) throw new Error("Failed to fetch dashboard stats");
+    return res.json();
+  } catch (err) {
+    console.error("getDashboardStats failed", err);
+    // Return empty fail-safe to prevent UI crash
+    return {
+      summary: {
+        win_rate_24h: 0,
+        signals_evaluated_24h: 0,
+        signals_total_evaluated: 0,
+        signals_lite_24h: 0,
+        open_signals: 0,
+        pnl_7d: 0.0
+      },
+      chart: []
+    };
+  }
+}
+
+// Deprecated: getStats is now part of getDashboardStats
+// Kept for compatibility if needed, but returning safe defaults
+export async function getStats(): Promise<any> {
+  const data = await getDashboardStats();
+  return {
+    win_rate: data.summary.win_rate_24h,
+    active_fleet: data.summary.open_signals, // Mapping "Open Signals" to "Active Fleet" concept
+    pnl_7d: data.summary.pnl_7d
+  };
+}
+
+// Deprecated: Chart data is now part of getDashboardStats
+export async function getChartData(): Promise<any[]> {
+  const data = await getDashboardStats();
+  return data.chart;
+}
+
+export async function getEvaluatedCount(): Promise<number> {
+  const data = await getDashboardStats();
+  return data.summary.signals_evaluated_24h; // Or total if preferred, but usually 24h count is what we want for "activity"
+}
+
+
+export async function getRecentSignals(limit: number = 20, savedOnly: boolean = false, includeSystem: boolean = false): Promise<any[]> {
+  try {
+    let url = `${API_BASE_URL}/logs/recent?limit=${limit}`;
+    if (savedOnly) url += `&saved_only=true`;
+    url += `&include_system=${includeSystem}`;
+
+    const res = await fetchWithTimeout(url, { method: "GET" });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.logs || []);
+  } catch { return []; }
+}
+
+export async function toggleSignalSave(id: number): Promise<any> {
+  const res = await fetchWithTimeout(`${API_BASE_URL}/logs/${id}/toggle_save`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to toggle save");
+  return res.json();
+}
+
 export async function getSystemConfig(): Promise<any> {
   try {
     const res = await fetchWithTimeout(`${API_BASE_URL}/system/config`, { method: "GET" }, 5000);
@@ -621,6 +703,7 @@ export const api = {
   triggerBatchEvaluation,
   getSignalEvaluation,
   notifyTelegram,
+  trackSignal,
 
   sendAdvisorChat,
   login,
@@ -632,7 +715,13 @@ export const api = {
   deletePersona,
   togglePersona,
   getOHLCV,
-  getSystemConfig,  // Added
+  getSystemConfig,
+  getDashboardStats,
+  getStats,
+  getEvaluatedCount,
+  getChartData,
+  getRecentSignals,
+  toggleSignalSave, // Export added to object
 
   // Admin
   fetchAdminStats,

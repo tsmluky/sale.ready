@@ -37,30 +37,37 @@ const CollapsibleSection: React.FC<{
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <Card className={cn("mb-4 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 group border-white/5 bg-slate-900/40 backdrop-blur-sm")}>
+    <Card className={cn(
+      "mb-4 overflow-hidden transition-all duration-300 group border-white/5 bg-[#0f172a]/60 backdrop-blur-md",
+      isOpen ? "border-gold-500/20 shadow-[0_0_20px_rgba(251,191,36,0.05)]" : "hover:border-white/10 hover:shadow-lg"
+    )}>
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center justify-between p-5 cursor-pointer hover:bg-white/[0.02] transition-colors relative"
       >
+        {isOpen && <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-gold-400 to-orange-500"></div>}
+
         <div className="flex items-center gap-4">
           <div className={cn(
-            "p-3 rounded-xl transition-all duration-300",
-            isOpen ? "bg-brand-500/20 text-brand-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]" : "bg-white/5 text-slate-500 group-hover:text-slate-300"
+            "p-3 rounded-xl transition-all duration-500",
+            isOpen
+              ? "bg-gradient-to-br from-gold-500/20 to-orange-500/10 text-gold-400 shadow-[0_0_15px_rgba(251,191,36,0.2)] icon-glow"
+              : "bg-slate-800/50 text-slate-500 group-hover:text-slate-300 group-hover:bg-slate-800"
           )}>
             {icon}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white transition-colors tracking-tight">{title}</h3>
-            <p className="text-sm text-slate-400 font-medium">{subtitle}</p>
+            <h3 className={cn("text-lg font-bold transition-colors tracking-tight", isOpen ? "text-white" : "text-slate-300")}>{title}</h3>
+            <p className="text-xs text-slate-500 font-medium">{subtitle}</p>
           </div>
         </div>
-        <div className={cn("text-slate-500 transition-transform duration-300", isOpen && "rotate-180 text-brand-400")}>
+        <div className={cn("text-slate-500 transition-transform duration-300", isOpen && "rotate-180 text-gold-400")}>
           <ChevronDown size={20} />
         </div>
       </div>
 
-      <div className={cn("transition-all duration-300 ease-in-out border-t border-white/5 bg-[#020617]/30", isOpen ? "max-h-[800px] opacity-100" : "max-h-0 opacity-0 overflow-hidden")}>
-        <div className="p-6 pt-6">
+      <div className={cn("transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] border-t border-white/5 bg-black/20", isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0 overflow-hidden")}>
+        <div className="p-6">
           {children}
         </div>
       </div>
@@ -197,7 +204,7 @@ export const SettingsPage: React.FC = () => {
   const isPaid = ["Trader", "Pro", "Owner"].includes(plan) || plan.toUpperCase() === "TRADER" || plan.toUpperCase() === "PRO";
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-12 animate-fade-in text-slate-100 relative min-h-screen">
+    <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12 pb-24 text-slate-100 min-h-screen">
       {/* Background Texture & Lighting */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-grid opacity-20" />
@@ -244,13 +251,20 @@ export const SettingsPage: React.FC = () => {
       </Dialog>
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 relative z-10 pl-2">
-        <div className="relative pl-6">
-          <div className="absolute left-0 top-1 bottom-1 w-1.5 bg-gradient-to-b from-brand-400 to-indigo-600 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
-          <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight flex items-center gap-3 drop-shadow-md">
-            Account Preferences
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
+        <div className="pl-6 relative">
+          <div className="absolute left-0 top-2 bottom-2 w-1 bg-gradient-to-b from-gold-400 to-orange-500 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.5)]"></div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-gold-500/20 text-xs font-bold text-gold-400 mb-2 shadow-[0_0_15px_rgba(251,191,36,0.15)]">
+            <Server size={12} />
+            System Control
+          </div>
+          <h1 className="text-3xl lg:text-4xl font-bold tracking-tight leading-tight mb-2">
+            Account{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-orange-400 to-gold-500 drop-shadow-sm">
+              Preferences
+            </span>
           </h1>
-          <p className="text-slate-400 max-w-xl font-medium text-lg">
+          <p className="text-slate-400 text-sm font-light max-w-2xl">
             Manage your profile, neural preferences, and security settings.
           </p>
         </div>
@@ -316,7 +330,7 @@ export const SettingsPage: React.FC = () => {
                   <h4 className="font-bold text-amber-500 text-sm mb-1">Upgrade to Pro</h4>
                   <p className="text-xs text-slate-400 mb-3">Unlock unlimited Copilot requests and advanced strategies.</p>
                   <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-black font-bold h-8 text-xs" asChild>
-                    <Link to="/membership">View Plans</Link>
+                    <Link to="/pricing">View Plans</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -396,7 +410,7 @@ export const SettingsPage: React.FC = () => {
                 <Button
                   onClick={handleSaveCopilot}
                   disabled={loadingProfile}
-                  className="bg-brand-600 hover:bg-brand-500 text-white font-bold"
+                  className="bg-gradient-to-r from-gold-500 to-orange-600 hover:from-gold-400 hover:to-orange-500 text-white font-bold shadow-[0_0_15px_rgba(251,191,36,0.2)] border border-white/10"
                 >
                   {loadingProfile ? <span className="animate-spin mr-2">⏳</span> : <Save size={16} className="mr-2" />}
                   {loadingProfile ? "Saving..." : "Save Configuration"}
@@ -421,7 +435,7 @@ export const SettingsPage: React.FC = () => {
                   className="bg-slate-950 border-slate-700 text-white"
                   placeholder="12345678"
                 />
-                <Button onClick={handleSaveTelegram} disabled={isSaving} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700">
+                <Button onClick={handleSaveTelegram} disabled={isSaving} className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 hover:border-gold-500/30 transition-all">
                   {isSaving ? 'Saving...' : 'Save ID'}
                 </Button>
               </div>
@@ -446,29 +460,45 @@ export const SettingsPage: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-slate-950/30 rounded-xl border border-slate-800/50">
               <div className="text-sm text-slate-300">Timezone Configuration</div>
               <Select value={timezone} onValueChange={handleSaveTimezone}>
-                <SelectTrigger className="w-[280px] bg-slate-900 border-slate-700 text-slate-200">
+                <SelectTrigger className="w-[280px] bg-slate-900 border-slate-700 text-slate-200 focus:ring-gold-500/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="UTC">UTC (Universal Coordinated Time)</SelectItem>
+
                   <SelectGroup>
                     <SelectLabel>North America</SelectLabel>
-                    <SelectItem value="America/New_York">New York (EST/EDT)</SelectItem>
-                    <SelectItem value="America/Chicago">Chicago (CST/CDT)</SelectItem>
-                    <SelectItem value="America/Denver">Denver (MST/MDT)</SelectItem>
-                    <SelectItem value="America/Los_Angeles">Los Angeles (PST/PDT)</SelectItem>
+                    <SelectItem value="America/Los_Angeles">(UTC-08:00) Los Angeles (PST)</SelectItem>
+                    <SelectItem value="America/Denver">(UTC-07:00) Denver (MST)</SelectItem>
+                    <SelectItem value="America/Chicago">(UTC-06:00) Chicago (CST)</SelectItem>
+                    <SelectItem value="America/New_York">(UTC-05:00) New York (EST)</SelectItem>
                   </SelectGroup>
+
+                  <SelectGroup>
+                    <SelectLabel>South America</SelectLabel>
+                    <SelectItem value="America/Bogota">(UTC-05:00) Bogotá / Lima / Quito</SelectItem>
+                    <SelectItem value="America/Caracas">(UTC-04:00) Caracas / La Paz</SelectItem>
+                    <SelectItem value="America/Santiago">(UTC-04:00) Santiago</SelectItem>
+                    <SelectItem value="America/Argentina/Buenos_Aires">(UTC-03:00) Buenos Aires / Sao Paulo</SelectItem>
+                  </SelectGroup>
+
                   <SelectGroup>
                     <SelectLabel>Europe</SelectLabel>
-                    <SelectItem value="Europe/London">London (GMT/BST)</SelectItem>
-                    <SelectItem value="Europe/Paris">Paris (CET/CEST)</SelectItem>
-                    <SelectItem value="Europe/Moscow">Moscow (MSK)</SelectItem>
+                    <SelectItem value="Europe/London">(UTC+00:00) London (GMT)</SelectItem>
+                    <SelectItem value="Europe/Paris">(UTC+01:00) Paris / Berlin (CET)</SelectItem>
+                    <SelectItem value="Europe/Athens">(UTC+02:00) Athens (EET)</SelectItem>
+                    <SelectItem value="Europe/Moscow">(UTC+03:00) Moscow (MSK)</SelectItem>
                   </SelectGroup>
+
                   <SelectGroup>
                     <SelectLabel>Asia & Pacific</SelectLabel>
-                    <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
-                    <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-                    <SelectItem value="Australia/Sydney">Sydney (AEST)</SelectItem>
+                    <SelectItem value="Asia/Dubai">(UTC+04:00) Dubai (GST)</SelectItem>
+                    <SelectItem value="Asia/Kolkata">(UTC+05:30) India (IST)</SelectItem>
+                    <SelectItem value="Asia/Bangkok">(UTC+07:00) Bangkok (ICT)</SelectItem>
+                    <SelectItem value="Asia/Singapore">(UTC+08:00) Singapore / Hong Kong</SelectItem>
+                    <SelectItem value="Asia/Tokyo">(UTC+09:00) Tokyo (JST)</SelectItem>
+                    <SelectItem value="Australia/Sydney">(UTC+11:00) Sydney (AEST)</SelectItem>
+                    <SelectItem value="Pacific/Auckland">(UTC+13:00) Auckland</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -488,7 +518,7 @@ export const SettingsPage: React.FC = () => {
                   Update your account password to keep your account secure.
                 </p>
               </div>
-              <Button variant="outline" onClick={() => setShowPasswordModal(true)} className="border-slate-700 hover:bg-slate-800 text-white">
+              <Button variant="outline" onClick={() => setShowPasswordModal(true)} className="border-slate-700 hover:bg-slate-800 text-white hover:border-gold-500/30 transition-all">
                 Change Password
               </Button>
             </div>
@@ -499,5 +529,4 @@ export const SettingsPage: React.FC = () => {
     </div>
   );
 };
-
 export default SettingsPage;

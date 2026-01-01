@@ -123,13 +123,25 @@ def _analyze_lite_unsafe(req: LiteReq, user: User):
         rationale=lite_signal.rationale,
         source=lite_signal.source,
         extra=indicators,
-        user_id=user.id
+        user_id=user.id,
+        is_saved=0 # Default transient
     )
     
-    log_signal(unified_sig)
-
+    # Log and get the ID back if possible, or just log
+    # log_signal returns the DB object or similar? It returns void in many impls or the object.
+    # The frontend needs the ID to track it. Data flow gap?
+    # log_signal typically commits. We need the ID to return to UI so they can click "Track".
+    # core/signal_logger.py `log_signal` returns the DB model usually.
+    # Let's verify log_signal return type later, but for now assuming it persists.
+    
+    # saved_sig = log_signal(unified_sig)
+    
     response = lite_signal.model_dump()
     response["indicators"] = indicators
+    # Inject ID so frontend can Track key reference
+    # if saved_sig and hasattr(saved_sig, 'id'):
+    #     response["id"] = saved_sig.id
+        
     return response
 
 
@@ -172,12 +184,40 @@ async def analyze_pro(
     # 'log_signal' accepts a Signal object. We could construct a PRO signal.
     # Skipped to stick to strict prompt "Scope Creep: No".
 
+    # 6. Log (PRO signals persisted as transient first, enable Tracking)
+    unified_sig = Signal(
+        timestamp=datetime.utcnow(),
+        strategy_id="pro_deepseek_v2",
+        mode="PRO",
+        token=req.token,
+        timeframe=req.timeframe,
+        direction=lite_signal.direction, # Inherit base direction
+        entry=lite_signal.entry,
+        tp=lite_signal.tp,
+        sl=lite_signal.sl,
+        confidence=lite_signal.confidence, # Base confidence, maybe boosted by LLM?
+        rationale=markdown_report[:200] + "...", # Summary for DB
+        source="LLM_HYBRID",
+        extra={"full_report_length": len(markdown_report)},
+        user_id=current_user.id,
+        is_saved=0
+    )
+    
+    saved_sig = log_signal(unified_sig)
+
     return {
-        "raw": markdown_report,  # Changed from "markdown" to "raw" for frontend compatibility
+        "id": saved_sig.id if saved_sig else None, # Return ID for tracking
+        "raw": markdown_report,
         "token": req.token,
         "mode": "PRO",
         "timestamp": datetime.utcnow().isoformat(),
-        "usage": quota_res
+        "usage": quota_res,
+        # Re-inject technicals for Reference
+        "entry": lite_signal.entry,
+        "tp": lite_signal.tp,
+        "sl": lite_signal.sl,
+        "confidence": lite_signal.confidence,
+        "direction": lite_signal.direction
     }
 
 

@@ -20,7 +20,7 @@ class LiteReq(BaseModel):
 
     @field_validator('timeframe')
     def validate_timeframe(cls, v):
-        allowed = {'15m', '30m', '1h', '4h', '1d', '1w'}
+        allowed = {'5m', '15m', '30m', '1h', '4h', '1d', '1w'}
         if v not in allowed:
             raise ValueError(f"Timeframe must be one of {allowed}")
         return v
