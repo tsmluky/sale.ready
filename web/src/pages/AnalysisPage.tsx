@@ -51,6 +51,16 @@ export const AnalysisPage = () => {
     if (t) setToken(t)
   }, [params])
 
+  // Reset to BTC if current token is not allowed (e.g. after plan downgrade or init)
+  useEffect(() => {
+    if (userProfile?.user?.allowed_tokens && token) {
+      if (!userProfile.user.allowed_tokens.includes(token) && !userProfile.user.allowed_tokens.includes(token.toUpperCase())) {
+        setToken('BTC');
+        toast('Token restricted on your current plan. Resetting to BTC.', { icon: '🔒' });
+      }
+    }
+  }, [userProfile, token])
+
   // Auto-scroll when results appear
   useEffect(() => {
     if ((liteResult || proResult) && !isLoading) {
@@ -142,10 +152,26 @@ export const AnalysisPage = () => {
               {/* Left: Input Controls */}
               <div className="flex-1 space-y-5">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                    Select Asset
-                  </label>
-                  <TokenSelector value={token} onChange={setToken} tokens={TOKENS} />
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Select Asset
+                    </label>
+                    {userProfile?.user?.plan === 'free' && (
+                      <span className="text-[9px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                        Upgrade for {TOKENS.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                  {/* Filter tokens based on user entitlements */}
+                  <TokenSelector
+                    value={token}
+                    onChange={setToken}
+                    tokens={
+                      userProfile?.user?.allowed_tokens
+                        ? TOKENS.filter(t => userProfile.user.allowed_tokens?.includes(t))
+                        : ['BTC', 'ETH', 'SOL']
+                    }
+                  />
                 </div>
 
                 <div>

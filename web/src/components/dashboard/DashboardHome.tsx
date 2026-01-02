@@ -244,7 +244,7 @@ export const DashboardHome: React.FC = () => {
                 {/* 2. Charts & Activity (Fills remaining height) */}
                 <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main Chart */}
-                    <div className="lg:col-span-2 glass-card rounded-2xl p-5 border border-white/5 bg-[#0f172a]/70 flex flex-col relative group overflow-hidden">
+                    <div className="lg:col-span-2 glass-card rounded-2xl p-5 border border-white/5 bg-[#0f172a]/70 flex flex-col relative group overflow-hidden h-[400px]">
                         <div className="flex justify-between items-center mb-4 shrink-0">
                             <div>
                                 <h3 className="text-base font-bold text-white flex items-center gap-2">
@@ -321,7 +321,7 @@ export const DashboardHome: React.FC = () => {
                                 <Activity size={16} className="text-slate-400" />
                                 Recent Signals
                             </h3>
-                            <Link to="/scanner" className="text-[10px] font-bold text-brand-400 hover:text-brand-300 uppercase tracking-wider flex items-center gap-1">
+                            <Link to="/history" className="text-[10px] font-bold text-brand-400 hover:text-brand-300 uppercase tracking-wider flex items-center gap-1">
                                 All <ChevronRight size={12} />
                             </Link>
                         </div>
@@ -337,51 +337,66 @@ export const DashboardHome: React.FC = () => {
                                 </div>
                             ) : (
                                 recentSignals.slice(0, 10).map((sig, idx) => {
-                                    const isLong = sig.direction?.toLowerCase() === 'long';
-                                    const result = String(sig.result || 'PENDING').toUpperCase();
-                                    const isWin = result.includes('WIN') || result.includes('TP');
-                                    const isLoss = result.includes('LOSS') || result.includes('SL');
-
                                     return (
                                         <div
                                             key={idx}
                                             onClick={() => setSelectedSignal(sig)}
                                             className="flex items-center justify-between p-2.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5 group"
                                         >
-                                            <div className="flex items-center gap-3">
-                                                {/* Token Box */}
-                                                <div className={cn(
-                                                    "w-7 h-7 rounded flex items-center justify-center border text-[9px] font-black",
-                                                    isLong ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-400" : "border-rose-500/20 bg-rose-500/5 text-rose-400"
-                                                )}>
-                                                    {sig.token?.substring(0, 3)}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <div className="text-[11px] font-bold text-slate-200 leading-tight">
-                                                        {sig.token}
-                                                    </div>
-                                                    <div className="text-[9px] text-slate-500 font-mono">
-                                                        {(() => {
-                                                            let ts = sig.timestamp || sig.evaluated_at;
-                                                            if (!ts) return "--:--";
-                                                            // Force UTC if naive string (common in SQL responses)
-                                                            if (typeof ts === 'string' && !ts.endsWith('Z') && !ts.includes('+')) {
-                                                                ts = ts.replace(' ', 'T') + 'Z';
-                                                            }
-                                                            return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                                        })()}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {(() => {
+                                                // Robust status check: Check result (logs/recent usually), status (evaluations), and fallback
+                                                const rawStatus = String(sig.result || sig.status || 'PENDING').toUpperCase();
+                                                const isWin = rawStatus.includes('WIN') || rawStatus.includes('TP') || (sig.pnl_r && sig.pnl_r > 0);
+                                                const isLoss = rawStatus.includes('LOSS') || rawStatus.includes('SL') || (sig.pnl_r && sig.pnl_r < 0);
+                                                // If it says pending/open but has a pnl Result, trust the pnl/result.
 
-                                            <div className={cn(
-                                                "text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider min-w-[50px] text-center",
-                                                isWin && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-                                                isLoss && "bg-rose-500/10 text-rose-400 border-rose-500/20",
-                                                !isWin && !isLoss && "bg-slate-500/10 text-slate-400 border-slate-500/20"
-                                            )}>
-                                                {sig.result || "PENDING"}
-                                            </div>
+                                                // Display text logic
+                                                let displayStatus = rawStatus;
+                                                if (isWin) displayStatus = sig.pnl_r ? `+${sig.pnl_r}R` : 'WIN';
+                                                else if (isLoss) displayStatus = sig.pnl_r ? `${sig.pnl_r}R` : 'LOSS';
+                                                else if (displayStatus === 'OPEN') displayStatus = 'RUNNING';
+
+                                                const isLong = sig.direction?.toLowerCase() === 'long';
+
+                                                return (
+                                                    <>
+                                                        <div className="flex items-center gap-3">
+                                                            {/* Token Box */}
+                                                            <div className={cn(
+                                                                "w-7 h-7 rounded flex items-center justify-center border text-[9px] font-black",
+                                                                isLong ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-400" : "border-rose-500/20 bg-rose-500/5 text-rose-400"
+                                                            )}>
+                                                                {sig.token?.substring(0, 3)}
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <div className="text-[11px] font-bold text-slate-200 leading-tight">
+                                                                    {sig.token}
+                                                                </div>
+                                                                <div className="text-[9px] text-slate-500 font-mono">
+                                                                    {(() => {
+                                                                        let ts = sig.timestamp || sig.evaluated_at;
+                                                                        if (!ts) return "--:--";
+                                                                        // Force UTC if naive string (common in SQL responses)
+                                                                        if (typeof ts === 'string' && !ts.endsWith('Z') && !ts.includes('+')) {
+                                                                            ts = ts.replace(' ', 'T') + 'Z';
+                                                                        }
+                                                                        return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                                    })()}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={cn(
+                                                            "text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider min-w-[50px] text-center",
+                                                            isWin && "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                                                            isLoss && "bg-rose-500/10 text-rose-400 border-rose-500/20",
+                                                            !isWin && !isLoss && "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                                                        )}>
+                                                            {displayStatus}
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()}
                                         </div>
                                     )
                                 })

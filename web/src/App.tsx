@@ -2,6 +2,7 @@ import React from 'react';
 import { MemoryRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
 import { DashboardHome } from './components/dashboard/DashboardHome';
+import { HistoryPage } from './pages/HistoryPage';
 import LandingPage from './pages/LandingPage';
 import { AnalysisPage } from './pages/AnalysisPage';
 import { ScannerPage } from './pages/ScannerPage';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
                                     </ProtectedRoute>
                                 }
                             />
+                            <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
                             <Route path="/scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
                             <Route path="/strategies" element={<ProtectedRoute><StrategiesPage /></ProtectedRoute>} />
                             <Route path="/strategies/:id" element={<ProtectedRoute><StrategyDetailsPage /></ProtectedRoute>} />

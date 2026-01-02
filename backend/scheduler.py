@@ -24,6 +24,7 @@ sys.path.insert(0, str(current_dir))
 from database import SessionLocal  # noqa: E402
 from strategies.registry import get_registry  # noqa: E402
 from core.signal_evaluator import evaluate_pending_signals  # noqa: E402
+from core.signal_logger import log_signal  # noqa: E402
 from models_db import StrategyConfig, User  # noqa: E402
 from notify import send_telegram  # noqa: E402
 from data.supported_tokens import VALID_TOKENS_FULL  # noqa: E402
@@ -258,18 +259,29 @@ class StrategyScheduler:
 
                         count = 0
                         for sig in signals:
-                            # Deduplication Logic 3.0: Timestamp AND Alternation
-                            # 1. Prevent reprocessing old signals (History spam)
-                            ts_key = f"{p_id}_{sig.token}"
-                            last_ts = self.processed_signals.get(ts_key)
-
-                            # Freshness Check: Ignore signals older than 6 hour
-                            # This prevents 'backfilling' history into the Live Feed when detailed
-                            # backtest strategies are run.
-                            time_diff = now - sig.timestamp
-                            if time_diff > timedelta(hours=6):
-                                # print(f"    ⏳ Skipping old signal: {sig.timestamp} (> 6h)")
-                                continue
+                            # 1. Deduplication (DB Weak Check + Memory)
+                            # Check DB for recent identical signal (2h window)
+                            # This prevents duplicates if scheduler restarts
+                            dedupe_db = SessionLocal()
+                            try:
+                                from models_db import Signal as SignalModel
+                                two_hours_ago = datetime.utcnow() - timedelta(hours=2)
+                                exists = dedupe_db.query(SignalModel).filter(
+                                    SignalModel.strategy_id == p_id,
+                                    SignalModel.token == sig.token,
+                                    SignalModel.direction == sig.direction,
+                                    SignalModel.timestamp >= two_hours_ago,
+                                    SignalModel.is_saved == 1
+                                ).first()
+                                
+                                if exists:
+                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} {sig.direction} (exists in last 2h)")
+                                    dedupe_db.close()
+                                    continue
+                            except Exception as e:
+                                print(f"    ⚠️ DB Dedupe Error: {e}")
+                            finally:
+                                dedupe_db.close()
 
                             if last_ts and sig.timestamp <= last_ts:
                                 continue
@@ -318,10 +330,16 @@ class StrategyScheduler:
                             # is safer for filtering.
                             sig.source = f"Marketplace:{p_id}"
 
-                            # CRITICAL FIX: Overwrite strategy_id with persona_id so signals are attributed
                             # to the specific instance (1234), not the generic logic (ma_cross_v1).
                             # This allows separate history and purging for distinct personas using same logic.
                             sig.strategy_id = p_id
+                            sig.is_saved = 1  # [FIX] Mark as permanent/official history
+
+                            # [FIX] Persist Signal to DB/CSV
+                            try:
+                                log_signal(sig)
+                            except Exception as e:
+                                print(f"    ❌ Failed to log signal: {e}")
 
                             # Deduplication Logic (Notification Layer)
                             # Prevent spam if the same strategy sends same signal (even with new TS) within X mins

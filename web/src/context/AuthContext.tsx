@@ -69,15 +69,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setIsAuthenticated(true);
                 } catch (err) {
                     console.error('Token validation failed', err);
-                    // Only logout if 401/403. If Network Error, keep token to avoid "kicking out" during dev flakes.
                     const msg = String(err);
-                    if (msg.includes('401') || msg.includes('403')) {
+                    // Aggressive Logout on 401/403 OR generic fetch failure on startup
+                    // If we can't get the user profile, the token is effectively useless.
+                    if (
+                        msg.includes('401') ||
+                        msg.includes('403') ||
+                        msg.includes('Unauthorized') ||
+                        msg.includes('Failed to fetch user profile') // Catch the generic error from api.ts
+                    ) {
+                        console.warn('Invalid token detected. Logging out.');
                         localStorage.removeItem('auth_token');
                         setIsAuthenticated(false);
                     } else {
-                        // Assume temporary network glitch, keep session but maybe show stale state
+                        // Only keep session if it looks like a transient network issue
                         console.warn("Network error during auth check. Keeping session active.");
-                        setIsAuthenticated(true); // Optimistic Keep-Alive
+                        setIsAuthenticated(true);
                     }
                 }
             }

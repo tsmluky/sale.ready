@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { ArrowLeft, Activity, Shield, Zap, TrendingUp, History, Hash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { SignalDetailsModal, SignalHistory } from '../components/SignalDetailsModal';
+import { TacticalAnalysisDrawer } from '../components/scanner/TacticalAnalysisDrawer';
+import { SignalHistory } from '../components/SignalDetailsModal'; // Keep type if needed, or replace with 'any' if generic
 import { formatRelativeTime } from '../utils/format';
 
 export const StrategyDetailsPage: React.FC = () => {
@@ -122,11 +123,12 @@ export const StrategyDetailsPage: React.FC = () => {
 
     return (
         <div className="space-y-8 animate-fade-in pb-12 relative">
-            {/* SIGNAL DETAILS MODAL */}
+            {/* SIGNAL DETAILS DRAWER */}
             {selectedSignal && (
-                <SignalDetailsModal
-                    signal={selectedSignal}
+                <TacticalAnalysisDrawer
+                    isOpen={!!selectedSignal}
                     onClose={() => setSelectedSignal(null)}
+                    signal={selectedSignal}
                 />
             )}
 

@@ -64,6 +64,11 @@ class DonchianBreakoutV2(Strategy):
                     token.lower(), timeframe, limit=required_candles
                 )
 
+                # [FIX] Ensure Timestamp Index
+                if df is not None and not df.empty and "timestamp" in df.columns:
+                     df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+                     df.set_index("timestamp", inplace=True)
+
                 if df is None or df.empty:
                     print(f"[DonchianV2] No data returned for {token}")
                     continue
@@ -91,8 +96,8 @@ class DonchianBreakoutV2(Strategy):
                 # EMA 200 Trend Filter
                 ema_trend = ta.ema(close, length=self.ema_trend_period)
 
-                # 3. Logic (on the last closed candle)
-                curr_idx = -1
+                # 3. Logic (on the last COMPLETED candle to avoid repainting)
+                curr_idx = -2
                 curr_close = close.iloc[curr_idx]
                 # curr_high = high.iloc[curr_idx]
                 # curr_low = low.iloc[curr_idx]
@@ -145,9 +150,16 @@ class DonchianBreakoutV2(Strategy):
                     risk = stop_loss - curr_close
                     take_profit = curr_close - (risk * 2.0)
 
+                # [FIX] Use candle timestamp for stability (prevents dupes)
+                ts_candle = df.index[curr_idx]
+                if isinstance(ts_candle, (int, float)):
+                    ts_candle = datetime.utcfromtimestamp(ts_candle / 1000.0)
+                elif not isinstance(ts_candle, datetime):
+                    ts_candle = datetime.utcnow()
+
                 if signal_dir:
                     sig = Signal(
-                        timestamp=datetime.utcnow(),
+                        timestamp=ts_candle,
                         strategy_id=self.metadata().id,
                         mode="PRO",
                         token=token.upper(),

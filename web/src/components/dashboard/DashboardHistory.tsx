@@ -2,8 +2,6 @@ import React from 'react';
 import { History, TrendingUp, TrendingDown, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { SignalHistory } from '../SignalDetailsModal';
-
 import { formatRelativeTime } from '../../utils/format';
 
 import { useAuth } from '../../context/AuthContext';
@@ -84,22 +82,40 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
 
                                 {/* Status Badge */}
                                 <div className="min-w-[100px] text-right">
-                                    {sig.status && sig.status !== 'OPEN' ? (
-                                        <div className={`inline-flex flex-col items-end`}>
-                                            <span className={`text-sm font-black tracking-tight ${['WIN', 'TP'].some(s => sig.status.includes(s)) || (sig.pnl && sig.pnl > 0)
-                                                ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
-                                                : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]'
-                                                }`}>
-                                                {sig.pnl ? `${sig.pnl > 0 ? '+' : ''}${sig.pnl} R` : sig.status}
-                                            </span>
-                                            {sig.pnl && <span className="text-[10px] font-bold text-slate-500 uppercase">{sig.status}</span>}
-                                        </div>
-                                    ) : (
-                                        <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.2)] animate-pulse">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
-                                            RUNNING
-                                        </span>
-                                    )}
+                                    {(() => {
+                                        // Robust status extraction
+                                        const rawStatus = String(sig.result || sig.status || 'PENDING').toUpperCase();
+                                        const isWin = rawStatus.includes('WIN') || rawStatus.includes('TP') || (sig.pnl_r && sig.pnl_r > 0);
+                                        const isLoss = rawStatus.includes('LOSS') || rawStatus.includes('SL') || (sig.pnl_r && sig.pnl_r < 0);
+                                        // Display text logic
+                                        let displayStatus = rawStatus;
+                                        if (isWin) displayStatus = sig.pnl_r ? `+${sig.pnl_r}R` : 'WIN';
+                                        else if (isLoss) displayStatus = sig.pnl_r ? `${sig.pnl_r}R` : 'LOSS';
+                                        else if (displayStatus === 'OPEN' || displayStatus === 'PENDING') displayStatus = 'RUNNING';
+
+                                        const isRunning = displayStatus === 'RUNNING';
+
+                                        if (isWin || isLoss) {
+                                            return (
+                                                <div className={`inline-flex flex-col items-end`}>
+                                                    <span className={`text-sm font-black tracking-tight ${isWin
+                                                        ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
+                                                        : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]'
+                                                        }`}>
+                                                        {displayStatus}
+                                                    </span>
+                                                    {(sig.result || sig.status) && <span className="text-[10px] font-bold text-slate-500 uppercase">{sig.result || sig.status}</span>}
+                                                </div>
+                                            );
+                                        } else {
+                                            return (
+                                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.2)] animate-pulse">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
+                                                    RUNNING
+                                                </span>
+                                            );
+                                        }
+                                    })()}
                                 </div>
 
                                 <ArrowRight size={16} className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
