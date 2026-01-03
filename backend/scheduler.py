@@ -275,7 +275,7 @@ class StrategyScheduler:
                                 ).first()
                                 
                                 if exists:
-                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} {sig.direction} (exists in last 2h)")
+                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} {sig.direction} (last 2h)")
                                     dedupe_db.close()
                                     continue
                             except Exception as e:
