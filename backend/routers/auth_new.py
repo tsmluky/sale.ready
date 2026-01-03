@@ -170,6 +170,10 @@ async def register_user(request: Request, db: Session = fastapi.Depends(get_db))
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+        
+        # [ISO-STRAT] Seed Private Strategies
+        seed_default_strategies(db, new_user)
+
         return new_user
 
     except IntegrityError:
@@ -185,6 +189,54 @@ async def register_user(request: Request, db: Session = fastapi.Depends(get_db))
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error during registration",
         )
+
+
+from marketplace_config import SYSTEM_PERSONAS
+from models_db import StrategyConfig
+import json
+
+def seed_default_strategies(db: Session, user: User):
+    """
+    Crea copias privadas de las estrategias del sistema para un nuevo usuario.
+    Esto permite toggling independiente (isolation).
+    """
+    print(f"[AUTH] Seeding strategies for user {user.email}...")
+    try:
+        for p in SYSTEM_PERSONAS:
+            # Create a unique ID for this user's instance
+            # Suffixing ensures uniqueness in the DB constraint
+            # e.g. "eth_breaker_105"
+            private_id = f"{p['id']}_{user.id}"
+            
+            # Check exist (idempotent)
+            exists = db.query(StrategyConfig).filter(StrategyConfig.persona_id == private_id).first()
+            if exists:
+                continue
+
+            new_conf = StrategyConfig(
+                persona_id=private_id,
+                strategy_id=p["strategy_id"],
+                name=p["name"],
+                description=p["description"],
+                tokens=json.dumps([p["symbol"]]),
+                timeframes=json.dumps([p["timeframe"]]),
+                risk_profile=p["risk_level"],
+                expected_roi=p["expected_roi"],
+                color=p["color"],
+                icon=p.get("icon", "Cpu"),
+                is_public=0, # Private now
+                user_id=user.id,
+                enabled=1, # Default ACTIVE
+                total_signals=0,
+                win_rate=0.0
+            )
+            db.add(new_conf)
+        
+        db.commit()
+        print(f"[AUTH] Seeded {len(SYSTEM_PERSONAS)} system strategies for user {user.id}")
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTH ERROR] Failed to seed strategies: {e}")
 
 
 def get_sync_db():

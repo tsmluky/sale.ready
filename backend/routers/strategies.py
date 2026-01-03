@@ -78,16 +78,17 @@ async def get_marketplace(
     # but for consistent dashboard, we likely have a user.
     # To be safe, we'll fetch all public (system) + private if user matches.
 
-    from sqlalchemy import or_
-
-    query = db.query(StrategyConfig).filter(
-        or_(
-            StrategyConfig.user_id.is_(None),  # System/Public
-            StrategyConfig.user_id == current_user.id,  # User's own
-        )
-    )
-
+    # [ISO-STRAT] Strict Isolation Logic
+    # 1. Fetch User's Private Strategies
+    query = db.query(StrategyConfig).filter(StrategyConfig.user_id == current_user.id)
     configs = query.all()
+
+    # 2. Lazy Seeding (Migration for existing users)
+    if not configs:
+        from routers.auth_new import seed_default_strategies
+        seed_default_strategies(db, current_user)
+        # Re-fetch after seeding
+        configs = db.query(StrategyConfig).filter(StrategyConfig.user_id == current_user.id).all()
 
     personas = []
     for c in configs:
