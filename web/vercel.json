@@ -22,7 +22,7 @@
             "destination": "/demoes/index.html"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!assets/|.*\\..*).*)",
             "destination": "/index.html"
         }
     ],
@@ -37,6 +37,15 @@
                 {
                     "key": "X-Content-Type-Options",
                     "value": "nosniff"
+                }
+            ]
+        },
+        {
+            "source": "/index.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
                 }
             ]
         },
