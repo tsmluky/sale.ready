@@ -3,15 +3,14 @@ export const formatPrice = (price: number | string | undefined | null): string =
 
     const p = Number(price);
     if (isNaN(p)) return '-';
+    if (p === 0) return '0.00';
 
-    // Crypto Formatting Rules
-    if (p >= 1000) return p.toFixed(2);       // BTC: 96,123.50
-    if (p >= 10) return p.toFixed(2);         // LTC: 77.95
-    if (p >= 1) return p.toFixed(3);          // ADA: 1.234
-    if (p >= 0.1) return p.toFixed(4);        // DOGE: 0.1234
-    if (p < 0.1) return p.toFixed(6);         // PEPE: 0.000012
-
-    return p.toString();
+    // Crypto Formatting Rules (Dynamic Precision)
+    if (p < 0.0001) return p.toFixed(8);      // PEPE/SHIB: 0.00000650
+    if (p < 0.01) return p.toFixed(6);        // Low cap: 0.001234
+    if (p < 1) return p.toFixed(4);           // DOGE/ADA: 0.1419
+    if (p < 50) return p.toFixed(3);          // Mid-range: 25.123
+    return p.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); // BTC/ETH: 96,123.50
 };
 
 export const formatRelativeTime = (dateStr: string | undefined): string => {

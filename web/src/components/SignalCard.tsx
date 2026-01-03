@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useCopilot } from '@/context/CopilotContext';
 
+import { formatPrice } from '@/utils/format';
+
 interface SignalCardProps {
   signal: any;
   chartNode?: React.ReactNode;
@@ -23,8 +25,8 @@ export function SignalCard({ signal, chartNode }: SignalCardProps) {
 
   const isLong = signal.direction?.toLowerCase() === 'long';
 
-  // Format helper
-  const fmt = (val: any) => typeof val === 'number' ? val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }) : val;
+  // Use centralized formatter
+  const fmt = formatPrice;
 
   const handleDiscuss = () => {
     setContext({

@@ -2,7 +2,7 @@ import React from 'react';
 import { History, TrendingUp, TrendingDown, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import { formatRelativeTime } from '../../utils/format';
+import { formatRelativeTime, formatPrice } from '../../utils/format';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -77,7 +77,7 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                                 {/* Entry Price (Hidden on mobile) */}
                                 <div className="hidden md:block text-right">
                                     <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Entry</div>
-                                    <div className="font-mono text-sm text-slate-300 group-hover:text-white transition-colors">{sig.entry}</div>
+                                    <div className="font-mono text-sm text-slate-300 group-hover:text-white transition-colors">{formatPrice(sig.entry)}</div>
                                 </div>
 
                                 {/* Status Badge */}
@@ -89,27 +89,27 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                                         const isLoss = rawStatus.includes('LOSS') || rawStatus.includes('SL') || (sig.pnl_r && sig.pnl_r < 0);
                                         // Display text logic
                                         let displayStatus = rawStatus;
-                                        if (isWin) displayStatus = sig.pnl_r ? `+${sig.pnl_r}R` : 'WIN';
-                                        else if (isLoss) displayStatus = sig.pnl_r ? `${sig.pnl_r}R` : 'LOSS';
+                                        if (isWin) displayStatus = sig.pnl_r ? `WIN (+${sig.pnl_r}R)` : 'WIN';
+                                        else if (isLoss) displayStatus = sig.pnl_r ? `LOSS (${sig.pnl_r}R)` : 'LOSS';
                                         else if (displayStatus === 'OPEN' || displayStatus === 'PENDING') displayStatus = 'RUNNING';
 
-                                        const isRunning = displayStatus === 'RUNNING';
-
-                                        if (isWin || isLoss) {
+                                        if (isWin) {
                                             return (
-                                                <div className={`inline-flex flex-col items-end`}>
-                                                    <span className={`text-sm font-black tracking-tight ${isWin
-                                                        ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]'
-                                                        : 'text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]'
-                                                        }`}>
-                                                        {displayStatus}
-                                                    </span>
-                                                    {(sig.result || sig.status) && <span className="text-[10px] font-bold text-slate-500 uppercase">{sig.result || sig.status}</span>}
-                                                </div>
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(52,211,153,0.1)]">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                                                    {displayStatus}
+                                                </span>
+                                            );
+                                        } else if (isLoss) {
+                                            return (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(244,63,94,0.1)]">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
+                                                    {displayStatus}
+                                                </span>
                                             );
                                         } else {
                                             return (
-                                                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold shadow-[0_0_10px_rgba(99,102,241,0.2)] animate-pulse">
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(99,102,241,0.1)] animate-pulse">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
                                                     RUNNING
                                                 </span>
