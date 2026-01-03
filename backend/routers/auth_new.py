@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from database import get_db
-from models_db import User
 from core.schemas import UserCreate, UserResponse
 from core.security import (
     verify_password,
