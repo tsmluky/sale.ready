@@ -1,5 +1,8 @@
 from datetime import timedelta, datetime
 from typing import Annotated
+import json
+from marketplace_config import SYSTEM_PERSONAS
+from models_db import StrategyConfig, User
 from pydantic import BaseModel
 import fastapi
 from fastapi import APIRouter, HTTPException, status, Request
@@ -190,10 +193,6 @@ async def register_user(request: Request, db: Session = fastapi.Depends(get_db))
             detail="Internal server error during registration",
         )
 
-
-from marketplace_config import SYSTEM_PERSONAS
-from models_db import StrategyConfig
-import json
 
 def seed_default_strategies(db: Session, user: User):
     """
