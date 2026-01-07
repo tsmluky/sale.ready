@@ -51,10 +51,9 @@ def send_recovery_email(to_email: str, reset_token: str):
     # --- Mode 1: Mailgun API (HTTP) ---
     if MAILGUN_API_KEY and MAILGUN_DOMAIN:
         try:
-            print(f"[EMAIL] 🚀 Sending via Mailgun API (EU) to {to_email}...")
-            # Detect region from ENV or default to EU (since that's what the user has)
-            # Or just hardcode the EU endpoint as requested by the fix
+            # Force EU Endpoint as verified
             mailgun_url = f"https://api.eu.mailgun.net/v3/{MAILGUN_DOMAIN}/messages"
+            print(f"[EMAIL] 🚀 Sending via Mailgun API (EU) to {to_email}...")
             
             res = requests.post(
                 mailgun_url,
