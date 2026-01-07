@@ -241,15 +241,9 @@ async def toggle_strategy(
 
     # Security Check: Owner or Admin
     if strat.user_id != current_user.id and current_user.role != "admin":
-        # Allow users to toggle System strategies in this Single-Tenant /
-        # Sale-Ready version.
-        # We assume the main user has full control.
-        if strat.user_id is None:
-            pass  # Allow
-        else:
-            raise HTTPException(
-                status_code=403, detail="Not authorized to toggle this strategy"
-            )
+        raise HTTPException(
+            status_code=403, detail="Not authorized to toggle this strategy"
+        )
 
     # Toggle (0 -> 1, 1 -> 0)
     strat.enabled = 0 if strat.enabled == 1 else 1

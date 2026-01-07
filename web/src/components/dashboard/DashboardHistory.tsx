@@ -1,132 +1,195 @@
-import React from 'react';
-import { History, TrendingUp, TrendingDown, Clock, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+"use client"
 
-import { formatRelativeTime, formatPrice } from '../../utils/format';
+import React, { useEffect, useState } from "react"
+import { api } from "../../services/api"
+import { ArrowLeft, ChevronLeft, ChevronRight, Filter, Search, Terminal } from "lucide-react"
+import { Link } from "react-router-dom"
+import { cn } from "../../lib/utils"
 
-import { useAuth } from '../../context/AuthContext';
+export const DashboardHistory: React.FC = () => {
+    const [signals, setSignals] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [hasMore, setHasMore] = useState(true)
+    const [filter, setFilter] = useState("ALL") // ALL, WIN, LOSS, PENDING
 
-interface DashboardHistoryProps {
-    signals: any[]; // Using any to be flexible with backend response, but will cast to SignalHistory
-    onSignalClick?: (signal: any) => void;
-}
+    const ITEMS_PER_PAGE = 50
 
-export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onSignalClick }) => {
-    const { userProfile } = useAuth();
-    const userTimezone = userProfile?.user?.timezone;
+    useEffect(() => {
+        loadHistory()
+    }, [page, filter])
+
+    const loadHistory = async () => {
+        setLoading(true)
+        try {
+            // Using existing endpoint mechanics, but likely need a specialized /history endpoint
+            // For now reusing getRecentSignals with high limit or filtering
+            // ideally: api.getHistory(page, limit, filter)
+            // As a stopgap, we fetch 'recent' with a higher limit and filter client side or 
+            // relying on existing paginated endpoints if available.
+
+            // NOTE: Ideally we should add a dedicated paginated history endpoint in backend.
+            // Using getRecentSignals as proxy for now.
+            const res = await api.getRecentSignals(ITEMS_PER_PAGE, false, true) // Include system for history? Maybe.
+
+            // Client side filtering for Phase 1 MVP if backend doesn't support specific filter params
+            let filtered = res;
+            if (filter !== "ALL") {
+                filtered = res.filter(s => {
+                    const status = (s.status || s.result || "PENDING").toUpperCase();
+                    if (filter === "PENDING") return status === "OPEN" || status === "PENDING";
+                    return status.includes(filter);
+                });
+            }
+
+            setSignals(filtered)
+            setHasMore(res.length >= ITEMS_PER_PAGE) // Rough check
+        } catch (e) {
+            console.error("History load failed", e)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between px-2 mb-2">
-                <div>
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <History className="text-brand-400" size={20} />
-                        Command Stream
-                    </h2>
-                    <p className="text-xs text-slate-400 font-medium pl-8">
-                        Live execution log from active agents.
-                    </p>
+        <div className="min-h-screen bg-[#020617] text-white p-6 pb-20 font-sans">
+            {/* Header */}
+            <div className="max-w-7xl mx-auto flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <Link to="/" className="p-2 hover:bg-white/5 rounded-full text-slate-400 hover:text-white transition-colors">
+                        <ArrowLeft size={20} />
+                    </Link>
+                    <div>
+                        <h1 className="text-2xl font-bold flex items-center gap-2">
+                            <Terminal className="text-brand-400" size={24} />
+                            Signal History
+                        </h1>
+                        <p className="text-slate-500 text-sm">Full archive of all trading signals</p>
+                    </div>
+                </div>
+
+                {/* Filters */}
+                <div className="flex gap-2 bg-[#0f172a] p-1 rounded-lg border border-white/5">
+                    {["ALL", "WIN", "LOSS", "PENDING"].map(f => (
+                        <button
+                            key={f}
+                            onClick={() => { setFilter(f); setPage(1); }}
+                            className={cn(
+                                "px-3 py-1.5 rounded text-xs font-bold transition-all",
+                                filter === f
+                                    ? "bg-brand-500/10 text-brand-400 shadow-[0_0_10px_rgba(56,189,248,0.1)]"
+                                    : "text-slate-500 hover:text-slate-300"
+                            )}
+                        >
+                            {f}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="space-y-3">
-                {signals.length === 0 ? (
-                    <div className="p-12 text-center text-slate-500 italic glass-card rounded-2xl border-dashed border-slate-700">
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="relative flex h-4 w-4">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
-                            </div>
-                            <span className="text-sm font-bold text-slate-400">Scanning markets for high-probability setups...</span>
-                        </div>
+            {/* Content */}
+            <div className="max-w-7xl mx-auto">
+                <div className="glass-card rounded-xl border border-white/5 bg-[#0f172a]/50 overflow-hidden">
+                    {/* Table Header */}
+                    <div className="grid grid-cols-12 gap-4 p-4 border-b border-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-[#0f172a]/80">
+                        <div className="col-span-2">Time</div>
+                        <div className="col-span-2">Token</div>
+                        <div className="col-span-1">Side</div>
+                        <div className="col-span-2 text-right">Entry</div>
+                        <div className="col-span-3 text-right">Exit / Status</div>
+                        <div className="col-span-2 text-right">PnL</div>
                     </div>
-                ) : (
-                    signals.map((sig) => (
-                        <div
-                            key={sig.id}
-                            onClick={() => onSignalClick && onSignalClick(sig)}
-                            className="group relative flex items-center justify-between p-4 rounded-xl bg-[#0F172A]/40 border border-white/5 hover:bg-white/5 hover:border-brand-500/30 hover:shadow-[0_4px_20px_-5px_rgba(0,0,0,0.5)] transition-all duration-300 cursor-pointer backdrop-blur-md active:scale-[0.99]"
-                        >
-                            {/* Left: Token & Context */}
-                            <div className="flex items-center gap-4 relative z-10">
-                                {/* Token Avatar */}
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500/20 to-indigo-600/20 flex items-center justify-center text-xs font-black text-white border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                                    {sig.token.substring(0, 3)}
-                                </div>
 
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-bold text-white group-hover:text-brand-300 transition-colors">{sig.token}</span>
-                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${sig.direction === 'long'
-                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                            : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                            }`}>
+                    {loading ? (
+                        <div className="p-8 text-center text-slate-500 flex flex-col items-center gap-2">
+                            <div className="animate-spin text-brand-500"><Terminal size={24} /></div>
+                            Loading history...
+                        </div>
+                    ) : signals.length === 0 ? (
+                        <div className="p-12 text-center text-slate-500">
+                            No signals found matching criteria.
+                        </div>
+                    ) : (
+                        signals.map((sig, idx) => {
+                            const rawStatus = String(sig.result || sig.status || 'PENDING').toUpperCase();
+                            const isWin = rawStatus.includes('WIN') || rawStatus.includes('TP') || (sig.pnl_r && sig.pnl_r > 0);
+                            const isLoss = rawStatus.includes('LOSS') || rawStatus.includes('SL') || (sig.pnl_r && sig.pnl_r < 0);
+
+                            let displayStatus = rawStatus;
+                            if (isWin) displayStatus = "WIN";
+                            else if (isLoss) displayStatus = "LOSS";
+                            else if (displayStatus === 'OPEN') displayStatus = 'RUNNING';
+
+                            const isLong = sig.direction?.toLowerCase() === 'long';
+                            const pnlVal = sig.pnl_r || sig.pnl; // adapt to schema
+
+                            return (
+                                <div key={idx} className="grid grid-cols-12 gap-4 p-4 border-b border-white/5 items-center hover:bg-white/[0.02] transition-colors text-sm">
+                                    <div className="col-span-2 font-mono text-slate-400 text-xs">
+                                        {new Date(sig.timestamp || sig.created_at).toLocaleString()}
+                                    </div>
+                                    <div className="col-span-2 font-bold flex items-center gap-2">
+                                        <div className={cn(
+                                            "w-6 h-6 rounded flex items-center justify-center border text-[9px] font-black",
+                                            isLong ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-400" : "border-rose-500/20 bg-rose-500/5 text-rose-400"
+                                        )}>
+                                            {sig.token?.substring(0, 3)}
+                                        </div>
+                                        {sig.token}
+                                    </div>
+                                    <div className="col-span-1">
+                                        <span className={cn(
+                                            "text-[10px] px-1.5 py-0.5 rounded font-bold uppercase",
+                                            isLong ? "text-emerald-400 bg-emerald-500/10" : "text-rose-400 bg-rose-500/10"
+                                        )}>
                                             {sig.direction}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-500 font-mono mt-0.5">
-                                        <span>{formatRelativeTime(sig.timestamp)}</span>
-                                        <span className="w-0.5 h-0.5 rounded-full bg-slate-600"></span>
-                                        <span className="text-slate-400">{sig.source.replace('Marketplace:', '')}</span>
+                                    <div className="col-span-2 text-right font-mono text-slate-300">
+                                        {sig.entry}
+                                    </div>
+                                    <div className="col-span-3 text-right">
+                                        <span className={cn(
+                                            "text-[10px] px-2 py-1 rounded font-bold uppercase border",
+                                            isWin && "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+                                            isLoss && "text-rose-400 bg-rose-500/10 border-rose-500/20",
+                                            !isWin && !isLoss && "text-slate-400 bg-slate-500/10 border-slate-500/20"
+                                        )}>
+                                            {displayStatus}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-2 text-right font-mono font-bold">
+                                        {pnlVal ? (
+                                            <span className={pnlVal > 0 ? "text-emerald-400" : "text-rose-400"}>
+                                                {pnlVal > 0 ? "+" : ""}{pnlVal}R
+                                            </span>
+                                        ) : <span className="text-slate-600">-</span>}
                                     </div>
                                 </div>
-                            </div>
+                            )
+                        })
+                    )}
+                </div>
 
-                            {/* Right: Status & PnL */}
-                            <div className="flex items-center gap-6 relative z-10">
-                                {/* Entry Price (Hidden on mobile) */}
-                                <div className="hidden md:block text-right">
-                                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Entry</div>
-                                    <div className="font-mono text-sm text-slate-300 group-hover:text-white transition-colors">{formatPrice(sig.entry)}</div>
-                                </div>
-
-                                {/* Status Badge */}
-                                <div className="min-w-[100px] text-right">
-                                    {(() => {
-                                        // Robust status extraction
-                                        const rawStatus = String(sig.result || sig.status || 'PENDING').toUpperCase();
-                                        const isWin = rawStatus.includes('WIN') || rawStatus.includes('TP') || (sig.pnl_r && sig.pnl_r > 0);
-                                        const isLoss = rawStatus.includes('LOSS') || rawStatus.includes('SL') || (sig.pnl_r && sig.pnl_r < 0);
-                                        // Display text logic
-                                        let displayStatus = rawStatus;
-                                        if (isWin) displayStatus = sig.pnl_r ? `WIN (+${sig.pnl_r}R)` : 'WIN';
-                                        else if (isLoss) displayStatus = sig.pnl_r ? `LOSS (${sig.pnl_r}R)` : 'LOSS';
-                                        else if (displayStatus === 'OPEN' || displayStatus === 'PENDING') displayStatus = 'RUNNING';
-
-                                        if (isWin) {
-                                            return (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
-                                                    {displayStatus}
-                                                </span>
-                                            );
-                                        } else if (isLoss) {
-                                            return (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(244,63,94,0.1)]">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-400"></div>
-                                                    {displayStatus}
-                                                </span>
-                                            );
-                                        } else {
-                                            return (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(99,102,241,0.1)] animate-pulse">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div>
-                                                    RUNNING
-                                                </span>
-                                            );
-                                        }
-                                    })()}
-                                </div>
-
-                                <ArrowRight size={16} className="text-slate-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
-                            </div>
-
-                            {/* Hover Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                        </div>
-                    ))
-                )}
+                {/* Pagination Controls */}
+                <div className="flex justify-between items-center mt-6">
+                    <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1 || loading}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0f172a] border border-white/5 hover:bg-white/5 disabled:opacity-50 transition-colors text-sm"
+                    >
+                        <ChevronLeft size={16} /> Previous
+                    </button>
+                    <span className="text-slate-500 text-sm font-mono">Page {page}</span>
+                    <button
+                        onClick={() => setPage(p => p + 1)}
+                        disabled={!hasMore || loading}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0f172a] border border-white/5 hover:bg-white/5 disabled:opacity-50 transition-colors text-sm"
+                    >
+                        Next <ChevronRight size={16} />
+                    </button>
+                </div>
             </div>
         </div>
-    );
-};
+    )
+}

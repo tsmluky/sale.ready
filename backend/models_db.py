@@ -50,6 +50,14 @@ class Signal(Base):
     is_saved = Column(Integer, default=0)  # 0=Transient, 1=Saved/Tracked by user
     extra = Column(Text, nullable=True)  # JSON Metadata encoded as string
 
+    # [HARDENING] Persistent Deduplication
+    __table_args__ = (
+        UniqueConstraint(
+            "strategy_id", "token", "timestamp", "direction", name="uq_signal_dedup"
+        ),
+        {"extend_existing": True},
+    )
+
 
 class SignalEvaluation(Base):
     __tablename__ = "signal_evaluations"

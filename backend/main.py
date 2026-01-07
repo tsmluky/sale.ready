@@ -75,9 +75,12 @@ from telegram_listener import start_telegram_bot, stop_telegram_bot  # noqa: E40
 
 @app.on_event("startup")
 async def startup_event():
-    # Start Telegram Bot in background
-    # Start Telegram Bot in background
-    asyncio.create_task(start_telegram_bot())
+    # Start Telegram Bot in background (Conditional)
+    run_bot = os.getenv("RUN_TELEGRAM_BOT", "false").lower() in ["true", "1", "yes"]
+    if run_bot:
+        asyncio.create_task(start_telegram_bot())
+    else:
+        print("ℹ️ [STARTUP] Telegram Bot skipped (RUN_TELEGRAM_BOT not set).")
 
     # Start Self-Health Check (Debug 502)
     async def self_health_check_loop():
@@ -284,197 +287,53 @@ async def startup():
 
     import anyio
 
-    # Crear tablas (DB SYNC) sin bloquear el event loop
-    await anyio.to_thread.run_sync(lambda: Base.metadata.create_all(bind=engine))
+    # [HARDENING] Gate Runtime DDL
+    # Only run create_all if explicitly allowed or using SQLite (local dev convenience).
+    allow_create = os.getenv("ALLOW_CREATE_ALL", "false").lower() in ["true", "1", "yes"]
+    is_sqlite = "sqlite" in str(engine.url)
+    
+    if allow_create or is_sqlite:
+         # Crear tablas (DB SYNC) sin bloquear el event loop
+         await anyio.to_thread.run_sync(lambda: Base.metadata.create_all(bind=engine))
+    else:
+         print("[STARTUP] 🔒 DB Schema creation skipped (Production Mode). Use alembic or scripts.")
 
     # Import SessionLocal early to avoid UnboundLocalError
     from database import SessionLocal
 
-    # Hotfix Postgres & Migrations
-    try:
-        from sqlalchemy import text
-
-        with engine.begin() as conn:
-            # 1. Expand rationale logic
-            if "postgresql" in str(engine.url):
-                try:
-                    conn.execute(
-                        text("ALTER TABLE signals ALTER COLUMN rationale TYPE TEXT;")
-                    )
-                except Exception:
-                    pass
-
-            print("🔧 [DB MIGRATION] Update StrategyConfig/User schemas...")
-            # 2. Add telegram_chat_id
-            try:
-                conn.execute(
-                    text("ALTER TABLE users ADD COLUMN telegram_chat_id VARCHAR;")
-                )
-            except Exception:
-                pass
-
-            # 3. Add is_saved (Analyst Tracking)
-            try:
-                conn.execute(
-                    text("ALTER TABLE signals ADD COLUMN is_saved INTEGER DEFAULT 0;")
-                )
-                print("🔧 [DB MIGRATION] Added 'is_saved' column to signals.")
-            except Exception:
-                pass
-
-            # --- 1. Schema Constraints Fix (Critical for Multiple Personas) ---
-            # HOTFIX: Purge Garbage Test Data (DOGE with ETH prices)
-            if "postgresql" in str(engine.url):
-                try:
-                    # DOGE at 3498 is impossible. Delete these artifacts.
-                    conn.execute(
-                        text("DELETE FROM signals WHERE token = 'DOGE' AND entry > 50")
-                    )
-                    print("🧹 [DB CLEANUP] Wiped garbage DOGE signals.")
-                except Exception as e:
-                    print(f"⚠️ [DB CLEANUP] Cleanup failed: {e}")
-
-    except Exception as e:
-        print(f"⚠️ [DB MIGRATION] Pre-startup checks failed: {e}")
-
-    def _fix_schema_constraints(db: Session):
-        """Drops the erroneous UNIQUE constraint on strategy_id if it exists."""
+    # [HARDENING] DDL & Seeding moved to scripts/apply_patches.py
+    # This ensures fast, safe startup without race conditions on DB schema.
+    
+    # Background Evaluator (Conditional)
+    run_evaluator = os.getenv("RUN_EVALUATOR", "false").lower() in ["true", "1", "yes"]
+    
+    if run_evaluator:
         try:
-            # Check if constraint exists (PostgreSQL specific)
-            from sqlalchemy import text
+            from evaluated_logger import evaluate_all_tokens
 
-            check_sql = (
-                "SELECT constraint_name FROM information_schema.table_constraints "
-                "WHERE table_name = 'strategy_configs' AND constraint_type = 'UNIQUE' "
-                "AND constraint_name LIKE '%strategy_id%'"
-            )
-            result = db.execute(text(check_sql)).fetchone()
-            if result:
-                constraint = result[0]
-                print(
-                    f"🔧 [DB FIX] Dropping unique constraint '{constraint}' on strategy_configs.strategy_id..."
-                )
-                db.execute(
-                    text(f"ALTER TABLE strategy_configs DROP CONSTRAINT {constraint}")
-                )
-                db.commit()
-                print("✅ [DB FIX] Constraint dropped. Multiple personas allowed.")
-        except Exception as e:
-            print(f"⚠️ [DB FIX] Could not check/drop constraint: {e}")
-            db.rollback()
+            async def run_evaluator_loop():
+                print("[BACKGROUND] Starting Automatic Signal Evaluator...")
+                while True:
+                    try:
+                        await asyncio.sleep(300)
+                        from fastapi.concurrency import run_in_threadpool
 
-    try:
-        db = SessionLocal()
-        _fix_schema_constraints(db)
-
-        # Add 'persona_id' column if missing (Migration)
-        try:
-            db.execute(
-                text("ALTER TABLE strategy_configs ADD COLUMN persona_id VARCHAR")
-            )
-            db.commit()
-            print("🔧 [DB MIGRATION] Added 'persona_id' column.")
-        except Exception:
-            db.rollback()
-            # Ignore if already exists
-            # print(f"⚠️ [DB MIGRATION] Column check: {e}")
-            pass
-
-        # Add 'timezone' column to users if missing (Critical for Auth)
-        try:
-            db.execute(
-                text("ALTER TABLE users ADD COLUMN timezone VARCHAR DEFAULT 'UTC'")
-            )
-            db.commit()
-            print("🔧 [DB MIGRATION] Added 'timezone' column to users.")
-        except Exception:
-            db.rollback()
-            pass
-
-        db.close()
-    except Exception as e:
-        print(f"⚠️ [DB MIGRATION] Setup failed: {e}")
-
-    # --- 2. Seed Personas (Fresh Session) ---
-    db = None
-    try:
-        # from database import SessionLocal # Moved to top
-        db = SessionLocal()
-        print("🌱 [SEED] Verify Personas in DB...")
-        # Import moved inside to avoid circular deps if any
-        from marketplace_config import SYSTEM_PERSONAS
-        from models_db import StrategyConfig
-        import json
-
-        for sp in SYSTEM_PERSONAS:
-            # Check by persona_id
-            db_p = (
-                db.query(StrategyConfig)
-                .filter(StrategyConfig.persona_id == sp["id"])
-                .first()
-            )
-
-            if not db_p:
-                print(f"   [SEED] Creating {sp['name']}...")
-                db_p = StrategyConfig(
-                    persona_id=sp["id"],
-                    strategy_id=sp["strategy_id"],
-                    name=sp["name"],
-                    description=sp["description"],
-                    timeframes=json.dumps([sp["timeframe"]]),
-                    tokens=json.dumps([sp["symbol"]]),
-                    risk_profile=sp["risk_level"],
-                    expected_roi=sp["expected_roi"],
-                    color=sp["color"],
-                    is_public=1,
-                    user_id=None,
-                    enabled=1,
-                )
-                db.add(db_p)
-            else:
-                # Update existing system strategy
-                db_p.name = sp["name"]
-                db_p.description = sp["description"]
-                db_p.persona_id = sp["id"]
-                db_p.expected_roi = sp["expected_roi"]
-                db_p.is_public = 1
-                db_p.user_id = None
-
-        db.commit()
-        print("✅ [DB] Schema & Seeds synced.")
-    except Exception as e:
-        print(f"❌ [DB] Seed Error: {e}")
-        if db:
-            db.rollback()
-    finally:
-        if db:
-            db.close()
-
-    # Background evaluator (best-effort)
-    try:
-        from evaluated_logger import evaluate_all_tokens
-
-        async def run_evaluator_loop():
-            print("[BACKGROUND] Starting Automatic Signal Evaluator...")
-            while True:
-                try:
-                    await asyncio.sleep(300)
-                    from fastapi.concurrency import run_in_threadpool
-
-                    tokens_count, new_evals = await run_in_threadpool(
-                        evaluate_all_tokens
-                    )
-                    if new_evals > 0:
-                        print(
-                            f"[BACKGROUND] Evaluated {new_evals} signals across {tokens_count} tokens."
+                        tokens_count, new_evals = await run_in_threadpool(
+                            evaluate_all_tokens
                         )
-                except Exception as e:
-                    print(f"[BACKGROUND] Evaluator loop error: {e}")
-                    await asyncio.sleep(60)
+                        if new_evals > 0:
+                            print(
+                                f"[BACKGROUND] Evaluated {new_evals} signals across {tokens_count} tokens."
+                            )
+                    except Exception as e:
+                        print(f"[BACKGROUND] Evaluator loop error: {e}")
+                        await asyncio.sleep(60)
 
-        asyncio.create_task(run_evaluator_loop())
-    except Exception as e:
-        print(f"[BACKGROUND] Evaluator not started: {e}")
+            asyncio.create_task(run_evaluator_loop())
+        except Exception as e:
+            print(f"[BACKGROUND] Evaluator not started: {e}")
+    else:
+         print("ℹ️ [STARTUP] Evaluator skipped (RUN_EVALUATOR not set).")
 
 
 # ==== 12. Endpoint Notify (Telegram) ====
@@ -779,10 +638,17 @@ def start_scheduler_thread():
     # 1. Load Strategies into Registry (Shared Memory)
     load_default_strategies()
 
-    # 2. Launch Scheduler
-    print("🚀 [STARTUP] Launching Strategy Scheduler Thread...")
-    t = threading.Thread(target=scheduler_instance.run, daemon=True)
-    t.start()
+    # 2. Launch Scheduler (Conditional)
+    # [HARDENING] Prevent Duplicate Schedulers
+    # Only run if RUN_SCHEDULER env var is "true" or "1".
+    run_scheduler = os.getenv("RUN_SCHEDULER", "false").lower() in ["true", "1", "yes"]
+    
+    if run_scheduler:
+        print("🚀 [STARTUP] Launching Strategy Scheduler Thread...")
+        t = threading.Thread(target=scheduler_instance.run, daemon=True)
+        t.start()
+    else:
+        print("ℹ️ [STARTUP] Scheduler skipped (RUN_SCHEDULER not set).")
 
 
 if __name__ == "__main__":

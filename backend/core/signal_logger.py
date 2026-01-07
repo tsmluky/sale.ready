@@ -11,9 +11,10 @@ en el formato adecuado para logs CSV y base de datos.
 
 from __future__ import annotations
 import csv
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from .schemas import Signal
 
@@ -38,48 +39,157 @@ CSV_HEADERS = [
 ]
 
 
-def log_signal(signal: Signal) -> None:
+def log_signal(signal: Signal) -> bool:
     """
-    Guarda una señal en el CSV adecuado según modo/token Y en la base de datos.
+    Guarda una señal en DB (Canonical) y si tiene éxito, en CSV.
 
     Args:
         signal: Instancia del modelo Signal unificado
 
-    Comportamiento:
-    - CSV: logs/{MODE}/{token}.csv (token en minúsculas)
-    - DB: tabla Signal con todos los campos del modelo
-
-    Notas:
-    - El campo 'extra' (dict libre) se convierte a string JSON para CSV
-    - El modo EVALUATED tiene fichero especial: {token}.evaluated.csv
-      (pero se recomienda usar evaluated_logger.py para ese caso específico)
+    Returns:
+        bool: True si se insertó correctamente (Nueva señal).
+              False si fue duplicada (dedupe) o error.
     """
 
     mode = signal.mode.upper()
+    
+    # === 1. Persistir en DB (CANONICAL SOURCE OF TRUTH) ===
+    # Si falla dedupe aquí, abortamos todo lo demás.
+    inserted = _write_to_db(signal, mode)
+    
+    if not inserted:
+        return False
+
+    # === 2. Persistir en CSV (Solo si DB aceptó) ===
     token_lower = signal.token.lower()
-
-    # === 1. Persistir en CSV (legacy/backup) ===
     _write_to_csv(signal, mode, token_lower)
+    
+    # === 3. Push Notification (Mobile) ===
+    # Solo si es nueva.
+    _send_push_notification(signal)
+    
+    return True
 
-    # === 2. Persistir en base de datos ===
-    _write_to_db(signal, mode)
+
+def _snap_to_grid(dt: datetime, tf_str: str) -> datetime:
+    """
+    Normaliza el timestamp al inicio de la vela correspondiente.
+    Soporta formatos: 5m, 15m, 30m, 1h, 4h, 1d.
+    """
+    dt = dt.replace(second=0, microsecond=0)
+    
+    match = re.match(r"(\d+)([mhd])", tf_str)
+    if not match:
+        return dt # Fallback: return truncated seconds
+        
+    val = int(match.group(1))
+    unit = match.group(2)
+    
+    if unit == 'm':
+        # Minute snapping
+        minute = (dt.minute // val) * val
+        return dt.replace(minute=minute)
+    elif unit == 'h':
+        # Hour snapping (assumes val divides 24 or starts at 00:00)
+        total_hours = dt.hour
+        snapped_hours = (total_hours // val) * val
+        return dt.replace(hour=snapped_hours, minute=0)
+    elif unit == 'd':
+        # Day snapping
+        return dt.replace(hour=0, minute=0)
+        
+    return dt
+
+
+def _write_to_db(signal: Signal, mode: str) -> bool:
+    """
+    Escritura exclusiva de DB para una señal.
+    Retorna True si insertó, False si duplicado/error.
+    """
+    try:
+        from database import SessionLocal
+        from models_db import Signal as SignalDB  # Explicit import from backend package
+        from sqlalchemy.exc import IntegrityError 
+
+        # 1. Normalize Timestamp (Canonical)
+        ts_normalized = _snap_to_grid(signal.timestamp, signal.timeframe)
+        ts_iso = ts_normalized.isoformat()
+        
+        # 2. Compute Idempotency Key
+        # Includes DIRECTION to allow hedging (Long+Short in same candle if logic permits)
+        idem_key = (
+            f"{signal.strategy_id}|{signal.token.upper()}|{signal.timeframe}|"
+            f"{ts_iso}|{signal.direction.lower()}|{signal.user_id}|{signal.mode}"
+        )
+
+        # 3. Preparar datos para el modelo DB
+        db_signal = SignalDB(
+            timestamp=ts_normalized, # STORE NORMALIZED TS
+            token=signal.token.upper(),
+            timeframe=signal.timeframe,
+            direction=signal.direction.lower(), # Normalize direction
+            entry=signal.entry,
+            tp=signal.tp if signal.tp else 0.0,
+            sl=signal.sl if signal.sl else 0.0,
+            confidence=signal.confidence if signal.confidence is not None else 0.0,
+            rationale=signal.rationale if signal.rationale else "",
+            source=signal.source,
+            mode=mode,
+            raw_response=str(signal.extra) if signal.extra else None,
+            strategy_id=signal.strategy_id,
+            idempotency_key=idem_key,
+            user_id=signal.user_id,
+            # is_saved default=0 (set by scheduler logic if needed, signal obj might not have it)
+            # Actually scheduler sets dynamic attr, here we rely on defaults or pass it?
+            # Signal schema doesn't have is_saved. It's an extra DB column.
+            # We can leave default or add if passed in kwargs if we modify callers.
+            # For now, default 0 is safe, scheduler updates it later? 
+            # Wait, scheduler sets `sig.is_saved = 1` just before calling log_signal.
+            # But `Signal` Pydantic model doesn't have `is_saved`.
+            # We should check if `signal` object has `is_saved` attribute dynamically set by scheduler.
+        )
+        
+        # Check dynamic attr from scheduler
+        if hasattr(signal, "is_saved"):
+            db_signal.is_saved = getattr(signal, "is_saved")
+
+        db = SessionLocal()
+        try:
+            db.add(db_signal)
+            db.commit()
+            print(f"[DB] ✅ INSERT: {signal.token} {signal.direction} @ {ts_normalized}")
+            return True
+
+        except IntegrityError:
+            db.rollback()
+            # Silent Duplicate Skip
+            # print(f"[DB] ℹ️ Duplicate ignored: {idem_key}") 
+            return False
+
+        except Exception as db_err:
+            print(f"[DB] ❌ Error Insert: {db_err}")
+            db.rollback()
+            return False
+        finally:
+            db.close()
+
+    except ImportError as imp_err:
+        print(f"[DB] ⚠️  Import Error: {imp_err}")
+        return False
+    except Exception as e:
+        print(f"[DB] ⚠️  Unexpected Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
     """
-    Escritura exclusiva de CSV para una señal.
-
-    Estructura de directorios:
-    - logs/LITE/{token}.csv
-    - logs/PRO/{token}.csv
-    - logs/ADVISOR/{token}.csv
-    - logs/EVALUATED/{token}.evaluated.csv (si mode == EVALUATED)
-    - logs/CUSTOM/{token}.csv (para futuras estrategias de trading_lab)
+    Escritura CSV (Solo si DB tuvo éxito).
     """
     mode_dir = LOGS_DIR / mode
     mode_dir.mkdir(parents=True, exist_ok=True)
 
-    # Nombre del fichero según modo
     if mode == "EVALUATED":
         filename = f"{token_lower}.evaluated.csv"
     else:
@@ -88,8 +198,11 @@ def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
     filepath = mode_dir / filename
     file_exists = filepath.exists()
 
-    # Convertir Signal a dict para CSV (solo campos básicos, no 'extra')
+    # Convertir Signal a dict para CSV
+    # NOTE: Use original timestamp for display, or normalized?
+    # User asked for canonical. But CSV is log. Let's use signal.timestamp (the input).
     ts_str = signal.timestamp.replace(microsecond=0).isoformat() + "Z"
+    
     row_data = {
         "timestamp": ts_str,
         "token": signal.token.upper(),
@@ -109,119 +222,33 @@ def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
             if not file_exists:
                 writer.writeheader()
             writer.writerow(row_data)
-        print(f"[CSV] ✅ Señal guardada: {filepath}")
+        # print(f"[CSV] ✅ Saved: {filepath}")
     except Exception as e:
-        print(f"[CSV] ❌ Error escribiendo CSV en {filepath}: {e}")
-        # No relanzamos para que el flujo continúe si al menos DB funciona
+        print(f"[CSV] ❌ Error: {e}")
 
 
-def _write_to_db(signal: Signal, mode: str) -> None:
-    """
-    Escritura exclusiva de DB para una señal.
-
-    Guarda en la tabla Signal usando el ORM de SQLAlchemy.
-    Si falla, no interrumpe el flujo (ya se guardó en CSV).
-    """
+def _send_push_notification(signal: Signal):
+    """Encapsulated Push Logic."""
     try:
-        from database import SessionLocal
-        from models_db import Signal as SignalDB  # Explicit import from backend package
-        from sqlalchemy.exc import IntegrityError
+        from notify import send_push_notification
 
-        # Compute Idempotency Key
-        ts_iso = signal.timestamp.isoformat()
-        idem_key = (
-            f"{signal.strategy_id}|{signal.token.upper()}|{signal.timeframe}|"
-            f"{ts_iso}|{signal.user_id}|{signal.mode}"
+        title = f"New Signal: {signal.direction.upper()} {signal.token}"
+        body = (
+            f"Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}\n"
+            f"Strategy: {signal.strategy_id or 'Unknown'}"
         )
-
-        # Preparar datos para el modelo DB
-        db_signal = SignalDB(
-            timestamp=signal.timestamp,
-            token=signal.token.upper(),
-            timeframe=signal.timeframe,
-            direction=signal.direction,
-            entry=signal.entry,
-            tp=signal.tp if signal.tp else 0.0,
-            sl=signal.sl if signal.sl else 0.0,
-            confidence=signal.confidence if signal.confidence is not None else 0.0,
-            rationale=signal.rationale if signal.rationale else "",
-            source=signal.source,
-            mode=mode,
-            raw_response=str(signal.extra) if signal.extra else None,
-            strategy_id=signal.strategy_id,
-            idempotency_key=idem_key,
-            user_id=signal.user_id,
+        res = send_push_notification(
+            title, body, data={"token": signal.token, "type": "signal"}
         )
-
-        db = SessionLocal()
-        try:
-            db.add(db_signal)
-            db.commit()
-            ts_str = signal.timestamp.replace(microsecond=0).isoformat() + "Z"
-            print(f"[DB] ✅ Señal guardada en DB: {mode} - {signal.token} - {ts_str}")
-
-            # --- NOTIFICACIÓN PUSH ---
-            try:
-                from notify import send_push_notification
-
-                title = f"New Signal: {signal.direction.upper()} {signal.token}"
-                body = (
-                    f"Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}\n"
-                    f"Strategy: {signal.strategy_id or 'Unknown'}"
-                )
-                res = send_push_notification(
-                    title, body, data={"token": signal.token, "type": "signal"}
-                )
-                if res.get("success", 0) > 0:
-                    devices = res["success"]
-                    print(f"[PUSH] 🔔 Notificación enviada a {devices} dispositivos.")
-                elif res.get("failed", 0) > 0:
-                    print(
-                        f"[PUSH] ⚠️ Fallo al enviar notificaciones "
-                        f"({res['failed']} fallidos)."
-                    )
-            except Exception as push_err:
-                print(f"[PUSH] ❌ Error enviando push: {push_err}")
-            # -------------------------
-
-        except IntegrityError:
-            db.rollback()
-            print(f"[DB] ℹ️ Signal ignored (Duplicate Idempotency Key): {idem_key}")
-
-        except Exception as db_err:
-            print(f"[DB] ❌ Error CRÍTICO al guardar en DB: {db_err}")
-            db.rollback()
-            # No relanzamos para que al menos CSV esté persistido
-        finally:
-            db.close()
-
-    except ImportError as imp_err:
-        print(f"[DB] ⚠️  No se pudo importar database/models_db: {imp_err}")
-    except Exception as e:
-        print(f"[DB] ⚠️  Error inesperado en _write_to_db: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
-# === Funciones auxiliares para migración/transición ===
+        if res.get("success", 0) > 0:
+            print(f"[PUSH] 🔔 Sent ({res['success']} devices).")
+        # Fail silently if 0
+    except Exception as push_err:
+        print(f"[PUSH] ❌ Error: {push_err}")
 
 
 def signal_from_dict(data: Dict[str, Any], mode: str, strategy_id: str) -> Signal:
-    """
-    Helper para crear una instancia Signal desde un diccionario legacy.
-
-    Útil para refactorizar código existente que usa dicts en vez de Signal.
-
-    Args:
-        data: Diccionario con campos de señal
-        mode: Modo del análisis (LITE, PRO, ADVISOR, etc.)
-        strategy_id: ID de la estrategia generadora
-
-    Returns:
-        Instancia de Signal lista para usar con log_signal()
-    """
-    # Parse timestamp si viene como string
+    """Helper legacy."""
     ts = data.get("timestamp")
     if isinstance(ts, str):
         try:

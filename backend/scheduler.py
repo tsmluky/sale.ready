@@ -95,6 +95,7 @@ def get_active_strategies_from_db():
                     "timeframe": target_tf,
                     "name": c.name,
                     "telegram_chat_id": chat_id,
+                    "user_id": c.user_id, # [FIX] Isolation: Pass owner ID
                 }
             )
 
@@ -108,9 +109,10 @@ def get_active_strategies_from_db():
 
 class StrategyScheduler:
     """
-    Scheduler de Estrategias (Modo Marketplace).
+    Scheduler de Estrategias (Modo Marketplace - Parallelized).
 
-    Ejecuta las 'Personas' definidas en marketplace_config.py
+    Ejecuta las 'Personas' definidas en DB usando ThreadPool
+    para evitar bloqueos cuando hay muchos tokens.
     """
 
     def __init__(self, loop_interval: int = 60):
@@ -118,7 +120,7 @@ class StrategyScheduler:
         self.registry = get_registry()
 
         print("=" * 60)
-        print("= TraderCopilot - Marketplace Scheduler (DB Powered)")
+        print("= TraderCopilot - Marketplace Scheduler (Parallel DB Powered)")
         print("=" * 60)
 
         # Registrar estrategias built-in
@@ -147,11 +149,10 @@ class StrategyScheduler:
 
         # Lock Config
         self.lock_id = str(uuid.uuid4())
-        self.lock_ttl = 30  # seconds
+        self.lock_ttl = 300  # 5 mins (Safe buffer > loop_interval)
         self.lock_name = "global_scheduler_lock"
 
         # Deduplication Cache for Notifications
-        # Key: "Token_Direction_Timeframe" -> Value: timestamp
         self.dedupe_cache = {}
 
         # Coherence Guard (Global Trend State)
@@ -159,6 +160,10 @@ class StrategyScheduler:
 
         # Used to reject conflicting signals (Long -> Short) if they happen too fast (Chop protection)
         self.token_coherence = {}
+        
+        # [NEW] Executor for Parallel Execution
+        # We limit to 5 workers to prevent DB connection exhaustion if pooling set to 20
+        self.max_workers = 5
 
     def acquire_lock(self, db: Session) -> bool:
         """Intenta adquirir o renovar el lock de base de datos."""
@@ -196,19 +201,41 @@ class StrategyScheduler:
 
         print(f"🔒 Lock held by other instance ({lock.owner_id}). Retrying...")
         return False
+        
+    def _execute_strategy_task(self, persona):
+        """
+        Worker function to execute a single strategy instance.
+        Returns generated signals or empty list.
+        Safe for threading (no shared state modification here).
+        """
+        strategy_id = persona["strategy_id"]
+        strategy = self.registry.get(strategy_id)
+
+        if not strategy:
+            # print(f"  ⚠️  Strategy class '{strategy_id}' not found!")
+            return []
+
+        try:
+            # print(f"   [Worker] Running {persona['name']}...")
+            # Each strategy instance inside generate_signals acts locally
+            signals = strategy.generate_signals(
+                tokens=persona["tokens"], timeframe=persona["timeframe"]
+            )
+            return signals
+        except Exception as e:
+            print(f"  ❌ Error executing {persona['name']} in worker: {e}")
+            return []
 
     def run(self):
         """Loop principal."""
+        import concurrent.futures
+        
         iteration = 0
         try:
             while True:
                 # 0. Gestion de Lock
-                # Cada iteración intentamos renovar. Si perdemos el lock, esperamos.
                 db = SessionLocal()
                 try:
-                    # Ensure table exists? Assume migration did it.
-                    # On SQLite simple check helps avoid initial crash if table missing
-                    # but main.py should have created it.
                     if not self.acquire_lock(db):
                         print("⏳ Waiting for lock...")
                         time.sleep(10)
@@ -221,7 +248,6 @@ class StrategyScheduler:
                     db.close()
 
                 iteration += 1
-                # User requests Buenos Aires Time (UTC-3) for logs
                 now = datetime.utcnow()
                 ba_time = now - timedelta(hours=3)
                 print(f"\n[{ba_time.strftime('%H:%M:%S')}] Iteration #{iteration}")
@@ -229,174 +255,83 @@ class StrategyScheduler:
                 # 1. Obtener Personas Activas (DB)
                 personas = get_active_strategies_from_db()
                 print(f"  ℹ️  Active Personas: {len(personas)}")
+                
+                # 2. Parallel Execution
+                all_signals_map = {} # {persona_id: [signals]}
+                
+                with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                    # Submit all tasks
+                    future_to_persona = {
+                        executor.submit(self._execute_strategy_task, p): p 
+                        for p in personas
+                    }
+                    
+                    for future in concurrent.futures.as_completed(future_to_persona):
+                        p = future_to_persona[future]
+                        try:
+                            signals = future.result()
+                            if signals:
+                                all_signals_map[p["id"]] = signals
+                        except Exception as exc:
+                            print(f"  ❌ {p['name']} generated an exception: {exc}")
 
-                # 2. Ejecutar cada Persona
-                for persona in personas:
-                    p_id = persona["id"]
-
-                    # Rate Limit simple (ej: cada 5 mins para todos, o custom)
-                    # Por ahora, usamos interval global de loop (60s)
-                    # Si quisiéramos per-strategy intervals, checkeamos self.last_run[p_id]
-
-                    print(
-                        f"  🔄 Running Persona: {persona['name']} "
-                        f"(Tokens: {len(persona['tokens'])} | TF: {persona['timeframe']})"
-                    )
-
-                    # Instanciar estrategia técnica
-                    strategy_id = persona["strategy_id"]
-                    strategy = self.registry.get(strategy_id)
-
-                    if not strategy:
-                        print(f"  ⚠️  Strategy class '{strategy_id}' not found!")
+                # 3. Sequential Processing (Dedupe, Notify, DB Log)
+                # Ensure shared state is updated safely in Main Thread
+                for p in personas:
+                    p_id = p["id"]
+                    signals = all_signals_map.get(p_id, [])
+                    
+                    # Update heartbeat for stats potentially
+                    self.last_run[p_id] = now
+                    
+                    if not signals:
                         continue
+                        
+                    for sig in signals:
+                        # 1. Deduplication (Optimized)
+                        # REMOVED: Inefficient DB query per signal.
+                        # We rely on 'log_signal' triggering IntegrityError via UniqueConstraint/IdempotencyKey.
+                        # This avoids opening N connections per cycle.
 
-                    try:
-                        # Ejecutar con lista de tokens (Multitoken Support)
-                        signals = strategy.generate_signals(
-                            tokens=persona["tokens"], timeframe=persona["timeframe"]
-                        )
+                        # 2. In-Memory Deduplication
+                        ts_key = f"{p_id}_{sig.token}_{sig.direction}_{sig.timestamp}"
+                        last_ts = self.processed_signals.get(ts_key)
+                        if last_ts and sig.timestamp <= last_ts:
+                            continue
 
-                        count = 0
-                        for sig in signals:
-                            # 1. Deduplication (DB Strict Check)
-                            # Check DB for EXACT signal (same timestamp)
-                            # This prevents duplicates if scheduler restarts and the candle is still valid
-                            dedupe_db = SessionLocal()
-                            try:
-                                from models_db import Signal as SignalModel
-                                exists = dedupe_db.query(SignalModel).filter(
-                                    SignalModel.strategy_id == p_id,
-                                    SignalModel.token == sig.token,
-                                    SignalModel.direction == sig.direction,
-                                    SignalModel.timestamp == sig.timestamp, # [FIX] Strict timestamp match
-                                    SignalModel.is_saved == 1
-                                ).first()
-                                
-                                if exists:
-                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} (already processed)")
-                                    dedupe_db.close()
-                                    continue
-                            except Exception as e:
-                                print(f"    ⚠️ DB Dedupe Error: {e}")
-                            finally:
-                                dedupe_db.close()
-
-                            # 2. In-Memory Deduplication (Fast)
-                            # Create a unique key for this exact signal instance
-                            ts_key = f"{p_id}_{sig.token}_{sig.direction}_{sig.timestamp}"
-                            
-                            last_ts = self.processed_signals.get(ts_key)
-                            if last_ts and sig.timestamp <= last_ts:
+                        # 3. Same-Side Spam check
+                        direction_key = f"{p_id}_{sig.token}"
+                        last_dir = self.last_signal_direction.get(direction_key)
+                        if last_dir == sig.direction:
+                            if last_ts and (sig.timestamp - last_ts).total_seconds() < 60:
                                 continue
 
-                            # 3. Prevent same-side spam (Visual Clarity)
-                            # Check the last direction for this specific persona/token combo
-                            direction_key = f"{p_id}_{sig.token}"
-                            last_dir = self.last_signal_direction.get(direction_key)
-                            if last_dir == sig.direction:
-                                # Only skip if timestamps are very close (e.g. same candle repaint)
-                                if last_ts and (sig.timestamp - last_ts).total_seconds() < 60:
+                        # 4. Global Coherence
+                        coherence_key = sig.token
+                        last_state = self.token_coherence.get(coherence_key)
+                        now_utc = datetime.utcnow()
+
+                        if last_state:
+                            last_global_dir = last_state["direction"]
+                            last_global_ts = last_state["ts"]
+                            if last_global_dir != sig.direction:
+                                if (now_utc - last_global_ts) < timedelta(minutes=30):
                                     continue
 
-                            # ==== 4. Coherence Guard (Anti-Chop) ====
-                            # Ensures we don't flip-flop direction too fast for the same token
-                            coherence_key = sig.token
-                            last_state = self.token_coherence.get(coherence_key)
-                            
-                            now_utc = datetime.utcnow() # Use local variable for consistency
+                        # Updates Shared State
+                        self.token_coherence[coherence_key] = {"direction": sig.direction, "ts": now_utc}
+                        # Process Signal
+                        self.process_single_signal(sig, p)
 
-                            if last_state:
-                                last_global_dir = last_state["direction"]
-                                last_global_ts = last_state["ts"]
-
-                                # Conflict detected? (Opposite direction)
-                                if last_global_dir != sig.direction:
-                                    # If conflict happens within 30 minutes, likely noise. Suppress.
-                                    if (now_utc - last_global_ts) < timedelta(minutes=30):
-                                        continue
-
-
-
-
-                            # Update Global Coherence State
-                            self.token_coherence[coherence_key] = {
-                                "direction": sig.direction,
-                                "ts": now_utc,
-                            }
-
-                            self.processed_signals[ts_key] = sig.timestamp
-                            self.last_signal_direction[direction_key] = sig.direction
-
-                            # Enriquecer source con el ID de la persona
-                            # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID}
-                            # is safer for filtering.
-                            sig.source = f"Marketplace:{p_id}"
-
-                            # to the specific instance (1234), not the generic logic (ma_cross_v1).
-                            # This allows separate history and purging for distinct personas using same logic.
-                            sig.strategy_id = p_id
-                            sig.is_saved = 1  # [FIX] Mark as permanent/official history
-
-                            # [FIX] Persist Signal to DB/CSV
-                            try:
-                                log_signal(sig)
-                            except Exception as e:
-                                print(f"    ❌ Failed to log signal: {e}")
-
-                            # Deduplication Logic (Notification Layer)
-                            # Prevent spam if the same strategy sends same signal (even with new TS) within X mins
-                            dedupe_key = f"{p_id}_{sig.token}_{sig.direction}"
-                            last_notif = self.dedupe_cache.get(dedupe_key)
-
-                            # Cooldown: 45 minutes (approx 1h candle)
-                            if last_notif and (
-                                now - last_notif < timedelta(minutes=45)
-                            ):
-                                # print(f"    🔕 Suppressing duplicate notification: {dedupe_key}")
-                                continue
-
-                            self.dedupe_cache[dedupe_key] = now
-
-                            # ==== TELEGRAM NOTIFICATION ====
-                            try:
-                                icon = "🟢" if sig.direction == "long" else "🔴"
-                                msg = (
-                                    f"{icon} {sig.direction.upper()}: {sig.token} / USDT\n\n"
-                                    f"Entry: {sig.entry}\n"
-                                    f"Target: {sig.tp}\n"
-                                    f"Stop:   {sig.sl}\n\n"
-                                    f"⚡ Strategy: {persona['name']} ({persona['timeframe']})"
-                                )
-                                # Send to specific user (if configured) or system default (if None)
-                                send_telegram(
-                                    msg, chat_id=persona.get("telegram_chat_id")
-                                )
-                            except Exception as notif_err:
-                                print(f"    ⚠️ Notification failed: {notif_err}")
-                            except Exception as notif_err:
-                                print(f"    ⚠️ Notification failed: {notif_err}")
-
-                        if count == 0:
-                            print("    (No new signals)")
-
-                        self.last_run[p_id] = now
-
-                    except Exception as e:
-                        print(f"  ❌ Error executing {persona['name']}: {e}")
-
-                # 3. Evaluador PnL (Critico para mostrar profit real)
-                # print("  ⚖️  Evaluating Pending Signals...") # Less verbose
+                # 4. Evaluador PnL
                 try:
                     eval_db = SessionLocal()
                     try:
-                        # Ensure we use a fresh session to avoid transaction issues
                         new_evals = evaluate_pending_signals(eval_db)
                         if new_evals > 0:
                             print(f"  ✅ Evaluated {new_evals} signals")
                     finally:
                         eval_db.close()
-
                 except Exception as e:
                     print(f"  ❌ Eval Error: {e}")
 
@@ -406,9 +341,58 @@ class StrategyScheduler:
         except KeyboardInterrupt:
             print("\n🛑 Stopped.")
 
+    def process_single_signal(self, sig, p):
+        """
+        Public method for testing.
+        Handles Canonical Dedupe log -> If inserted -> Notify.
+        """
+        # Metadata
+        sig.source = f"Marketplace:{p['id']}"
+        sig.strategy_id = p['id']
+        sig.is_saved = 1
+        sig.user_id = p.get("user_id")
+
+        now = datetime.utcnow()
+
+        # Log DB (Canonical Dedupe)
+        try:
+            inserted = log_signal(sig)
+            if inserted:
+                print(f"  ✅ Logged Signal: {sig.token} {sig.direction} ({p['name']})")
+            else:
+                # Duplicate ignored
+                return 
+        except Exception as e:
+            print(f"    ❌ Failed to log signal: {e}")
+            return
+
+        # Notification (Only if inserted)
+        dedupe_key = f"{p['id']}_{sig.token}_{sig.direction}"
+        last_notif = self.dedupe_cache.get(dedupe_key)
+        if last_notif and (now - last_notif < timedelta(minutes=45)):
+            return
+
+        self.dedupe_cache[dedupe_key] = now
+
+        try:
+            icon = "🟢" if sig.direction == "long" else "🔴"
+            msg = (
+                f"{icon} {sig.direction.upper()}: {sig.token} / USDT\n\n"
+                f"Entry: {sig.entry}\n"
+                f"Target: {sig.tp}\n"
+                f"Stop:   {sig.sl}\n\n"
+                f"⚡ Strategy: {p['name']} ({p['timeframe']})"
+            )
+            chat_id = p.get("telegram_chat_id")
+            if chat_id:
+                send_telegram(msg, chat_id=chat_id)
+        except Exception as notif_err:
+            print(f"    ⚠️ Notification failed: {notif_err}")
+
 
 # Expose instance for imports
 scheduler_instance = StrategyScheduler(loop_interval=60)
 
 if __name__ == "__main__":
     scheduler_instance.run()
+

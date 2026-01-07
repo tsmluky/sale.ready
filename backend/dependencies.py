@@ -38,3 +38,16 @@ def require_plan(required_plan: str):
 # Shortcuts
 require_pro = require_plan("PRO")
 require_owner = require_plan("OWNER")
+
+
+class PaginationParams:
+    """
+    Common pagination dependency.
+    Enforces hard caps to prevent DB overload (Sale-Ready).
+    """
+    def __init__(self, page: int = 1, limit: int = 20):
+        self.page = page if page > 0 else 1
+        # Hard Cap: 100 items max per page
+        self.limit = min(limit, 100) if limit > 0 else 20
+        self.offset = (self.page - 1) * self.limit
+

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from datetime import datetime
 from routers.auth_new import get_current_user
 from models_db import User
+from dependencies import PaginationParams
 
 router = APIRouter(tags=["logs"])
 
@@ -38,7 +39,7 @@ class LogEntry(BaseModel):
 
 @router.get("/recent", response_model=List[LogEntry])
 def get_recent_logs(
-    limit: int = 20,
+    pagination: PaginationParams = Depends(),
     mode: Optional[str] = None,
     saved_only: bool = False,
     include_system: bool = True,  # [NEW] Default True to keep Radar working
@@ -46,15 +47,15 @@ def get_recent_logs(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Obtiene las señales más recientes.
-    - include_system=True: Muestra señales globales (Scanner) + Propias.
-    - include_system=False: SOLO muestra señales Propias o Guardadas (Dashboard limpio).
+    Obtiene las señales más recientes (Paginadas).
     """
     try:
         from sqlalchemy import or_
 
         # Initialize query FIRST
         query = db.query(Signal)
+        # Import dependency if needed (it is already imported in header? No, need check)
+        # Actually it is imported via router? No. We have to import it.
 
         if mode:
             query = query.filter(Signal.mode == mode)
@@ -100,8 +101,12 @@ def get_recent_logs(
 
         query = query.order_by(desc(Signal.timestamp))
 
-        # Fetch more signals to account for deduplication
-        signals = query.limit(limit * 3).all()
+        # Pagination Apply
+        # Fetching strictly limit+offset from DB.
+        # Deduplication risk: If consecutive pages have duplicates, they might appear/disappear.
+        # But for 'Stability', DB pagination is safer than fetching limit*3.
+        # We accept minor dedup artifacts in exchange for 100% predictable load.
+        signals = query.offset(pagination.offset).limit(pagination.limit).all()
 
         # Enriquecer con evaluación si existe + DEDUPLICACIÓN
         results = []
@@ -157,7 +162,7 @@ def get_recent_logs(
                 )
             )
 
-            if len(results) >= limit:
+            if len(results) >= pagination.limit:
                 break
 
         return results

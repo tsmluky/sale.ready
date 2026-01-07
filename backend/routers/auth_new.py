@@ -131,15 +131,11 @@ async def login_for_access_token(
 async def register_user(request: Request, db: Session = fastapi.Depends(get_db)):
     """
     Registra un nuevo usuario en la plataforma.
-    (Debug Mode: Reads raw JSON to debug validation errors)
     """
     try:
         data = await request.json()
-        print(f"[DEBUG REGISTER] Raw Payload: {data}")
-        # Manually validate to trigger Pydantic
         user_data = UserCreate(**data)
     except Exception as e:
-        print(f"[DEBUG REGISTER] JSON Parse/Validation Error: {e}")
         raise HTTPException(status_code=422, detail=str(e))
 
     # 1. Normalizar email
@@ -165,7 +161,7 @@ async def register_user(request: Request, db: Session = fastapi.Depends(get_db))
         role="user",
         plan="free",
         plan_status="active",
-        created_at=datetime.utcnow(),  # Ensure model has this or defaults
+        created_at=datetime.utcnow(),
     )
 
     try:
@@ -173,23 +169,54 @@ async def register_user(request: Request, db: Session = fastapi.Depends(get_db))
         db.commit()
         db.refresh(new_user)
         
-        # [ISO-STRAT] Seed Private Strategies
-        seed_default_strategies(db, new_user)
+        # Capture ID safely while session is fresh and attached
+        user_id_created = new_user.id
+        
+        try:
+            # [ISO-STRAT] Seed Private Strategies
+            seed_default_strategies(db, new_user)
+        except Exception as seed_err:
+            print(f"⚠️ [AUTH WARNING] Strategy seeding failed for {new_user.email}: {seed_err}")
+            # Rollback clears the failed transaction but expires the 'new_user' instance.
+            db.rollback()
+            # Re-fetch using the safe ID
+            new_user = db.query(User).filter(User.id == user_id_created).first()
+            if not new_user:
+                raise HTTPException(status_code=500, detail="User lost after rollback.")
+            pass
 
-        return new_user
+        # FIX 500: UserResponse schema requires 'allowed_tokens', which is missing on DB model
+        from core.entitlements import TokenCatalog
+        allowed = TokenCatalog.get_allowed_tokens("FREE") 
+
+        return {
+            "id": new_user.id,
+            "email": new_user.email,
+            "name": new_user.name,
+            "role": new_user.role,
+            "plan": new_user.plan,
+            "allowed_tokens": allowed,
+            "telegram_chat_id": new_user.telegram_chat_id,
+            "timezone": new_user.timezone,
+            "created_at": new_user.created_at
+        }
 
     except IntegrityError:
+        # If user commit failed
         db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error creating user (Integrity)",
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered",
         )
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         print(f"[AUTH ERROR] Register failed: {e}")
+        # Re-raise nicely
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during registration",
+            detail=f"Internal server error: {str(e)}",
         )
 
 

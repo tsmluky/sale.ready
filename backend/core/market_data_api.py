@@ -49,11 +49,22 @@ def get_ohlcv_data(
                 {"enableRateLimit": True, "timeout": cfg["timeout"]}
             )
 
-            # Simple fetch without pagination loop to minimize hang risk
-            # For 200-300 candles, a single call is usually enough.
-            # Only use loop if limit > 1000 (which we reduced in main.py)
-
-            data = exchange.fetch_ohlcv(ccxt_symbol, timeframe, limit=limit)
+            # [HARDENING] Retry with Exponential Backoff
+            # Handles 429 Rate Limits gracefully prevents stampedes.
+            max_retries = 3
+            backoff = 1  # Start 1s
+            
+            for attempt in range(max_retries):
+                try:
+                    data = exchange.fetch_ohlcv(ccxt_symbol, timeframe, limit=limit)
+                    break # Success
+                except (ccxt.RateLimitExceeded, ccxt.NetworkError) as retry_err:
+                     if attempt == max_retries - 1:
+                         raise retry_err # Re-raise to trigger next exchange fallback
+                     
+                     sleep_time = backoff * (2 ** attempt)
+                     print(f"[MARKET] ⚠️ 429/Network Error from {ex_id}. Retrying in {sleep_time}s...")
+                     time.sleep(sleep_time)
 
             if data and len(data) > 0:
                 print(f"[MARKET DATA] Success: {len(data)} candles from {ex_id}.")

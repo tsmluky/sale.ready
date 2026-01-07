@@ -41,8 +41,31 @@ if SYNC_DATABASE_URL.startswith("sqlite://"):
     # Critical for In-Memory usage: Maintain single connection
     if ":memory:" in SYNC_DATABASE_URL:
         engine_kwargs["poolclass"] = StaticPool
+    else:
+        # [HARDENING] SQLite Dialect Optimization
+        # Large pools in SQLite can cause 'database is locked' under high write concurrency.
+        # We use a very conservative pool for SQLite to allow multiple readers but minimize contention.
+        # Postgres, however, thrives on larger pools.
+        engine_kwargs["pool_size"] = 5  # Reduced from 20 for SQLite safety
+        engine_kwargs["max_overflow"] = 10
+
+else:
+    # Postgres / Other: High Performance Pool
+    engine_kwargs["pool_size"] = 20
+    engine_kwargs["max_overflow"] = 10
 
 engine = create_engine(SYNC_DATABASE_URL, connect_args=connect_args, **engine_kwargs)
+
+# === WAL Mode Enablement (SQLite) ===
+if SYNC_DATABASE_URL.startswith("sqlite://") and ":memory:" not in SYNC_DATABASE_URL:
+    from sqlalchemy import event
+
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")  # Balance safety/speed
+        cursor.close()
 
 SessionLocal = sessionmaker(
     bind=engine,
