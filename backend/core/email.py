@@ -23,12 +23,17 @@ def send_recovery_email(to_email: str, reset_token: str):
     reset_link = f"{frontend_url}/reset-password?token={reset_token}"
     
     subject = "TraderCopilot - Reset Your Password"
+    btn_style = (
+        "background:#2563eb;color:white;padding:10px 20px;"
+        "text-decoration:none;border-radius:5px;"
+    )
+
     body = f"""
     <h2>Password Reset Request</h2>
     <p>We received a request to reset your password for TraderCopilot.</p>
     <p>Click the link below to proceed:</p>
     <p>
-        <a href="{reset_link}" style="background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">
+        <a href="{reset_link}" style="{btn_style}">
             Reset Password
         </a>
     </p>
