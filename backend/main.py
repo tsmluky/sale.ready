@@ -299,7 +299,7 @@ async def startup():
          print("[STARTUP] 🔒 DB Schema creation skipped (Production Mode). Use alembic or scripts.")
 
     # Import SessionLocal early to avoid UnboundLocalError
-    from database import SessionLocal
+    # from database import SessionLocal
 
     # [HARDENING] DDL & Seeding moved to scripts/apply_patches.py
     # This ensures fast, safe startup without race conditions on DB schema.

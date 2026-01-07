@@ -12,9 +12,9 @@ en el formato adecuado para logs CSV y base de datos.
 from __future__ import annotations
 import csv
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 from .schemas import Signal
 

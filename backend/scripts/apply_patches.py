@@ -1,4 +1,3 @@
-import os
 import sys
 import json
 from sqlalchemy import text
@@ -8,9 +7,9 @@ from pathlib import Path
 current_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(current_dir))
 
-from database import engine, SessionLocal
-from marketplace_config import SYSTEM_PERSONAS
-from models_db import StrategyConfig, User
+from database import engine, SessionLocal  # noqa: E402
+from marketplace_config import SYSTEM_PERSONAS  # noqa: E402
+from models_db import StrategyConfig  # noqa: E402
 
 def apply_db_patches():
     print("🔧 [DB PATCH] Starting Manual DB Patching & Seeding...")

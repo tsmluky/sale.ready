@@ -1,9 +1,8 @@
 import sys
 import os
-import shutil
 import pytest
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 # Ensure backend modules are importable
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -11,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from core.signal_logger import log_signal, LOGS_DIR, _snap_to_grid
 from core.schemas import Signal
 from models_db import Signal as SignalDB, Base
-from database import engine as real_engine
+# from database import engine as real_engine
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -267,7 +266,7 @@ def test_postgres_integration_concurrency():
     
     try:
         engine = create_engine(pg_url)
-        with engine.connect() as c:
+        with engine.connect() as _:
             pass
     except Exception:
         pytest.skip(f"Postgres not available at {pg_url}")
