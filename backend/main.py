@@ -83,6 +83,13 @@ def force_reset_password(email: str, new_pass: str, db: Session = Depends(get_db
     user.hashed_password = get_password_hash(new_pass)
     db.commit()
     return {"status": "success", "message": f"Password updated for {email}"}
+
+@app.get("/debug/users")
+def debug_list_users(db: Session = Depends(get_db)):
+    """List all registered users (EMAIL ONLY) to find the admin account."""
+    from models_db import User
+    users = db.query(User).all()
+    return {"count": len(users), "emails": [u.email for u in users]}
 # --- END EMERGENCY ---
 
 
