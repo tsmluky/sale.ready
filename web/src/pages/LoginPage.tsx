@@ -153,6 +153,11 @@ export const LoginPage: React.FC = () => {
                       placeholder="••••••••"
                     />
                   </div>
+                  <div className="flex justify-end mt-2">
+                    <Link to="/recover" className="text-xs text-slate-500 hover:text-gold-400 transition-colors font-medium">
+                      Forgot password?
+                    </Link>
+                  </div>
                 </div>
 
                 {error && (
