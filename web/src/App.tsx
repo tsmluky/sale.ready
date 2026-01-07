@@ -16,6 +16,8 @@ import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import RecoverPage from './pages/RecoverPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
@@ -54,6 +56,8 @@ const App: React.FC = () => {
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/register" element={<RegisterPage />} />
+                            <Route path="/recover" element={<RecoverPage />} />
+                            <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                             {/* Protected Routes */}
                             <Route path="/" element={<LandingPage />} />

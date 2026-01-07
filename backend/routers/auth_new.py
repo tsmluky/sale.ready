@@ -394,3 +394,81 @@ async def update_timezone(
     current_user.timezone = payload.timezone
     db.commit()
     return {"status": "ok", "timezone": current_user.timezone}
+
+
+# === PASSWORD RECOVERY ===
+
+class RecoverRequest(BaseModel):
+    email: str
+
+class ResetRequest(BaseModel):
+    token: str
+    new_password: str
+
+@router.post("/recover")
+async def request_password_recovery(
+    payload: RecoverRequest,
+    db: Session = fastapi.Depends(get_db)
+):
+    """
+    1. Check email exists
+    2. Generate Short-Lived Token (15m)
+    3. Send Email (Hybrid: Console or SMTP)
+    """
+    user = db.execute(select(User).where(User.email == payload.email)).scalars().first()
+    if not user:
+        # Avoid user enumeration: return OK even if not found, but log it.
+        # "If your email is in our system, you will receive a link."
+        return {"message": "If this email is registered, a recovery link has been sent."}
+
+    # Generate Recovery Token (just a JWT signed with system secret)
+    # Payload: sub=email, type=recovery
+    access_token_expires = timedelta(minutes=15)
+    recovery_token = create_access_token(
+        data={"sub": user.email, "scope": "reset_password"},
+        expires_delta=access_token_expires
+    )
+
+    from core.email import send_recovery_email
+    send_recovery_email(user.email, recovery_token)
+
+    return {"message": "Recovery email sent."}
+
+
+@router.post("/reset")
+async def reset_password(
+    payload: ResetRequest,
+    db: Session = fastapi.Depends(get_db)
+):
+    """
+    1. Verify Token (Exp + Scope)
+    2. Reset Password
+    """
+    from jose import JWTError, jwt
+    
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired token",
+    )
+
+    try:
+        data = jwt.decode(payload.token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = data.get("sub")
+        scope = data.get("scope")
+        
+        if email is None or scope != "reset_password":
+            raise credentials_exception
+            
+    except JWTError:
+        raise credentials_exception
+
+    # Fetch User
+    user = db.execute(select(User).where(User.email == email)).scalars().first()
+    if not user:
+        raise credentials_exception
+
+    # Update Password
+    user.hashed_password = get_password_hash(payload.new_password)
+    db.commit()
+
+    return {"message": "Password updated successfully."}
