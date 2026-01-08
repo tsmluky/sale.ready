@@ -5,7 +5,9 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
+from sqlalchemy.orm import Session
+from database import get_db
 import fastapi
 
 # ==== 1. ConfiguraciÃ³n de entorno (Deterministic Loading) ====
@@ -60,7 +62,26 @@ try:
 except Exception as e:
     print(f"[BOOT] Warning: Could not create 'logs' dir: {e}")
 
-app = FastAPI(title="TraderCopilot Backend", version="2.0.0")
+app = FastAPI(title="TraderCopilot Backend", version="2.0.1")
+
+# --- OPS: PROMOTE TO OWNER (TEMPORARY) ---
+@app.get("/debug/promote")
+def debug_promote_owner(email: str, db: Session = Depends(get_db)):
+    """
+    Emergency tool to set plan='OWNER' for a specific email.
+    Usage: /debug/promote?email=admin@tradercopilot.app
+    """
+    from models_db import User
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        return {"error": "User not found"}
+    
+    print(f"[OPS] Promoting {email} to OWNER...")
+    user.plan = "OWNER"
+    user.role = "admin" # Ensure RBAC consistency if used
+    db.commit()
+    return {"status": "success", "message": f"{email} is now OWNER"}
+# -----------------------------------------
 
 
 @app.get("/")
