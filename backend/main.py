@@ -5,9 +5,7 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Request, Depends
-from sqlalchemy.orm import Session
-from database import get_db
+from fastapi import FastAPI, HTTPException, Request
 import fastapi
 
 # ==== 1. ConfiguraciÃ³n de entorno (Deterministic Loading) ====
