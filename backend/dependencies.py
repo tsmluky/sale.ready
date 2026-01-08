@@ -20,7 +20,10 @@ def require_plan(required_plan: str):
         user_level = levels.get(user_plan, 0)
         req_level = levels.get(required_plan.upper(), 0)
 
-        if user_level < req_level:
+        # Allow explicit "admin" role to bypass plan requirements
+        is_admin_role = (current_user.role or "").lower() == "admin"
+
+        if user_level < req_level and not is_admin_role:
             # 403 with specific payload for Frontend Interceptor
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

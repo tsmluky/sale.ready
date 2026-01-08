@@ -64,23 +64,22 @@ except Exception as e:
 
 app = FastAPI(title="TraderCopilot Backend", version="2.0.1")
 
-# --- OPS: PROMOTE TO OWNER (TEMPORARY) ---
-@app.get("/debug/promote")
-def debug_promote_owner(email: str, db: Session = Depends(get_db)):
+# --- OPS: SET ADMIN ROLE (TEMPORARY) ---
+@app.get("/debug/set-admin")
+def debug_set_admin_role(email: str, db: Session = Depends(get_db)):
     """
-    Emergency tool to set plan='OWNER' for a specific email.
-    Usage: /debug/promote?email=admin@tradercopilot.app
+    Emergency tool to grant 'admin' role to a specific email.
+    Usage: /debug/set-admin?email=partner@tradercopilot.app
     """
     from models_db import User
     user = db.query(User).filter(User.email == email).first()
     if not user:
         return {"error": "User not found"}
     
-    print(f"[OPS] Promoting {email} to OWNER...")
-    user.plan = "OWNER"
-    user.role = "admin" # Ensure RBAC consistency if used
+    print(f"[OPS] Granting ADMIN role to {email}...")
+    user.role = "admin"
     db.commit()
-    return {"status": "success", "message": f"{email} is now OWNER"}
+    return {"status": "success", "message": f"{email} is now ADMIN (Role)"}
 # -----------------------------------------
 
 
