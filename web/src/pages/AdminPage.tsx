@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { Shield, Users, EyeOff, Activity, Search, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Shield, Users, EyeOff, Activity, Search, AlertTriangle, CheckCircle, XCircle, DollarSign } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface AdminStats {
@@ -11,7 +11,13 @@ interface AdminStats {
     total_signals: number;
     signals_24h: number;
     system_status: string;
+    mrr: number;
 }
+// ... (lines 14-142 remain unchanged - relying on visual confirmation, I will target the imports and interface first, then the JSX separately if needed or try to capture context)
+
+// Let's do imports and interface and JSX in one go if context allows, or safer separate.
+// Context provided previously shows imports at line 3.
+// I will target the imports and interface first.
 
 interface UserData {
     id: number;
@@ -159,10 +165,12 @@ export const AdminPage: React.FC = () => {
                         </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
-                        <div className="flex items-center gap-2 text-amber-500 mb-2">
-                            <EyeOff className="w-4 h-4" /> Hidden Signals
+                        <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                            <DollarSign className="w-4 h-4" /> Est. Monthly Revenue
                         </div>
-                        <div className="text-2xl font-bold text-amber-500">{stats.hidden_signals}</div>
+                        <div className="text-2xl font-bold text-white">
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stats.mrr || 0)}
+                        </div>
                     </div>
                 </div>
             )}
