@@ -34,11 +34,21 @@ def get_ohlcv_data(
     base_symbol = symbol.upper().replace("USDT", "").replace("-", "")
     ccxt_symbol = f"{base_symbol}/USDT"
 
+    # [HARDENING] Symbol Migration Handling (e.g., MATIC -> POL)
+    # If the exchange rejects "MATIC", we might need "POL".
+    # We will try the primary symbol first, and if it fails with specific errors, try aliases.
+    aliases = {
+        "MATIC": "POL",
+        # Add others if needed
+    }
+
     # 1. Fallback Order
     exchanges_config = [
         {"id": "binance", "class": ccxt.binance, "timeout": 5000},  # 5s timeout
-        {"id": "kucoin", "class": ccxt.kucoin, "timeout": 5000},  # 5s timeout
-        {"id": "bybit", "class": ccxt.bybit, "timeout": 5000},  # 5s timeout
+        {"id": "kraken", "class": ccxt.kraken, "timeout": 5000},    # Strong Regulatory Compliance (No 451/403 usually)
+        {"id": "kucoin", "class": ccxt.kucoin, "timeout": 5000},    # 5s timeout
+        {"id": "gateio", "class": ccxt.gateio, "timeout": 5000},    # Good Altcoin coverage
+        {"id": "bybit", "class": ccxt.bybit, "timeout": 5000},      # Strict Geo-Blocking (Last resort)
     ]
 
     for cfg in exchanges_config:
@@ -56,15 +66,38 @@ def get_ohlcv_data(
             
             for attempt in range(max_retries):
                 try:
+                    # Try Primary Symbol
                     data = exchange.fetch_ohlcv(ccxt_symbol, timeframe, limit=limit)
                     break # Success
-                except (ccxt.RateLimitExceeded, ccxt.NetworkError) as retry_err:
-                     if attempt == max_retries - 1:
-                         raise retry_err # Re-raise to trigger next exchange fallback
+                except Exception as e:
+                    # Check for Alias (Migration fallback)
+                    alias = aliases.get(base_symbol)
+                    if alias:
+                        try:
+                            alias_symbol = f"{alias}/USDT"
+                            # print(f"[MARKET] ⚠️ Primary {ccxt_symbol} failed. Trying alias {alias_symbol} on {ex_id}...")
+                            data = exchange.fetch_ohlcv(alias_symbol, timeframe, limit=limit)
+                            # If successful, print and break
+                            print(f"[MARKET] ✅ Recovered using alias {alias_symbol} on {ex_id}")
+                            break
+                        except Exception as alias_e:
+                            pass # Alias failed too, proceed to standard retry logic
+
+                    # Standard Retry Logic
+                    is_network_error = isinstance(e, (ccxt.NetworkError, ccxt.RateLimitExceeded))
+                    if attempt == max_retries - 1:
+                         # Last attempt failed, raise to skip to next exchange
+                         # print(f"[MARKET] Drop {ex_id}: {e}")
+                         raise e 
                      
-                     sleep_time = backoff * (2 ** attempt)
-                     print(f"[MARKET] ⚠️ 429/Network Error from {ex_id}. Retrying in {sleep_time}s...")
-                     time.sleep(sleep_time)
+                    if is_network_error:
+                        sleep_time = backoff * (2 ** attempt)
+                        print(f"[MARKET] ⚠️ {ex_id} Network/Rate Error. Retrying in {sleep_time}s...")
+                        time.sleep(sleep_time)
+                    else:
+                        # If it's a Logic Error (Bad Symbol) and alias failed, strictly break to next exchange
+                        # Don't retry BadSymbol 3 times
+                        raise e
 
             if data and len(data) > 0:
                 print(f"[MARKET DATA] Success: {len(data)} candles from {ex_id}.")
