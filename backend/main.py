@@ -65,34 +65,6 @@ except Exception as e:
 app = FastAPI(title="TraderCopilot Backend", version="2.0.0")
 
 
-# --- EMERGENCY ENDPOINT (TEMPORARY) ---
-@app.get("/debug/force-reset")
-def force_reset_password(email: str, new_pass: str, db: Session = Depends(get_db)):
-    """
-    Emergency tool to fix 'UnknownHashError' in Prod.
-    Usage: /debug/force-reset?email=admin@tradercopilot.app&new_pass=123456
-    """
-    from core.security import get_password_hash
-    from models_db import User
-    
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        return {"error": "User not found"}
-    
-    print(f"[DEBUG] Resetting password for {email}...")
-    user.hashed_password = get_password_hash(new_pass)
-    db.commit()
-    return {"status": "success", "message": f"Password updated for {email}"}
-
-@app.get("/debug/users")
-def debug_list_users(db: Session = Depends(get_db)):
-    """List all registered users (EMAIL ONLY) to find the admin account."""
-    from models_db import User
-    users = db.query(User).all()
-    return {"count": len(users), "emails": [u.email for u in users]}
-# --- END EMERGENCY ---
-
-
 @app.get("/")
 def root_check():
     """Root endpoint for instant health check."""
