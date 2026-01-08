@@ -74,7 +74,6 @@ async def get_admin_stats(db: Session = Depends(get_db)):
     # Prices updated per user request (Jan 2026)
     PRICE_TRADER = 49
     PRICE_PRO = 149
-    PRICE_OWNER = 0 # Admin/Internal
 
     count_trader = db.query(func.count(User.id)).filter(User.plan == "TRADER").scalar() or 0
     count_pro = db.query(func.count(User.id)).filter(User.plan == "PRO").scalar() or 0
