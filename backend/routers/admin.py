@@ -71,15 +71,16 @@ async def get_admin_stats(db: Session = Depends(get_db)):
     signals_24h = db.query(func.count(Signal.id)).filter(Signal.timestamp >= last_24h).scalar()
 
     # --- MRR Calculation (Estimated) ---
-    # Prices (Hardcoded for now, retrieve from Stripe/Config later)
-    PRICE_PRO = 99  # $99/mo
-    PRICE_OWNER = 299 # $299/mo (if applicable)
+    # Prices updated per user request (Jan 2026)
+    PRICE_TRADER = 50
+    PRICE_PRO = 150
+    PRICE_OWNER = 0 # Admin/Internal
 
+    count_trader = db.query(func.count(User.id)).filter(User.plan == "TRADER").scalar() or 0
     count_pro = db.query(func.count(User.id)).filter(User.plan == "PRO").scalar() or 0
-    count_owner = db.query(func.count(User.id)).filter(User.plan == "OWNER").scalar() or 0
     
-    # Exclude admin/team from MRR if needed, but for now include all active plans
-    mrr_est = (count_pro * PRICE_PRO) + (count_owner * PRICE_OWNER)
+    # MRR = (Trader * 50) + (Pro * 150)
+    mrr_est = (count_trader * PRICE_TRADER) + (count_pro * PRICE_PRO)
 
     return {
         "total_users": total_users,
