@@ -75,12 +75,12 @@ def get_ohlcv_data(
                     if alias:
                         try:
                             alias_symbol = f"{alias}/USDT"
-                            # print(f"[MARKET] ⚠️ Primary {ccxt_symbol} failed. Trying alias {alias_symbol} on {ex_id}...")
+                            # print(f"[MARKET] ⚠️ Primary {ccxt_symbol} failed. Trying {alias_symbol}...")
                             data = exchange.fetch_ohlcv(alias_symbol, timeframe, limit=limit)
                             # If successful, print and break
                             print(f"[MARKET] ✅ Recovered using alias {alias_symbol} on {ex_id}")
                             break
-                        except Exception as alias_e:
+                        except Exception:
                             pass # Alias failed too, proceed to standard retry logic
 
                     # Standard Retry Logic
