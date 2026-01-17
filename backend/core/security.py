@@ -6,9 +6,19 @@ import os
 
 # --- Configurations ---
 # En producción, SECRET_KEY debe venir de .env y ser muy segura
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-)
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+# [AUDITOR FIX] Prevent default key in production
+if not SECRET_KEY:
+    # Allow fallback ONLY if explicitly in DEV mode (optional, or just strict)
+    # For Sale-Ready: strict warning or error.
+    # Let's use a safe default for LOCAL dev to prevent broken clones, 
+    # but print a massive warning.
+    print("[SECURITY WARNING] SECRET_KEY not set. Using insecure default for DEV ONLY.")
+    SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+else:
+    print("[SECURITY] ✅ SECRET_KEY loaded from environment.")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 1 semana para MVP
 

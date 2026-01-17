@@ -34,7 +34,7 @@ export const PricingPage: React.FC = () => {
     const isPlanActive = (planId: string) => normalizedPlan === planId;
 
     return (
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12 pb-20 min-h-screen">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 lg:py-12 pb-20 min-h-screen">
             {/* Background Texture & Lighting */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute inset-0 bg-grid opacity-20" />
@@ -66,7 +66,7 @@ export const PricingPage: React.FC = () => {
 
                 {/* FREE PLAN */}
                 <div className={cn(
-                    "glass-card p-8 rounded-3xl border-t border-white/10 hover:border-white/20 transition-all group relative",
+                    "glass-card p-6 md:p-8 rounded-3xl border-t border-white/10 hover:border-white/20 transition-all group relative",
                     isPlanActive('free') ? "ring-2 ring-slate-600 bg-slate-900/80" : "bg-[#0B1121]/40"
                 )}>
                     <h3 className="text-lg font-medium text-slate-400 mb-2">Explorer</h3>
@@ -95,7 +95,7 @@ export const PricingPage: React.FC = () => {
                     <div className="absolute -inset-0.5 bg-gradient-to-b from-gold-500 to-orange-600 rounded-[26px] blur opacity-40 animate-pulse-slow"></div>
 
                     <div className={cn(
-                        "relative glass-card bg-[#0f172a] p-10 rounded-3xl border border-gold-500/30 shadow-2xl shadow-gold-900/20",
+                        "relative glass-card bg-[#0f172a] p-6 md:p-10 rounded-3xl border border-gold-500/30 shadow-2xl shadow-gold-900/20",
                         isPlanActive('trader') && "ring-2 ring-gold-500"
                     )}>
                         <div className="absolute top-0 right-0 p-4">
@@ -105,8 +105,11 @@ export const PricingPage: React.FC = () => {
                         </div>
 
                         <h3 className="text-lg font-medium text-gold-400 mb-2">Trader</h3>
-                        <div className="text-5xl font-bold mb-6 text-white font-mono tracking-tight">$20<span className="text-base font-normal text-slate-500">/mo</span></div>
-                        <p className="text-slate-400 text-sm mb-8 font-light">The standard for active daily traders.</p>
+                        <div className="text-4xl md:text-5xl font-bold mb-6 text-white font-mono tracking-tight">
+                            <span className="line-through text-slate-600 text-3xl mr-3">$20</span>
+                            $0<span className="text-sm font-normal text-gold-400 ml-2">(Beta)</span>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-8 font-light">Free access while in Beta.</p>
 
                         <ul className="space-y-4 mb-10">
                             <li className="flex items-center gap-3 text-sm text-white font-medium"><Check className="w-4 h-4 text-gold-400" /> Real-Time Signals (Zero Latency)</li>
@@ -126,18 +129,21 @@ export const PricingPage: React.FC = () => {
                                     : "bg-gradient-to-r from-gold-500 to-orange-500 hover:to-orange-400 text-black border-none"
                             )}
                         >
-                            {isPlanActive('trader') ? <span className="flex items-center gap-2"><Check size={16} /> Active Plan</span> : processing === 'trader' ? "Processing..." : "Upgrade to Trader"}
+                            {isPlanActive('trader') ? <span className="flex items-center gap-2"><Check size={16} /> Active Plan</span> : processing === 'trader' ? "Processing..." : "Start Free Beta Access"}
                         </Button>
                     </div>
                 </div>
 
                 {/* PRO PLAN */}
                 <div className={cn(
-                    "glass-card p-8 rounded-3xl border-t border-purple-500/30 hover:border-purple-500/50 transition-all group",
+                    "glass-card p-6 md:p-8 rounded-3xl border-t border-purple-500/30 hover:border-purple-500/50 transition-all group",
                     isPlanActive('pro') ? "ring-2 ring-purple-500 bg-slate-900/80" : "bg-[#0B1121]/40"
                 )}>
                     <h3 className="text-lg font-medium text-purple-400 mb-2">Pro</h3>
-                    <div className="text-4xl font-bold mb-6 text-white font-mono">$50<span className="text-base font-normal text-slate-500">/mo</span></div>
+                    <div className="text-3xl md:text-4xl font-bold mb-6 text-white font-mono">
+                        <span className="line-through text-slate-600 text-2xl mr-3">$50</span>
+                        $0<span className="text-sm font-normal text-purple-400 ml-2">(Beta)</span>
+                    </div>
 
                     <ul className="space-y-4 mb-10">
                         <li className="flex items-center gap-3 text-sm text-slate-300"><Check className="w-4 h-4 text-purple-500" /> Everything in Trader</li>
@@ -156,7 +162,7 @@ export const PricingPage: React.FC = () => {
                             isPlanActive('pro') ? "text-slate-500 bg-slate-900" : "text-white hover:bg-purple-500/20 hover:border-purple-500/50"
                         )}
                     >
-                        {isPlanActive('pro') ? "Current Plan" : "Upgrade to Pro"}
+                        {isPlanActive('pro') ? "Current Plan" : "Enable Pro Beta"}
                     </Button>
                 </div>
 

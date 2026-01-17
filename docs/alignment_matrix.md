@@ -1,30 +1,19 @@
-# A-01: Matriz de Alineación (Promesa vs Realidad)
+# A-01 Alignment Matrix (Promised vs Reality)
 
-**Objetivo:** Auditar el estado real de cada feature visible o prometida.
-**Prioridad:** P0 (Demo) > P1 (Sale) > P2 (Future)
+| Feature | Status | Evidence | Action | Priority |
+| :--- | :--- | :--- | :--- | :--- |
+| **Auth System** | **OK** | `web/src/context/AuthContext.tsx`, `backend/routers/auth_new.py` | None | P0 |
+| **Dashboard** | **OK** | `web/src/components/dashboard/DashboardHome.tsx` | UI Polish (Premium feel) | P0 |
+| **Scanner/Signals** | **OK** | `web/src/pages/ScannerPage.tsx` | Ensure data flow is smooth | P0 |
+| **Strategy Registry** | **OK** | `web/src/pages/StrategiesPage.tsx`, `backend/routers/strategies.py` | None | P1 |
+| **AI Advisor (Chat)** | **OK** | `web/src/pages/AdvisorPage.tsx`, `backend/routers/advisor.py` | Verify context awareness | P1 |
+| **Backtesting** | **Partial** | `web/src/pages/BacktestPage.tsx`, `backend/routers/backtest.py` | Verify functionality or Hide for Sale | P2 |
+| **Paper Trading** | **Unknown** | No dedicated page found, check Dashboard integration | **Audit Logic** | P1 |
+| **Pricing Page** | **Pending** | `web/src/pages/PricingPage.tsx` exists, check content | Fill with "Sale" copy | P2 |
+| **Admin Panel** | **Basic** | `web/src/pages/AdminPage.tsx`, `backend/routers/admin.py` | Ensure "Owner" role works | P2 |
+| **Mobile Layout** | **Unknown** | `index.css` has responsive utils, needs manual check | **Verify Responsiveness** | P0 |
 
-## Feature Audit
-
-| Feature / Pantalla | Endpoint / Archivo | Estado | Evidencia | Acción (Fix/Hide/Kill) | Prioridad |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Login / Auth** | `LoginPage.tsx` -> `/auth/token` | **Partial** | Dev Bypass activo, no valida password real si no hay DB. | Fix Bypass (M2) | P0 |
-| **Dashboard** | `Dashboard.tsx` -> `/logs` | **OK** | Carga logs y calcula stats localmente. | - | P0 |
-| **Live Feed (Scanner)** | `ScannerPage.tsx` -> `/logs/recent` | **OK** | Backend `logs.py` sirve datos. | - | P0 |
-| **Signal Details** | `StrategyDetailsPage.tsx` | **Partial** | Falta botón "Simulate" (Paper Trading). | Hide "Delete" (User shouldn't del), Add Simulate later | P0 |
-| **Paper Trading** | N/A | **Missing** | No hay `routers/paper.py` ni tablas `paper_orders`. | Implementar Backend (M4) | P1 |
-| **Backtesting** | `routers/backtest.py` | **OK/Partial** | Existe endpoint `/backtest/run`. | Check UI connection | P2 |
-| **Analysis (Pro)** | `/analyze/pro` | **OK** | Determinista (sin LLM real aún). | Connect Lazy LLM later | P1 |
-| **Advisor Chat** | `/analyze/advisor/chat` | **OK** | Stub / DeepSeek integration ready. | - | P1 |
-| **Logs View** | `LogsPage.tsx` | **OK** | Funcional. | - | P1 |
-| **Leaderboard** | `LeaderboardPage.tsx` | **Mock** | `api.ts` retorna datos hardcoded. | **KILL / HIDE** (Feature compleja para MVP) | P2 |
-| **Membership** | `MembershipPage.tsx` | **BROKEN** | `api.upgradeSubscription` no existe en `api.ts`. | **HIDE** until Stripe integration (M3) | P2 |
-| **Settings** | `SettingsPage.tsx` | **Partial** | Ping Telegram funciona. Profile read-only. | - | P2 |
-
-## Zombie / Kill List Candidates
-1.  **Leaderboard**: "Global Trader Ranking" es fake. Mejor ocultar para venta a menos que se implemente rápido. -> **Propuesta: HIDE**.
-2.  **Membership**: Botones de Upgrade no hacen nada. -> **Propuesta: HIDE or "Coming Soon" toast**.
-3.  **Strategy Details -> DELETE AGENT**: Peligroso. Un usuario no debería borrar estrategias del sistema. -> **Propuesta: KILL**.
-
-## Notes
-- **Critical Gap for Sale**: Login is too weak (dev bypass). Paper Trading (the "Wow" factor) is missing completely.
-- **Good News**: Core loop (Signals -> Dashboard -> Logs) works well.
+## Actions
+- [ ] **Verify Paper Trading**: Check if it's integrated into `ScannerPage` or `StrategyDetailsPage`.
+- [ ] **Mobile Check**: Open `index.html` in mobile view (simulated) to check layout.
+- [ ] **Premium Polish**: Enhance `DashboardHome` animations and gradients.

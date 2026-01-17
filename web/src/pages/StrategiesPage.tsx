@@ -253,28 +253,38 @@ export const StrategiesPage: React.FC = () => {
                                         </p>
 
                                         {/* Metrics Grid */}
-                                        <div className="grid grid-cols-2 gap-3 mb-6 relative z-10">
-                                            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">
+                                        <div className="grid grid-cols-2 gap-2 md:gap-3 mb-6 relative z-10">
+                                            <div className="p-2.5 md:p-3 rounded-xl bg-white/5 border border-white/5 overflow-hidden group/metric hover:bg-white/10 transition-colors">
+                                                <div className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5 md:mb-1 truncate">
                                                     Win Rate
                                                 </div>
-                                                <div className={cn("text-lg font-black", theme.text)}>{persona.win_rate}</div>
+                                                <div className={cn("text-base md:text-lg font-black truncate", theme.text)} title={persona.win_rate}>
+                                                    {persona.win_rate}
+                                                </div>
                                             </div>
-                                            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">
+                                            <div className="p-2.5 md:p-3 rounded-xl bg-white/5 border border-white/5 overflow-hidden group/metric hover:bg-white/10 transition-colors">
+                                                <div className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5 md:mb-1 truncate">
                                                     Expected ROI
                                                 </div>
-                                                <div className="text-lg font-black text-gold-400">{persona.expected_roi}</div>
+                                                <div className="text-base md:text-lg font-black text-gold-400 truncate" title={persona.expected_roi}>
+                                                    {persona.expected_roi}
+                                                </div>
                                             </div>
-                                            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Risk</div>
-                                                <div className="text-lg font-black text-white">{persona.risk_level}</div>
+                                            <div className="p-2.5 md:p-3 rounded-xl bg-white/5 border border-white/5 overflow-hidden group/metric hover:bg-white/10 transition-colors">
+                                                <div className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5 md:mb-1 truncate">
+                                                    Risk
+                                                </div>
+                                                <div className="text-base md:text-lg font-black text-white truncate" title={persona.risk_level}>
+                                                    {persona.risk_level}
+                                                </div>
                                             </div>
-                                            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                                                <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">
+                                            <div className="p-2.5 md:p-3 rounded-xl bg-white/5 border border-white/5 overflow-hidden group/metric hover:bg-white/10 transition-colors">
+                                                <div className="text-[9px] md:text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5 md:mb-1 truncate">
                                                     Frequency
                                                 </div>
-                                                <div className="text-lg font-black text-white">{persona.frequency}</div>
+                                                <div className="text-base md:text-lg font-black text-white truncate" title={persona.frequency}>
+                                                    {persona.frequency}
+                                                </div>
                                             </div>
                                         </div>
 

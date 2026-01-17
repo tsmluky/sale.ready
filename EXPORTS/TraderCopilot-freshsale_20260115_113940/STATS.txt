@@ -1,0 +1,48 @@
+Project: TraderCopilot-freshsale
+Source:  C:\Users\lukx\Desktop\TraderCopilot-freshsale
+Export:  C:\Users\lukx\Desktop\TraderCopilot-freshsale\EXPORTS\TraderCopilot-freshsale_20260115_113940
+Timestamp: 20260115_113940
+
+Files: 607
+Dirs:  108
+Bytes: 3896136
+MiB:   3,72
+
+Top extensions:
+     228  .py
+     104  .txt
+      72  .md
+      63  .tsx
+      42  .json
+      40  .ps1
+      15  .sql
+      10  .ts
+       6  .html
+       4  (noext)
+       3  .js
+       3  .gitignore
+       2  .yaml
+       2  .example
+       2  .bak
+
+Top largest files:
+        490487  trading_lab\__tree_trading_lab.txt
+        234759  web\package-lock.json
+         63353  tools\audit\openapi.json
+         62657  _trash\DATA_ROOM\api\openapi.json
+         58439  backend\audit\runs\20251221_202742\openapi.json
+         56411  backend\audit\runs\20251223_113828\openapi.json
+         56339  backend\audit\runs\20251221_205958\openapi.json
+         56339  backend\audit\runs\20251221_210103\openapi.json
+         56339  backend\audit\runs\20251221_205850\openapi.json
+         56339  backend\audit\runs\20251221_210301\openapi.json
+         56339  backend\audit\runs\20251221_205647\openapi.json
+         56339  backend\audit\runs\20251221_205745\openapi.json
+         56339  backend\audit\runs\20251221_205546\openapi.json
+         56339  backend\audit\runs\20251221_205442\openapi.json
+         56339  backend\audit\runs\20251221_205352\openapi.json
+         56339  backend\audit\runs\20251221_205254\openapi.json
+         56339  backend\audit\runs\20251221_205155\openapi.json
+         56339  backend\audit\runs\20251221_210409\openapi.json
+         56339  backend\audit\runs\20251221_210212\openapi.json
+         40076  tools\audit\package_manifest.txt

@@ -210,18 +210,19 @@ export const ScannerPage: React.FC = () => {
                                         </div>
 
                                         {/* Metrics */}
+                                        {/* Metrics */}
                                         <div className="space-y-3 mb-4">
                                             <div className="flex items-center justify-between text-sm">
-                                                <span className="text-slate-400">Entry</span>
-                                                <span className="text-white font-mono font-bold">${signal.entry?.toFixed(2) || "—"}</span>
+                                                <span className="text-slate-400 shrink-0">Entry</span>
+                                                <span className="text-white font-mono font-bold truncate ml-4" title={`$${signal.entry?.toFixed(2)}`}>${signal.entry?.toFixed(2) || "—"}</span>
                                             </div>
                                             <div className="flex items-center justify-between text-sm">
-                                                <span className="text-slate-400">Target</span>
-                                                <span className="text-emerald-400 font-mono font-bold">${signal.tp?.toFixed(2) || "—"}</span>
+                                                <span className="text-slate-400 shrink-0">Target</span>
+                                                <span className="text-emerald-400 font-mono font-bold truncate ml-4" title={`$${signal.tp?.toFixed(2)}`}>${signal.tp?.toFixed(2) || "—"}</span>
                                             </div>
                                             <div className="flex items-center justify-between text-sm">
-                                                <span className="text-slate-400">Stop Loss</span>
-                                                <span className="text-rose-400 font-mono font-bold">${signal.sl?.toFixed(2) || "—"}</span>
+                                                <span className="text-slate-400 shrink-0">Stop Loss</span>
+                                                <span className="text-rose-400 font-mono font-bold truncate ml-4" title={`$${signal.sl?.toFixed(2)}`}>${signal.sl?.toFixed(2) || "—"}</span>
                                             </div>
                                         </div>
 

@@ -400,10 +400,13 @@ async def notify_telegram(
 
 
 # ==== 9. Stats & Metrics para Dashboard ====
+# ==== 9. Stats & Metrics para Dashboard ====
 # Moved to routers/stats.py
 from routers.stats import router as stats_router  # noqa: E402
+from routers.news import router as news_router
 
 app.include_router(stats_router, prefix="/stats", tags=["Stats"])
+app.include_router(news_router, prefix="/news", tags=["News"])
 
 
 # Update import slightly up top if needed, but get_current_user is likely imported.

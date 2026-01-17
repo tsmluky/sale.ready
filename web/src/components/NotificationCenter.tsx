@@ -47,9 +47,16 @@ export const NotificationCenter: React.FC = () => {
             message: `Entry: ${log.entry} | Source: ${log.source}`,
             time: new Date(log.timestamp).toLocaleTimeString(),
             type: log.status === 'WIN' ? 'success' : log.status === 'LOSS' ? 'alert' : 'info',
-            read: false
+            read: false // Default to false for new items
           }));
-          setNotifications(mapped);
+
+          setNotifications(prev => {
+            const existingMap = new Map(prev.map(n => [n.id, n]));
+            return mapped.map(newNotif => {
+              const existing = existingMap.get(newNotif.id);
+              return existing ? { ...newNotif, read: existing.read } : newNotif;
+            });
+          });
         }
       } catch (e) {
         console.error("Failed to fetch notifications", e);

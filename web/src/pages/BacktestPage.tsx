@@ -211,7 +211,7 @@ export const BacktestPage: React.FC = () => {
                 <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] mix-blend-screen opacity-20"></div>
             </div>
 
-            <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12 space-y-8">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 lg:py-12 space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div className="pl-6 relative">
@@ -334,10 +334,10 @@ export const BacktestPage: React.FC = () => {
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-8">
-                                    <div className="text-right">
+                                <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto">
+                                    <div className="text-center md:text-right w-full md:w-auto">
                                         <div className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-1">Net Profit</div>
-                                        <div className={`text-4xl font-black tracking-tight ${results.metrics.total_pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                        <div className={`text-3xl md:text-4xl font-black tracking-tight truncate ${results.metrics.total_pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`} title={`${results.metrics.total_pnl}`}>
                                             {results.metrics.total_pnl >= 0 ? '+' : ''}{results.metrics.total_pnl} <span className="text-lg text-slate-500 font-medium">USD</span>
                                         </div>
                                     </div>
@@ -345,7 +345,7 @@ export const BacktestPage: React.FC = () => {
                                     {results.metrics.total_pnl > 0 && (
                                         <Button
                                             onClick={() => setIsPersonaModalOpen(true)}
-                                            className="h-12 px-6 bg-[#0f172a] border border-white/10 hover:bg-white/5 hover:border-brand-500/50 text-white font-bold transition-all shadow-lg hidden md:flex"
+                                            className="h-12 px-6 w-full md:w-auto bg-[#0f172a] border border-white/10 hover:bg-white/5 hover:border-brand-500/50 text-white font-bold transition-all shadow-lg flex justify-center"
                                         >
                                             <Save size={18} className="mr-2 text-brand-400" />
                                             Save Agent
@@ -363,18 +363,18 @@ export const BacktestPage: React.FC = () => {
                                 { label: 'Best Trade', value: `+$${results.metrics.best_trade}`, sub: 'Single Win', color: 'text-emerald-400' },
                                 { label: 'Max Drawdown', value: `${results.metrics.max_drawdown}%`, sub: 'Peak Risk', color: 'text-rose-400' },
                             ].map((stat, i) => (
-                                <Card key={i} className="border-white/5 bg-[#0f172a]/40">
+                                <Card key={i} className="border-white/5 bg-[#0f172a]/40 overflow-hidden">
                                     <div className="p-4">
-                                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{stat.label}</div>
-                                        <div className={`text-2xl font-bold font-mono ${stat.color || 'text-white'}`}>{stat.value}</div>
-                                        <div className="text-[10px] text-slate-600 mt-1 font-medium">{stat.sub}</div>
+                                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2 truncate">{stat.label}</div>
+                                        <div className={`text-xl md:text-2xl font-bold font-mono truncate ${stat.color || 'text-white'}`} title={stat.value}>{stat.value}</div>
+                                        <div className="text-[10px] text-slate-600 mt-1 font-medium truncate">{stat.sub}</div>
                                     </div>
                                 </Card>
                             ))}
                         </div>
 
                         {/* Chart */}
-                        <Card className="border-white/5 bg-[#0f172a]/60 backdrop-blur-sm p-6 h-[500px]">
+                        <Card className="border-white/5 bg-[#0f172a]/60 backdrop-blur-sm p-6 h-[350px] md:h-[500px]">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                     <TrendingUp className="text-brand-400" size={20} /> Equity Curve
@@ -468,11 +468,11 @@ export const BacktestPage: React.FC = () => {
                                                 </td>
                                                 <td className="p-3 font-mono text-xs text-white">
                                                     ${t.entry}<br />
-                                                    <span className="text-slate-600">{t.entry_time.split(' ')[1]}</span>
+                                                    <span className="text-slate-600">{t.entry_time?.includes(' ') ? t.entry_time.split(' ')[1] : t.entry_time}</span>
                                                 </td>
                                                 <td className="p-3 font-mono text-xs text-white">
                                                     ${t.exit}<br />
-                                                    <span className="text-slate-600">{t.exit_time.split(' ')[1]}</span>
+                                                    <span className="text-slate-600">{t.exit_time?.includes(' ') ? t.exit_time.split(' ')[1] : t.exit_time}</span>
                                                 </td>
                                                 <td className="p-3">
                                                     <Badge variant="secondary" className="bg-white/5 hover:bg-white/10 text-slate-400 font-normal text-[10px]">

@@ -22,6 +22,7 @@ import { useAuth } from "../../context/AuthContext"
 import { cn } from "../../lib/utils"
 // Ensure this path matches your project structure
 import { TacticalAnalysisDrawer } from "../scanner/TacticalAnalysisDrawer"
+import { NewsCarousel } from "./NewsCarousel"
 
 // --- Compact KPI Card ---
 function KPICard({
@@ -63,10 +64,10 @@ function KPICard({
                 {loading ? (
                     <div className="h-8 w-24 bg-white/5 rounded animate-pulse my-1"></div>
                 ) : (
-                    <div className="flex items-center gap-2">
-                        <div className="text-3xl font-black text-white tracking-tighter drop-shadow-sm">{value}</div>
+                    <div className="flex items-center gap-2 min-w-0">
+                        <div className="text-2xl md:text-3xl font-black text-white tracking-tighter drop-shadow-sm truncate" title={String(value)}>{value}</div>
                         {trend && (
-                            <div className={cn("flex px-1.5 py-0.5 rounded text-[10px] font-bold", trend === "up" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400")}>
+                            <div className={cn("flex px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0", trend === "up" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400")}>
                                 {trend === "up" ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                             </div>
                         )}
@@ -150,22 +151,22 @@ export const DashboardHome: React.FC = () => {
             </div>
 
             {/* Main Content Container */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 lg:py-12 w-full space-y-8">
+            <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 lg:py-12 w-full space-y-8">
 
                 {/* Welcome Banner */}
                 {showWelcome && (
                     <div className="relative group animate-in slide-in-from-top-2 duration-500">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 to-brand-500/10 rounded-xl blur opacity-30"></div>
-                        <div className="relative glass-card rounded-xl p-4 border border-white/10 bg-[#0f172a]/95 flex items-center justify-between gap-4">
+                        <div className="relative glass-card rounded-xl p-4 border border-white/10 bg-[#0f172a]/95 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-brand-500/10 rounded-lg text-brand-400">
+                                <div className="p-2 bg-brand-500/10 rounded-lg text-brand-400 shrink-0">
                                     <Terminal size={18} />
                                 </div>
                                 <p className="text-sm text-slate-300">
                                     <span className="text-white font-bold">System Online.</span> AI engines are scanning.
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 justify-end sm:justify-start">
                                 <Link to="/scanner" className="text-xs font-bold text-brand-400 hover:text-brand-300 uppercase tracking-wider">
                                     Initialize Scan
                                 </Link>
@@ -405,6 +406,9 @@ export const DashboardHome: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Market Intelligence Section (News) */}
+                <NewsCarousel />
+
             </div>
 
             {/* Tactical Analysis Drawer Container */}
@@ -418,3 +422,4 @@ export const DashboardHome: React.FC = () => {
         </div>
     )
 }
+

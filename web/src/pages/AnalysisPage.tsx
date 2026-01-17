@@ -183,7 +183,7 @@ export const AnalysisPage = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0f172a] border-white/10 text-sm">
-                      <SelectItem value="5m">5 Minutes</SelectItem>
+
                       <SelectItem value="15m">15 Minutes</SelectItem>
                       <SelectItem value="1h">1 Hour</SelectItem>
                       <SelectItem value="4h">4 Hours</SelectItem>

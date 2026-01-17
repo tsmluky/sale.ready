@@ -57,7 +57,7 @@ export const TOKENS = [
   { id: 'xau', name: 'Gold', symbol: 'XAU' },
 ];
 
-export const TIMEFRAMES = ['5m', '15m', '30m', '1h', '4h', '1d'];
+export const TIMEFRAMES = ['15m', '30m', '1h', '4h', '1d'];
 
 // Mock data for fallback when API is unreachable
 export const MOCK_LITE_SIGNAL: any = {

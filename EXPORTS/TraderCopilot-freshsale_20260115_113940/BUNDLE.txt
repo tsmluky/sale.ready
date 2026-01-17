@@ -1,0 +1,522 @@
+=== PROJECT BUNDLE EXPORT ===
+Project: TraderCopilot-freshsale
+Source:  C:\Users\lukx\Desktop\TraderCopilot-freshsale
+Export:  C:\Users\lukx\Desktop\TraderCopilot-freshsale\EXPORTS\TraderCopilot-freshsale_20260115_113940
+ZIP:     C:\Users\lukx\Desktop\TraderCopilot-freshsale\EXPORTS\TraderCopilot-freshsale_20260115_113940\TraderCopilot-freshsale_20260115_113940.zip
+When:    2026-01-15T11:40:13.2293825-03:00
+
+=== STATS ===
+Project: TraderCopilot-freshsale
+Source:  C:\Users\lukx\Desktop\TraderCopilot-freshsale
+Export:  C:\Users\lukx\Desktop\TraderCopilot-freshsale\EXPORTS\TraderCopilot-freshsale_20260115_113940
+Timestamp: 20260115_113940
+
+Files: 607
+Dirs:  108
+Bytes: 3896136
+MiB:   3,72
+
+Top extensions:
+     228  .py
+     104  .txt
+      72  .md
+      63  .tsx
+      42  .json
+      40  .ps1
+      15  .sql
+      10  .ts
+       6  .html
+       4  (noext)
+       3  .js
+       3  .gitignore
+       2  .yaml
+       2  .example
+       2  .bak
+
+Top largest files:
+        490487  trading_lab\__tree_trading_lab.txt
+        234759  web\package-lock.json
+         63353  tools\audit\openapi.json
+         62657  _trash\DATA_ROOM\api\openapi.json
+         58439  backend\audit\runs\20251221_202742\openapi.json
+         56411  backend\audit\runs\20251223_113828\openapi.json
+         56339  backend\audit\runs\20251221_205958\openapi.json
+         56339  backend\audit\runs\20251221_210103\openapi.json
+         56339  backend\audit\runs\20251221_205850\openapi.json
+         56339  backend\audit\runs\20251221_210301\openapi.json
+         56339  backend\audit\runs\20251221_205647\openapi.json
+         56339  backend\audit\runs\20251221_205745\openapi.json
+         56339  backend\audit\runs\20251221_205546\openapi.json
+         56339  backend\audit\runs\20251221_205442\openapi.json
+         56339  backend\audit\runs\20251221_205352\openapi.json
+         56339  backend\audit\runs\20251221_205254\openapi.json
+         56339  backend\audit\runs\20251221_205155\openapi.json
+         56339  backend\audit\runs\20251221_210409\openapi.json
+         56339  backend\audit\runs\20251221_210212\openapi.json
+         40076  tools\audit\package_manifest.txt
+
+
+=== EXCLUSIONS ===
+# Directories excluded:
+DIR: node_modules
+DIR: .git
+DIR: .next
+DIR: .turbo
+DIR: .vercel
+DIR: .expo
+DIR: .expo-shared
+DIR: dist
+DIR: build
+DIR: out
+DIR: .cache
+DIR: .parcel-cache
+DIR: .vite
+DIR: .wrangler
+DIR: coverage
+DIR: .venv
+DIR: venv
+DIR: __pycache__
+DIR: .pytest_cache
+DIR: .mypy_cache
+DIR: .ruff_cache
+DIR: .tox
+DIR: .idea
+DIR: .vscode
+DIR: logs
+DIR: log
+DIR: tmp
+DIR: temp
+DIR: .tmp
+DIR: .DS_Store
+
+# File name excluded:
+FILE: .env
+FILE: .env.local
+FILE: .env.development
+FILE: .env.production
+FILE: .env.test
+FILE: secrets.json
+FILE: secret.json
+FILE: credentials.json
+FILE: id_rsa
+FILE: id_ed25519
+
+# File patterns excluded:
+PATTERN: *.log
+PATTERN: *.tmp
+PATTERN: *.temp
+PATTERN: *.cache
+PATTERN: *.pid
+PATTERN: *.sqlite
+PATTERN: *.sqlite3
+PATTERN: *.db
+PATTERN: *.zip
+PATTERN: *.7z
+PATTERN: *.rar
+PATTERN: *.exe
+PATTERN: *.dll
+PATTERN: *.pdb
+PATTERN: *.png
+PATTERN: *.jpg
+PATTERN: *.jpeg
+PATTERN: *.webp
+PATTERN: *.gif
+PATTERN: *.mp4
+PATTERN: *.mov
+PATTERN: *.avi
+PATTERN: *.mkv
+
+
+=== WARNINGS ===
+WARNING: Encontré archivos potencialmente sensibles en el proyecto (pueden haber sido excluidos del ZIP):
+  - .env
+  - backend\.env
+  - backend\.env.example
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\PrivateAccountV3Api_pb2.py
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\PrivateDealsV3Api_pb2.py
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\PrivateOrdersV3Api_pb2.py
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\__pycache__\PrivateAccountV3Api_pb2.cpython-311.pyc
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\__pycache__\PrivateDealsV3Api_pb2.cpython-311.pyc
+  - backend\venv\Lib\site-packages\ccxt\protobuf\mexc\__pycache__\PrivateOrdersV3Api_pb2.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\_credentials_async.py
+  - backend\venv\Lib\site-packages\google\auth\_credentials_base.py
+  - backend\venv\Lib\site-packages\google\auth\credentials.py
+  - backend\venv\Lib\site-packages\google\auth\impersonated_credentials.py
+  - backend\venv\Lib\site-packages\google\auth\aio\credentials.py
+  - backend\venv\Lib\site-packages\google\auth\aio\__pycache__\credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\compute_engine\credentials.py
+  - backend\venv\Lib\site-packages\google\auth\compute_engine\__pycache__\credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\__pycache__\_credentials_async.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\__pycache__\_credentials_base.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\__pycache__\credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\auth\__pycache__\impersonated_credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\oauth2\_credentials_async.py
+  - backend\venv\Lib\site-packages\google\oauth2\credentials.py
+  - backend\venv\Lib\site-packages\google\oauth2\gdch_credentials.py
+  - backend\venv\Lib\site-packages\google\oauth2\__pycache__\_credentials_async.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\oauth2\__pycache__\credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\google\oauth2\__pycache__\gdch_credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\iamcredentials.v1.json
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\privateca.v1.json
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\privateca.v1beta1.json
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\secretmanager.v1.json
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\secretmanager.v1beta1.json
+  - backend\venv\Lib\site-packages\googleapiclient\discovery_cache\documents\secretmanager.v1beta2.json
+  - backend\venv\Lib\site-packages\numpy\f2py\tests\src\crackfortran\privatemod.f90
+  - backend\venv\Lib\site-packages\redis\credentials.py
+  - backend\venv\Lib\site-packages\redis\__pycache__\credentials.cpython-311.pyc
+  - backend\venv\Lib\site-packages\telegram\_passport\credentials.py
+  - backend\venv\Lib\site-packages\telegram\_passport\__pycache__\credentials.cpython-311.pyc
+  - web\node_modules\@babel\helpers\lib\helpers\checkPrivateRedeclaration.js
+  - web\node_modules\@babel\helpers\lib\helpers\checkPrivateRedeclaration.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classCheckPrivateStaticAccess.js
+  - web\node_modules\@babel\helpers\lib\helpers\classCheckPrivateStaticAccess.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classCheckPrivateStaticFieldDescriptor.js
+  - web\node_modules\@babel\helpers\lib\helpers\classCheckPrivateStaticFieldDescriptor.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldDestructureSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldDestructureSet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldGet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldGet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldGet2.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldGet2.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldInitSpec.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldInitSpec.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldLooseBase.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldLooseBase.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldLooseKey.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldLooseKey.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldSet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldSet2.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateFieldSet2.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateGetter.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateGetter.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodGet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodGet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodInitSpec.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodInitSpec.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateMethodSet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateSetter.js
+  - web\node_modules\@babel\helpers\lib\helpers\classPrivateSetter.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldDestructureSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldDestructureSet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldSpecGet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldSpecGet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldSpecSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateFieldSpecSet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateMethodGet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateMethodGet.js.map
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateMethodSet.js
+  - web\node_modules\@babel\helpers\lib\helpers\classStaticPrivateMethodSet.js.map
+  - web\node_modules\caniuse-lite\data\features\credential-management.js
+  - _trash\DATA_ROOM\.env.example
+
+
+=== TREE ===
+TraderCopilot-freshsale/
+
+
+=== FILELIST (first 300 lines) ===
+_trash\DATA_ROOM\.env.example	369	2025-12-23T22:53:11
+_trash\DATA_ROOM\api\endpoints.md	2344	2025-12-23T22:51:21
+_trash\DATA_ROOM\api\errors.md	1360	2025-12-23T22:51:34
+_trash\DATA_ROOM\api\examples\auth.json	412	2025-12-23T22:51:37
+_trash\DATA_ROOM\api\examples\scanner.json	784	2025-12-23T22:51:38
+_trash\DATA_ROOM\api\openapi.json	62657	2025-12-23T22:50:34
+_trash\DATA_ROOM\copilot\brand_guard.md	834	2025-12-23T22:52:46
+_trash\DATA_ROOM\copilot\profile.md	549	2025-12-23T22:52:49
+_trash\DATA_ROOM\copilot\prompt.md	875	2025-12-23T22:52:44
+_trash\DATA_ROOM\db\kpis.md	858	2025-12-23T22:51:57
+_trash\DATA_ROOM\db\models\models_db_reference.py	7983	2025-12-23T19:03:01
+_trash\DATA_ROOM\db\schema.md	1729	2025-12-23T22:51:52
+_trash\DATA_ROOM\evidence\smoke_outputs.txt	514	2025-12-23T22:53:29
+_trash\DATA_ROOM\frontend\components.md	834	2025-12-23T22:53:04
+_trash\DATA_ROOM\frontend\routes.md	751	2025-12-23T22:53:01
+_trash\DATA_ROOM\ops\deploy.md	733	2025-12-23T22:53:24
+_trash\DATA_ROOM\ops\quickstart.md	686	2025-12-23T22:53:09
+_trash\DATA_ROOM\ops\smoke_tests.md	577	2025-12-23T22:53:27
+_trash\DATA_ROOM\rag\pipeline.md	922	2025-12-23T22:52:41
+_trash\DATA_ROOM\rag\providers.md	686	2025-12-23T22:52:38
+_trash\DATA_ROOM\runtime\evaluations_worker.md	763	2025-12-23T22:52:18
+_trash\DATA_ROOM\runtime\scheduler.md	1738	2025-12-23T22:52:14
+_trash\DATA_ROOM\security\summary.md	846	2025-12-23T22:53:07
+_trash\DATA_ROOM\strategies\inventory.md	1093	2025-12-23T22:52:21
+_trash\DATA_ROOM\strategies\registry.md	730	2025-12-23T22:52:23
+_trash\roadmapv2.html	21974	2025-12-16T17:02:20
+.github\workflows\ci.yml	1322	2026-01-01T12:43:04
+.gitignore	610	2025-12-30T23:03:42
+audit\CHANGELOG_COMPREHENSIVE.md	6967	2026-01-06T00:29:52
+audit\REPORTE_GO_LIVE.md	4407	2026-01-06T20:15:34
+audit\REPORTE_TESTS_HARDENING.md	2700	2026-01-07T00:47:24
+backend\__init__.py	0	2025-11-18T18:39:18
+backend\.env.example	222	2025-12-30T23:03:37
+backend\.flake8	94	2026-01-01T01:52:09
+backend\.gitignore	287	2025-11-20T20:29:42
+backend\alembic.ini	4797	2025-12-30T21:03:23
+backend\alembic\env.py	2118	2026-01-01T12:23:46
+backend\alembic\README	38	2025-12-30T20:45:17
+backend\alembic\script.py.mako	704	2025-12-30T20:45:17
+backend\alembic\versions\7ee0b0b05b15_add_telegram_chat_id_to_user.py	905	2026-01-01T01:22:09
+backend\alembic\versions\d32f6e15bf54_add_timezone_to_users.py	724	2026-01-01T01:22:09
+backend\audit\detect_route_collisions.py	1025	2025-12-21T20:58:41
+backend\audit\generate_bundle.py	4154	2026-01-01T01:52:55
+backend\audit\inspect_routes.py	1375	2026-01-01T01:53:41
+backend\audit\route_evidence.json	5375	2025-12-21T20:22:36
+backend\audit\runs\20251221_202742\db_schema.sql	2660	2025-12-21T20:27:42
+backend\audit\runs\20251221_202742\env_keys.txt	310	2025-12-21T20:27:42
+backend\audit\runs\20251221_202742\openapi.json	58439	2025-12-21T20:27:42
+backend\audit\runs\20251221_202742\routes.txt	1844	2025-12-21T20:27:42
+backend\audit\runs\20251221_202742\smoke_local.txt	219	2025-12-21T20:27:52
+backend\audit\runs\20251221_202742\web_build.txt	129	2025-12-21T20:28:41
+backend\audit\runs\20251221_205155\db_schema.sql	2660	2025-12-21T20:51:55
+backend\audit\runs\20251221_205155\env_keys.txt	310	2025-12-21T20:51:57
+backend\audit\runs\20251221_205155\openapi.json	56339	2025-12-21T20:51:55
+backend\audit\runs\20251221_205155\routes.txt	1698	2025-12-21T20:51:55
+backend\audit\runs\20251221_205155\security_checks.txt	3513	2025-12-21T20:52:13
+backend\audit\runs\20251221_205155\smoke_local.txt	219	2025-12-21T20:52:07
+backend\audit\runs\20251221_205254\db_schema.sql	2660	2025-12-21T20:52:54
+backend\audit\runs\20251221_205254\env_keys.txt	310	2025-12-21T20:52:54
+backend\audit\runs\20251221_205254\openapi.json	56339	2025-12-21T20:52:54
+backend\audit\runs\20251221_205254\routes.txt	1698	2025-12-21T20:52:54
+backend\audit\runs\20251221_205254\security_checks.txt	4231	2025-12-21T20:53:12
+backend\audit\runs\20251221_205254\smoke_local.txt	219	2025-12-21T20:53:04
+backend\audit\runs\20251221_205352\db_schema.sql	2660	2025-12-21T20:53:52
+backend\audit\runs\20251221_205352\env_keys.txt	310	2025-12-21T20:53:52
+backend\audit\runs\20251221_205352\openapi.json	56339	2025-12-21T20:53:52
+backend\audit\runs\20251221_205352\routes.txt	1698	2025-12-21T20:53:52
+backend\audit\runs\20251221_205352\security_checks.txt	4417	2025-12-21T20:54:09
+backend\audit\runs\20251221_205352\smoke_local.txt	219	2025-12-21T20:54:02
+backend\audit\runs\20251221_205352\web_build.txt	129	2025-12-21T20:54:20
+backend\audit\runs\20251221_205442\db_schema.sql	2660	2025-12-21T20:54:42
+backend\audit\runs\20251221_205442\env_keys.txt	310	2025-12-21T20:54:42
+backend\audit\runs\20251221_205442\openapi.json	56339	2025-12-21T20:54:42
+backend\audit\runs\20251221_205442\routes.txt	1698	2025-12-21T20:54:42
+backend\audit\runs\20251221_205442\security_checks.txt	4839	2025-12-21T20:55:01
+backend\audit\runs\20251221_205442\smoke_local.txt	219	2025-12-21T20:54:52
+backend\audit\runs\20251221_205442\web_build.txt	129	2025-12-21T20:55:27
+backend\audit\runs\20251221_205546\db_schema.sql	2660	2025-12-21T20:55:47
+backend\audit\runs\20251221_205546\env_keys.txt	310	2025-12-21T20:55:47
+backend\audit\runs\20251221_205546\openapi.json	56339	2025-12-21T20:55:46
+backend\audit\runs\20251221_205546\routes.txt	1698	2025-12-21T20:55:46
+backend\audit\runs\20251221_205546\security_checks.txt	5685	2025-12-21T20:56:08
+backend\audit\runs\20251221_205546\smoke_local.txt	219	2025-12-21T20:55:57
+backend\audit\runs\20251221_205546\web_build.txt	129	2025-12-21T20:56:27
+backend\audit\runs\20251221_205647\db_schema.sql	2660	2025-12-21T20:56:47
+backend\audit\runs\20251221_205647\env_keys.txt	310	2025-12-21T20:56:47
+backend\audit\runs\20251221_205647\openapi.json	56339	2025-12-21T20:56:47
+backend\audit\runs\20251221_205647\routes.txt	1698	2025-12-21T20:56:47
+backend\audit\runs\20251221_205647\security_checks.txt	5561	2025-12-21T20:57:07
+backend\audit\runs\20251221_205647\smoke_local.txt	219	2025-12-21T20:56:57
+backend\audit\runs\20251221_205647\web_build.txt	129	2025-12-21T20:57:26
+backend\audit\runs\20251221_205745\db_schema.sql	2660	2025-12-21T20:57:45
+backend\audit\runs\20251221_205745\env_keys.txt	310	2025-12-21T20:57:45
+backend\audit\runs\20251221_205745\openapi.json	56339	2025-12-21T20:57:45
+backend\audit\runs\20251221_205745\routes.txt	1698	2025-12-21T20:57:45
+backend\audit\runs\20251221_205745\security_checks.txt	19543	2025-12-21T20:58:07
+backend\audit\runs\20251221_205745\smoke_local.txt	219	2025-12-21T20:57:55
+backend\audit\runs\20251221_205745\web_build.txt	129	2025-12-21T20:58:26
+backend\audit\runs\20251221_205850\db_schema.sql	2660	2025-12-21T20:58:50
+backend\audit\runs\20251221_205850\env_keys.txt	310	2025-12-21T20:58:50
+backend\audit\runs\20251221_205850\openapi.json	56339	2025-12-21T20:58:50
+backend\audit\runs\20251221_205850\routes.txt	1698	2025-12-21T20:58:50
+backend\audit\runs\20251221_205850\security_checks.txt	4263	2025-12-21T20:59:09
+backend\audit\runs\20251221_205850\smoke_local.txt	219	2025-12-21T20:59:00
+backend\audit\runs\20251221_205850\web_build.txt	129	2025-12-21T20:59:25
+backend\audit\runs\20251221_205958\db_schema.sql	2660	2025-12-21T20:59:58
+backend\audit\runs\20251221_205958\env_keys.txt	310	2025-12-21T20:59:58
+backend\audit\runs\20251221_205958\openapi.json	56339	2025-12-21T20:59:58
+backend\audit\runs\20251221_205958\routes.txt	1698	2025-12-21T20:59:58
+backend\audit\runs\20251221_205958\security_checks.txt	4467	2025-12-21T21:00:19
+backend\audit\runs\20251221_205958\smoke_local.txt	219	2025-12-21T21:00:08
+backend\audit\runs\20251221_205958\web_build.txt	129	2025-12-21T21:00:40
+backend\audit\runs\20251221_210103\db_schema.sql	2660	2025-12-21T21:01:04
+backend\audit\runs\20251221_210103\env_keys.txt	310	2025-12-21T21:01:04
+backend\audit\runs\20251221_210103\openapi.json	56339	2025-12-21T21:01:03
+backend\audit\runs\20251221_210103\routes.txt	1698	2025-12-21T21:01:03
+backend\audit\runs\20251221_210103\security_checks.txt	4473	2025-12-21T21:01:25
+backend\audit\runs\20251221_210103\smoke_local.txt	219	2025-12-21T21:01:14
+backend\audit\runs\20251221_210103\web_build.txt	129	2025-12-21T21:01:43
+backend\audit\runs\20251221_210212\db_schema.sql	2660	2025-12-21T21:02:12
+backend\audit\runs\20251221_210212\env_keys.txt	310	2025-12-21T21:02:12
+backend\audit\runs\20251221_210212\openapi.json	56339	2025-12-21T21:02:12
+backend\audit\runs\20251221_210212\routes.txt	1698	2025-12-21T21:02:12
+backend\audit\runs\20251221_210212\security_checks.txt	4268	2025-12-21T21:02:30
+backend\audit\runs\20251221_210212\smoke_local.txt	219	2025-12-21T21:02:22
+backend\audit\runs\20251221_210212\web_build.txt	129	2025-12-21T21:02:41
+backend\audit\runs\20251221_210301\db_schema.sql	2660	2025-12-21T21:03:02
+backend\audit\runs\20251221_210301\env_keys.txt	310	2025-12-21T21:03:02
+backend\audit\runs\20251221_210301\openapi.json	56339	2025-12-21T21:03:02
+backend\audit\runs\20251221_210301\routes.txt	1698	2025-12-21T21:03:02
+backend\audit\runs\20251221_210301\security_checks.txt	4293	2025-12-21T21:03:24
+backend\audit\runs\20251221_210301\smoke_local.txt	219	2025-12-21T21:03:12
+backend\audit\runs\20251221_210301\web_build.txt	129	2025-12-21T21:03:45
+backend\audit\runs\20251221_210409\db_schema.sql	2660	2025-12-21T21:04:09
+backend\audit\runs\20251221_210409\env_keys.txt	310	2025-12-21T21:04:09
+backend\audit\runs\20251221_210409\openapi.json	56339	2025-12-21T21:04:09
+backend\audit\runs\20251221_210409\routes.txt	1698	2025-12-21T21:04:09
+backend\audit\runs\20251221_210409\security_checks.txt	4851	2025-12-21T21:04:31
+backend\audit\runs\20251221_210409\smoke_local.txt	219	2025-12-21T21:04:19
+backend\audit\runs\20251221_210409\web_build.txt	129	2025-12-21T21:04:50
+backend\audit\runs\20251223_113828\db_schema.sql	2660	2025-12-23T11:38:28
+backend\audit\runs\20251223_113828\env_keys.txt	310	2025-12-23T11:38:31
+backend\audit\runs\20251223_113828\openapi.json	56411	2025-12-23T11:38:28
+backend\audit\runs\20251223_113828\routes.txt	1698	2025-12-23T11:38:28
+backend\audit\runs\20251223_113828\security_checks.txt	2047	2025-12-23T11:38:44
+backend\audit\runs\20251223_113828\smoke_local.txt	232	2025-12-23T11:38:41
+backend\audit\security_baseline.ps1	3467	2026-01-01T00:41:03
+backend\audit\test_security_matrix.py	4807	2025-12-25T10:21:15
+backend\bot_runner.py	3162	2026-01-01T01:44:28
+backend\brain\btc\insights.md	318	2025-12-15T18:53:46
+backend\brain\btc\news.txt	340	2025-12-15T18:53:50
+backend\brain\btc\onchain.txt	675	2025-12-11T00:29:06
+backend\brain\btc\sentiment.txt	349	2025-12-15T18:53:44
+backend\brain\eth\insights.md	309	2025-12-15T18:53:54
+backend\brain\eth\news.txt	313	2025-12-15T18:53:54
+backend\brain\eth\onchain.txt	719	2025-12-11T00:29:06
+backend\brain\eth\sentiment.txt	314	2025-12-15T18:53:50
+backend\brain\sol\insights.md	341	2025-12-15T18:53:40
+backend\brain\sol\news.txt	369	2025-12-15T18:53:42
+backend\brain\sol\onchain.txt	624	2025-12-11T00:29:06
+backend\brain\sol\sentiment.txt	358	2025-12-15T18:53:38
+backend\brain\xau\insights.md	25	2025-11-18T18:39:18
+backend\brain\xau\news.txt	21	2025-11-18T18:39:18
+backend\brain\xau\onchain.txt	25	2025-11-18T18:39:18
+backend\brain\xau\sentiment.txt	26	2025-11-18T18:39:18
+backend\clean_db_signals.py	896	2026-01-01T01:22:09
+backend\core\__init__.py	239	2025-11-22T19:26:58
+backend\core\ai_service.py	8361	2026-01-01T01:46:00
+backend\core\analysis_logic.py	11251	2026-01-01T01:54:12
+backend\core\backtest_engine.py	13541	2026-01-09T18:36:38
+backend\core\brand_guard.py	3694	2026-01-01T01:44:02
+backend\core\cache.py	2671	2026-01-01T01:22:10
+backend\core\config.py	1041	2026-01-01T01:22:09
+backend\core\email_sender.py	3671	2026-01-07T19:34:22
+backend\core\entitlements.py	10428	2026-01-01T12:21:28
+backend\core\format_prompt_assist.py	125	2026-01-01T01:22:09
+backend\core\format_prompt_lite.py	268	2026-01-01T12:32:56
+backend\core\format_prompt_pro.py	4372	2026-01-01T01:54:32
+backend\core\gemini_client.py.bak	2837	2025-12-12T19:30:36
+backend\core\limiter.py	735	2026-01-01T01:22:09
+backend\core\market_data_api.py	9883	2026-01-08T01:45:23
+backend\core\schemas.py	6624	2026-01-01T01:22:10
+backend\core\security.py	1327	2026-01-05T23:29:27
+backend\core\signal_evaluator.py	6405	2026-01-01T12:32:58
+backend\core\signal_logger.py	9606	2026-01-07T12:42:11
+backend\crash_output.txt	1719	2025-12-20T15:08:32
+backend\data\.gitkeep	0	2025-11-21T10:03:26
+backend\data\supported_tokens.py	1927	2026-01-01T01:22:10
+backend\database.py	2780	2026-01-06T00:14:37
+backend\debug_pnl.py	2592	2026-01-01T01:22:10
+backend\debug_stats_logic.py	2017	2026-01-01T12:21:39
+backend\debug_telegram.py	1570	2026-01-01T01:22:10
+backend\deepseek_client.py.bak	6708	2025-12-16T10:50:30
+backend\dependencies.py	1822	2026-01-08T00:57:49
+backend\domain.py	7000	2026-01-01T01:22:10
+backend\evaluated_logger.py	12575	2026-01-01T12:24:05
+backend\export_openapi.py	748	2026-01-01T01:22:10
+backend\fix_db_schema.py	1272	2026-01-01T01:22:10
+backend\fix_signals_schema.py	2901	2026-01-01T15:50:34
+backend\force_cleanup.py	811	2026-01-01T01:22:10
+backend\generate_docs.py	1868	2026-01-01T01:22:10
+backend\indicators\market.py	3052	2026-01-01T01:22:10
+backend\integration_pack\core\trading_rules\indicators.py	1460	2026-01-01T01:22:10
+backend\integration_pack\core\trading_rules\README.md	1066	2025-11-21T16:21:52
+backend\integration_pack\core\trading_rules\side_generators.py	2640	2026-01-01T01:22:10
+backend\integration_pack\core\trading_rules\signal_builder.py	2424	2026-01-01T01:22:10
+backend\integration_pack\INTEGRATION_GUIDE.md	1563	2025-11-21T16:54:40
+backend\integration_pack\strategies\implementations\donchian_strategy.py	2457	2026-01-01T01:22:10
+backend\integration_pack\strategies\implementations\trend_ma_strategy.py	2783	2026-01-01T01:22:10
+backend\integration_pack\workers\signal_evaluator.py	3002	2026-01-01T01:22:10
+backend\kill_all.ps1	1053	2025-12-12T00:57:12
+backend\logs_routes.py	8398	2026-01-01T01:54:56
+backend\main.py	25548	2026-01-08T00:58:07
+backend\manual_crash.txt	20312	2025-12-20T15:08:46
+backend\manual_db_cleanup.py	4057	2026-01-01T01:22:10
+backend\market_data.py	322	2026-01-01T01:22:10
+backend\market_data\__init__.py	2132	2026-01-01T01:44:02
+backend\market_data\models.py	946	2026-01-01T12:33:02
+backend\market_data\providers\__init__.py	135	2026-01-01T01:44:02
+backend\market_data\providers\ccxt_provider.py	2595	2026-01-01T12:33:04
+backend\marketplace_config.py	5836	2026-01-01T01:22:10
+backend\models_db.py	8518	2026-01-06T00:27:39
+backend\models.py	5377	2026-01-01T01:22:10
+backend\narrative_engine.py	9721	2026-01-01T01:56:36
+backend\notify.py	2597	2026-01-01T01:22:10
+backend\pnl_dump.txt	1037	2025-12-28T16:15:29
+backend\Procfile	51	2026-01-01T01:43:47
+backend\pyproject.toml	492	2026-01-01T01:52:22
+backend\quant_config.py	2866	2026-01-01T01:22:10
+backend\rag_context.py	5216	2026-01-01T12:34:16
+backend\railway.json	298	2026-01-01T13:17:36
+backend\README.txt	370	2025-11-18T18:39:18
+backend\repro_market.py	541	2026-01-01T15:55:57
+backend\requirements.txt	517	2026-01-03T11:25:13
+backend\reset_db_manual.py	1201	2026-01-01T01:22:10
+backend\reset_db.py	752	2026-01-01T01:22:10
+backend\route_evidence.json	4959	2025-12-23T13:04:41
+backend\routers\__init__.py	2	2025-11-18T18:32:16
+backend\routers\admin.py	6005	2026-01-08T01:30:16
+backend\routers\advisor.py	12365	2026-01-01T13:12:05
+backend\routers\analysis.py	8045	2026-01-03T16:17:59
+backend\routers\auth_new.py	15058	2026-01-09T18:24:13
+backend\routers\backtest.py	2450	2026-01-01T01:48:06
+backend\routers\compat.py	2713	2026-01-01T12:34:18
+backend\routers\logs.py	14443	2026-01-06T00:00:37
+backend\routers\market.py	1252	2026-01-01T01:22:10
+backend\routers\notifications.py	1555	2026-01-01T01:22:10
+backend\routers\stats.py	7110	2026-01-01T01:32:01
+backend\routers\strategies.py	11839	2026-01-05T23:54:29
+backend\routers\system.py	1025	2026-01-01T01:22:10
+backend\ruff_errors_2.txt	2161	2026-01-01T12:33:54
+backend\ruff_errors.txt	4754	2026-01-01T12:32:35
+backend\runtime.txt	6	2025-11-20T20:28:26
+backend\scheduler.py	15523	2026-01-07T00:26:09
+backend\scripts\apply_patches.py	2942	2026-01-07T12:42:29
+backend\scripts\fix_admin_password.py	1239	2026-01-07T20:02:27
+backend\scripts\test_email.py	2180	2026-01-07T18:36:56
+backend\seed_auth.py	2407	2026-01-01T01:22:10
+backend\seed_demo_data.py	7655	2026-01-01T01:22:11
+backend\seed_strategies.py	3527	2026-01-01T01:22:10
+backend\services\telegram_bot.py	1355	2026-01-01T01:22:10
+backend\setup_railway.py	4693	2026-01-01T01:22:10
+backend\setup_strategies.py	7335	2026-01-01T12:23:39
+backend\setup_telegram_webhook.sh	498	2025-12-20T15:26:05
+backend\smoke_test.ps1	1167	2025-11-21T14:44:04
+backend\strategies\__init__.py	801	2026-01-01T01:22:10
+backend\strategies\base.py	7517	2026-01-01T12:22:52
+backend\strategies\bb_mean_reversion.py	6363	2026-01-01T12:22:54
+backend\strategies\donchian.py	14	2025-12-16T10:28:12
+backend\strategies\DonchianBreakoutV2.py	7383	2026-01-02T19:57:59
+backend\strategies\example_rsi_macd.py	7516	2026-01-01T01:22:11
+backend\strategies\HyperScalpStrategy.py	7411	2026-01-01T12:33:15
+backend\strategies\ma_cross.py	7186	2026-01-01T12:22:56
+backend\strategies\registry.py	4317	2026-01-01T01:22:11
+backend\strategies\rsi_divergence.py	14562	2026-01-01T12:22:58
+backend\strategies\supertrend_flow.py	9769	2026-01-01T01:22:11
+backend\strategies\TrendFollowingNative.py	7793	2026-01-03T11:41:48
+backend\strategies\vwap_intraday.py	9102	2026-01-01T12:23:04
+backend\telegram_listener.py	2715	2026-01-01T12:23:42
+backend\TELEGRAM_SETUP.md	2347	2025-12-20T15:26:30
+backend\test_log.txt	4142	2026-01-01T12:56:52
+backend\test_output.txt	1632	2026-01-01T12:49:44
+backend\tests\manual_test_auth.py	2169	2026-01-01T01:22:11
+backend\tests\test_auth_flow_v2.py	2316	2026-01-01T12:57:32
+backend\tests\test_copilot_core.py	3475	2026-01-01T12:44:16
+backend\tests\test_hardening.py	11769	2026-01-07T12:42:41
+backend\theme_config.json	248	2025-12-17T16:22:14
+backend\tools\admin_upgrade.py	1243	2026-01-01T01:22:11
+backend\tools\audit_imports.py	2845	2026-01-01T01:45:58
+backend\tools\backfill_real_data.py	4414	2026-01-01T12:23:06
+backend\tools\check_db_strategies.py	732	2026-01-01T01:22:11
+backend\tools\check_gemini_models.py	753	2026-01-01T01:22:11
+backend\tools\check_pydantic_crash.py	1857	2026-01-01T01:22:11
+backend\tools\check_recent_signals.py	1008	2026-01-01T12:23:08
+backend\tools\cleanup_aggressive.py	2646	2026-01-02T21:01:19
+backend\tools\cleanup_agnostic.py	3144	2026-01-02T21:01:11
+backend\tools\cleanup_duplicates_raw.py	3048	2026-01-02T21:01:59
+backend\tools\cleanup_duplicates.py	2082	2026-01-02T21:01:37
+backend\tools\cleanup_verification.py	1907	2026-01-01T12:23:10
+backend\tools\debug_db.py	327	2026-01-01T01:22:11
+
+=== END ===

@@ -1,51 +1,34 @@
-# A-02: Demo Path (Guion Oficial)
+# A-02 Demo Path
 
-**Objetivo:** Demo replicable en 3-5 minutos sin errores visibles.
-**Setup:** `python backend/seed_strategies.py` (o equivalente) para tener logs frescos.
+**Goal**: A replicable, high-impact demo in 3-5 minutes.
 
-## 1. Login "Institucional"
-*   **Acción:** Ir a `/login`.
-*   **Input:** User: `demo@tradercopilot.com`, Pass: `demo`.
-*   **Narrativa:** "El sistema tiene autenticación segura. Entramos como 'Analista Institucional'."
-*   **Check:** Redirección rápida al Dashboard.
+## 1. The Hook (Login & Dashboard)
+- **Start**: Login Page (`/login`)
+- **Action**: Enter credentials (pre-filled or quick type).
+- **Wow Moment**: Dashboard loads with a **smooth fade-in animation**.
+- **Visuals**: "Market Health" gauge breathing, "Active Strategies" cards glowing.
 
-## 2. Dashboard & Radar (The "Hook")
-*   **Acción:** Aterrizar en `/dashboard`.
-*   **Narrativa:** "Este es el Mission Control. A la izquierda, métricas de rendimiento en tiempo real. Abajo, el Live Feed de anomalías."
-*   **Demo:**
-    *   Clic en una señal reciente (ej: ETH Scalp).
-    *   Se abre el **Tactical Drawer** (si funciona) o redirige a Details.
-    *   Mostrar métrica "Win Rate Last 24h".
+## 2. The Core (Scanner & Signals)
+- **Navigate**: Click "Scanner" (or "Signals").
+- **Action**: Show a list of recent signals (seeded data).
+- **Highlight**: Click a signal to expand details. Show "Confidence Score" and "AI Rationale".
 
-## 3. Análisis Táctico (Scanner)
-*   **Acción:** Navegar a **Scanner** (Radar icon).
-*   **Narrativa:** "Nuestro motor procesa cientos de pares. Aquí filtramos solo ALTA probabilidad."
-*   **Demo:**
-    *   Clic en el botón **Refresh**.
-    *   Explicar una tarjeta de señal (Token, Confianza, Dirección).
-    *   Clic en **Analyze** en una tarjeta.
+## 3. The Special Sauce (Strategies)
+- **Navigate**: Click "Strategies".
+- **Action**: Scroll through "Strategy Registry".
+- **Visuals**: Glass-morphic cards with "Win Rate" and "PnL" in gold/green.
+- **Micro-interaction**: Hover over a card to see "Activate" button pulse.
 
-## 4. Deep Dive Analysis (Pro)
-*   **Acción:** En la vista de análisis (Drawer o Page).
-*   **Narrativa:** "No solo es detección técnica. La IA 'Pro Analyst' lee el contexto."
-*   **Demo:**
-    *   Ver el texto generado en "Rationale".
-    *   Mencionar "Sentiment" y "Market Structure".
+## 4. The AI (Advisor)
+- **Navigate**: Click "Advisor" (or use FAB).
+- **Action**: Ask: "Why is ETH bearish today?"
+- **Response**: Streaming response with technical context (RSI, levels).
 
-## 5. Cierre (Logs & Transparency)
-*   **Acción:** Navegar a **Logs**.
-*   **Narrativa:** "Todo queda registrado. Inmutable. Auditabilidad total."
-*   **Demo:**
-    *   Filtrar por ETH.
-    *   Mostrar una señal "WIN" (verde).
+## 5. The Close (Pricing/Upgrade)
+- **Navigate**: Click "Upgrade" / "Pricing".
+- **Action**: Show "Professional" vs "Institutional" tiers.
+- **Finish**: "Ready to deploy?"
 
-## 6. (Opcional) Settings
-*   **Acción:** Settings -> Ping Telegram.
-*   **Narrativa:** "Alertas instantáneas a móvil."
-
----
-
-## 🚫 Zonas Prohibidas (No entrar en demo)
-1.  **Leaderboard**: Datos falsos.
-2.  **Membership**: Botones de pago no funcionan.
-3.  **Strategy Details -> Delete**: Puede romper el backend.
+## Recovery Path
+- If Backend fails: Have `mock_mode=True` variable in frontend config? (Future Item)
+- If Data empty: Run `scripts/seed_demo_data.py`.

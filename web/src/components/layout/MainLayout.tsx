@@ -172,10 +172,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             </button>
                         </div>
 
-                        <div className="flex items-center gap-2 justify-center py-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-[10px] text-emerald-400/80 font-bold tracking-widest font-mono">SYSTEM ONLINE</span>
-                        </div>
+
                     </div>
                 </div>
             </aside>
@@ -187,7 +184,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 
                 {/* Header */}
-                <header className="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#020617]/50 backdrop-blur-md z-30 sticky top-0">
+                <header className="h-20 flex items-center justify-between px-4 md:px-8 border-b border-white/5 bg-[#020617]/50 backdrop-blur-md z-30 sticky top-0">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(true)}

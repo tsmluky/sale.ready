@@ -7,7 +7,7 @@ Single Source of Truth: 'strategy_configs' table.
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
-import json
+import json as json_lib
 import re
 
 
@@ -97,12 +97,12 @@ async def get_marketplace(
 
         # Parse JSON lists safely
         try:
-            tokens = json.loads(c.tokens)[0] if c.tokens else "Unknown"
+            tokens = json_lib.loads(c.tokens)[0] if c.tokens else "Unknown"
         except Exception:
             tokens = c.tokens
 
         try:
-            tf = json.loads(c.timeframes)[0] if c.timeframes else "Unknown"
+            tf = json_lib.loads(c.timeframes)[0] if c.timeframes else "Unknown"
         except Exception:
             tf = c.timeframes
 
@@ -150,7 +150,7 @@ async def get_marketplace(
             try:
 
 
-                conf = json.loads(c.config_json)
+                conf = json_lib.loads(c.config_json)
                 if "frequency" in conf:
                     freq_label = conf["frequency"]
             except Exception:
@@ -206,8 +206,8 @@ async def create_persona(
         strategy_id=config.strategy_id,
         name=config.name,
         description=config.description,
-        tokens=json.dumps([config.symbol]),
-        timeframes=json.dumps([config.timeframe]),
+        tokens=json_lib.dumps([config.symbol]),
+        timeframes=json_lib.dumps([config.timeframe]),
         risk_profile=config.risk_level,
         expected_roi=config.expected_roi,
         # Default user settings
