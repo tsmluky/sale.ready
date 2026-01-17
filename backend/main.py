@@ -403,7 +403,11 @@ async def notify_telegram(
 # ==== 9. Stats & Metrics para Dashboard ====
 # Moved to routers/stats.py
 from routers.stats import router as stats_router  # noqa: E402
+<<<<<<< HEAD
 from routers.news import router as news_router  # noqa: E402
+=======
+from routers.news import router as news_router
+>>>>>>> c193391cd3ee3ad49da8aa533a4eeb487a1db0a4
 
 app.include_router(stats_router, prefix="/stats", tags=["Stats"])
 app.include_router(news_router, prefix="/news", tags=["News"])
